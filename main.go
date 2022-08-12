@@ -35,91 +35,52 @@ func (i *Ingredients) String() string {
 
 func main() {
 
-	recipeNames := []Recipe{}
+	allRecipes := []Recipe{}
 
+	// Get name for all recipe files
 	files, err := ioutil.ReadDir("recipes/")
 	if err != nil {
 		log.Fatal(err)
 	}
 
+	// Process every file and put into Recipe strucr
 	for _, file := range files {
 		fmt.Println(file.Name(), file.IsDir())
-
 		file, _ := ioutil.ReadFile(fmt.Sprintf("recipes/%s", file.Name()))
+		recipe := Recipe{}
+		_ = json.Unmarshal([]byte(file), &recipe)
 
-		data := Recipe{}
-
-		_ = json.Unmarshal([]byte(file), &data)
-
-		fmt.Println(data.Name)
-		recipeNames = append(recipeNames, data)
-		for i, ing := range data.Ings {
-			fmt.Println(i, ing)
-		}
-		for i, step := range data.Meth {
-			fmt.Println(i, step)
-		}
-
+		allRecipes = append(allRecipes, recipe)
 	}
+	log.Printf("amount of recipes=%d", len(files))
 
 	myApp := app.New()
 	myWindow := myApp.NewWindow("List Widget")
 
+	// Progress bar for adding ings
 	p := widget.NewProgressBar()
 
-	list2 := widget.NewList(
+	// Recipe list with all recipes
+	recipeList := widget.NewList(
 		func() int {
-			return len(recipeNames[1].Ings)
+			return len(allRecipes[1].Ings)
 		},
 		func() fyne.CanvasObject {
 			return widget.NewButton("template", func() {})
 		},
 		func(i widget.ListItemID, o fyne.CanvasObject) {
-			o.(*widget.Button).SetText(recipeNames[i].Name)
-			o.(*widget.Button).OnTapped = func() { addIngredientsToReminders(recipeNames[i], p) }
+			o.(*widget.Button).SetText(allRecipes[i].Name)
+			o.(*widget.Button).OnTapped = func() { addIngredientsToReminders(allRecipes[i], p) }
 			test := widget.NewButton(fmt.Sprintf("%d", i), func() { log.Println(i) })
 			o = test
 		})
 
-	// data := binding.BindStringList(
-	// 	&recipeNames[1].Ings.Ingredient_name,
-	// )
-
-	// list := widget.NewListWithData(data,
-	// 	func() fyne.CanvasObject {
-	// 		return widget.NewLabel("template")
-	// 	},
-	// 	func(i binding.DataItem, o fyne.CanvasObject) {
-	// 		o.(*widget.Label).Bind(i.(binding.String))
-	// 	})
-	// list := widget.NewList(
-	// 	func() int {
-	// 		return len(recipeNames)
-	// 	},
-	// 	func() fyne.CanvasObject {
-	// 		return widget.NewButton("template", func() {
-	// 			list2 = widget.NewList(func() int {
-	// 				return len(recipeNames)
-	// 			},
-	// 				func() fyne.CanvasObject {
-	// 					return widget.NewButton("template", func() { log.Println("go") })
-	// 				},
-	// 				func(i widget.ListItemID, o fyne.CanvasObject) {
-
-	// 				})
-	// 		})
-	// 	},
-	// 	func(i widget.ListItemID, o fyne.CanvasObject) {
-	// 		o.(*widget.Button).SetText(recipeNames[i].Name)
-	// 		o.(*widget.Button).OnTapped = func() { log.Println(fmt.Sprintf("%d epic", i)) }
-	// 	})
-
-	grid := container.New(layout.NewGridLayout(1), list2)
+	// Create content grid
+	grid := container.New(layout.NewGridLayout(1), recipeList)
 	gridTop := container.New(layout.NewGridWrapLayout(fyne.NewSize(600, 50)), p)
-	p.Resize(fyne.Size{100, 100})
-
 	masterGrid := container.New(layout.NewGridLayoutWithColumns(1), gridTop, grid)
 
+	// Set Window and execute
 	myWindow.SetFixedSize(true)
 	myWindow.Resize(fyne.Size{600, 1200})
 	myWindow.SetContent(masterGrid)
