@@ -1,11 +1,8 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	"io/ioutil"
+	"go-shopping-list/pkg/recipe"
 	"log"
-	"os/exec"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -15,44 +12,13 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-var data = []string{"a", "string", "list"}
-
-type Recipe struct {
-	Name string        `json:"recipe_name"`
-	Ings []Ingredients `json:"ingredients"`
-	Meth []string      `json:"method"`
-}
-
-type Ingredients struct {
-	Unit_size       string `json:"unit_size"`
-	Unit_type       string `json:"unit_type"`
-	Ingredient_name string `json:"ingredient_name"`
-}
-
-func (i *Ingredients) String() string {
-	return fmt.Sprintf("%s %s %s", i.Unit_size, i.Unit_type, i.Ingredient_name)
-}
-
 func main() {
 
-	allRecipes := []Recipe{}
-
-	// Get name for all recipe files
-	files, err := ioutil.ReadDir("recipes/")
+	//Fetch Recipes
+	allRecipes, err := recipe.ProcessIngredients("recipes/")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("error getting all recipes err=%e", err)
 	}
-
-	// Process every file and put into Recipe strucr
-	for _, file := range files {
-		fmt.Println(file.Name(), file.IsDir())
-		file, _ := ioutil.ReadFile(fmt.Sprintf("recipes/%s", file.Name()))
-		recipe := Recipe{}
-		_ = json.Unmarshal([]byte(file), &recipe)
-
-		allRecipes = append(allRecipes, recipe)
-	}
-	log.Printf("amount of recipes=%d", len(files))
 
 	myApp := app.New()
 	myWindow := myApp.NewWindow("List Widget")
@@ -63,47 +29,31 @@ func main() {
 	// Recipe list with all recipes
 	recipeList := widget.NewList(
 		func() int {
-			return len(allRecipes[1].Ings)
+			return len(allRecipes)
 		},
 		func() fyne.CanvasObject {
 			return widget.NewButton("template", func() {})
 		},
 		func(i widget.ListItemID, o fyne.CanvasObject) {
 			o.(*widget.Button).SetText(allRecipes[i].Name)
-			o.(*widget.Button).OnTapped = func() { addIngredientsToReminders(allRecipes[i], p) }
-			test := widget.NewButton(fmt.Sprintf("%d", i), func() { log.Println(i) })
-			o = test
+			o.(*widget.Button).OnTapped = func() { itemClicked(allRecipes[i], p) }
 		})
 
 	// Create content grid
-	grid := container.New(layout.NewGridLayout(1), recipeList)
+	grid := container.New(layout.NewGridWrapLayout(fyne.NewSize(600, 1150)), recipeList)
 	gridTop := container.New(layout.NewGridWrapLayout(fyne.NewSize(600, 50)), p)
-	masterGrid := container.New(layout.NewGridLayoutWithColumns(1), gridTop, grid)
+	masterGrid := container.New(layout.NewVBoxLayout(), gridTop, grid)
 
 	// Set Window and execute
 	myWindow.SetFixedSize(true)
-	myWindow.Resize(fyne.Size{600, 1200})
+	myWindow.Resize(fyne.Size{Width: 600, Height: 1200})
 	myWindow.SetContent(masterGrid)
 	myWindow.ShowAndRun()
-
 }
 
-var execCommand = exec.Command
-
-func addIngredientsToReminders(r Recipe, p *widget.ProgressBar) error {
-	progress := 0.0
-	for i, ing := range r.Ings {
-		progress = float64(i) / float64(len(r.Ings))
-		p.SetValue(progress)
-		log.Printf("progress=%.2f adding ing='%s'", progress, ing.String())
-		cmd := execCommand("automator", "-i", fmt.Sprintf(`"%s"`, ing.String()), "shopping.workflow")
-		_, err := cmd.CombinedOutput()
-		if err != nil {
-			log.Fatalln(err)
-		}
+func itemClicked(r recipe.Recipe, p *widget.ProgressBar) {
+	err := recipe.AddIngredientsToReminders(r, p)
+	if err != nil {
+		log.Printf("error whilst adding ingredients to reminds err=%e", err)
 	}
-	progress = 1
-	log.Printf("progress=%.2f", progress)
-	p.SetValue(progress)
-	return nil
 }
