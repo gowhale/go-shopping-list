@@ -23,6 +23,8 @@ func main() {
 	myApp := app.New()
 	myWindow := myApp.NewWindow("List Widget")
 
+	label := widget.NewLabel("Click a recipe to add the ingredients...")
+
 	// Progress bar for adding ings
 	p := widget.NewProgressBar()
 
@@ -36,12 +38,12 @@ func main() {
 		},
 		func(i widget.ListItemID, o fyne.CanvasObject) {
 			o.(*widget.Button).SetText(allRecipes[i].Name)
-			o.(*widget.Button).OnTapped = func() { itemClicked(allRecipes[i], p) }
+			o.(*widget.Button).OnTapped = func() { itemClicked(allRecipes[i], p, label) }
 		})
 
 	// Create content grid
 	grid := container.New(layout.NewGridWrapLayout(fyne.NewSize(600, 1150)), recipeList)
-	gridTop := container.New(layout.NewGridWrapLayout(fyne.NewSize(600, 50)), p)
+	gridTop := container.New(layout.NewGridWrapLayout(fyne.NewSize(600, 50)), label, p)
 	masterGrid := container.New(layout.NewVBoxLayout(), gridTop, grid)
 
 	// Set Window and execute
@@ -51,8 +53,8 @@ func main() {
 	myWindow.ShowAndRun()
 }
 
-func itemClicked(r recipe.Recipe, p *widget.ProgressBar) {
-	err := recipe.AddIngredientsToReminders(r, p)
+func itemClicked(r recipe.Recipe, p *widget.ProgressBar, l *widget.Label) {
+	err := recipe.AddIngredientsToReminders(r, p, l)
 	if err != nil {
 		log.Printf("error whilst adding ingredients to reminds err=%e", err)
 	}

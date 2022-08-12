@@ -134,12 +134,14 @@ func ProcessIngredients(recipeFolder string) ([]Recipe, error) {
 
 var execCommand = exec.Command
 
-func AddIngredientsToReminders(r Recipe, p *widget.ProgressBar) error {
+func AddIngredientsToReminders(r Recipe, p *widget.ProgressBar, l *widget.Label) error {
 	if err := IncrementPopularity(r.Name); err != nil {
 		return err
 	}
 	progress := 0.0
 	for i, ing := range r.Ings {
+		l.SetText(fmt.Sprintf("Adding Ingredient: %s", ing.String()))
+		l.Refresh()
 		progress = float64(i) / float64(len(r.Ings))
 		p.SetValue(progress)
 		log.Printf("progress=%.2f adding ing='%s'", progress, ing.String())
@@ -152,5 +154,7 @@ func AddIngredientsToReminders(r Recipe, p *widget.ProgressBar) error {
 	progress = 1
 	log.Printf("progress=%.2f", progress)
 	p.SetValue(progress)
+	l.SetText("Finished. Select another recipe to add more.")
+	l.Refresh()
 	return nil
 }
