@@ -7,7 +7,7 @@ import (
 	"os/exec"
 	"sync"
 
-	"fyne.io/fyne/v2/widget"
+	"fyne.io/fyne/widget"
 )
 
 var execCommand = exec.Command

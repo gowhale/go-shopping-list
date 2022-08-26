@@ -5,11 +5,10 @@ import (
 	"go-shopping-list/pkg/workflows"
 	"log"
 
-	"fyne.io/fyne/v2"
-	"fyne.io/fyne/v2/app"
-	"fyne.io/fyne/v2/container"
-	"fyne.io/fyne/v2/layout"
-	"fyne.io/fyne/v2/widget"
+	"fyne.io/fyne"
+	"fyne.io/fyne/app"
+	"fyne.io/fyne/container"
+	"fyne.io/fyne/widget"
 )
 
 func NewApp(recipes []recipe.Recipe) fyne.Window {
@@ -36,9 +35,9 @@ func NewApp(recipes []recipe.Recipe) fyne.Window {
 		})
 
 	// Create content grid
-	grid := container.New(layout.NewGridWrapLayout(fyne.NewSize(600, 1150)), recipeList)
-	gridTop := container.New(layout.NewGridWrapLayout(fyne.NewSize(600, 50)), label, p)
-	masterGrid := container.New(layout.NewVBoxLayout(), gridTop, grid)
+	grid := container.NewAdaptiveGrid(1, recipeList)
+	gridTop := container.NewAdaptiveGrid(1, label, p)
+	masterGrid := container.NewVBox(gridTop, grid)
 
 	// Set Window and execute
 	myWindow.SetFixedSize(true)
