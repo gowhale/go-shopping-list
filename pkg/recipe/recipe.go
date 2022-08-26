@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-
-	"github.com/bradfitz/slice"
 )
 
 const (
@@ -122,9 +120,9 @@ func ProcessIngredients(recipeFolder string) ([]Recipe, error) {
 		}
 	}
 
-	slice.Sort(allRecipes[:], func(i, j int) bool {
-		return allRecipes[i].Count > allRecipes[j].Count
-	})
+	// slice.Sort(allRecipes[:], func(i, j int) bool {
+	// 	return allRecipes[i].Count > allRecipes[j].Count
+	// })
 
 	log.Printf("amount of recipes=%d", len(allRecipes))
 	return allRecipes, nil
