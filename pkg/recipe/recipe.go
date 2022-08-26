@@ -3,6 +3,7 @@ package recipe
 import (
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"io/ioutil"
 	"log"
 
@@ -39,17 +40,29 @@ func (i *Ingredients) String() string {
 	return fmt.Sprintf("%s %s %s", i.Unit_size, i.Unit_type, i.Ingredient_name)
 }
 
-func IncrementPopularity(recipeName string) error {
+func (f *FileInteractionImpl) LoadPopularityFile() (Popularity, error) {
 	file, err := ioutil.ReadFile(popularityFileName)
 	if err != nil {
-		return err
+		return Popularity{}, err
 	}
 	pop := Popularity{}
-	err = json.Unmarshal([]byte(file), &pop)
+	return pop, json.Unmarshal([]byte(file), &pop)
+}
+
+func (f *FileInteractionImpl) WritePopularityFile(pop Popularity) error {
+	newFile, err := json.MarshalIndent(pop, "", " ")
 	if err != nil {
-		log.Printf("error unmarshalling file=%s", popularityFileName)
 		return err
 	}
+	return ioutil.WriteFile(popularityFileName, newFile, 0644)
+}
+
+func (f *FileInteractionImpl) IncrementPopularity(recipeName string) error {
+	pop, err := f.LoadPopularityFile()
+	if err != nil {
+		return err
+	}
+
 	updateIndex := -1
 	for i, p := range pop.Pop {
 		if recipeName == p.Name {
@@ -57,19 +70,27 @@ func IncrementPopularity(recipeName string) error {
 		}
 	}
 	pop.Pop[updateIndex].Count++
-	newFile, _ := json.MarshalIndent(pop, "", " ")
 
-	_ = ioutil.WriteFile(popularityFileName, newFile, 0644)
-	return nil
+	return f.WritePopularityFile(pop)
 }
 
-func GetPopularity(recipeName string) (int, error) {
-	file, err := ioutil.ReadFile(popularityFileName)
-	if err != nil {
-		return -1, err
-	}
-	pop := Popularity{}
-	err = json.Unmarshal([]byte(file), &pop)
+//go:generate go run github.com/vektra/mockery/cmd/mockery -name FileReader -inpkg --filename file_reader_mock.go
+type FileReader interface {
+	ReadRecipeDirectory(recipeFolder string) ([]fs.FileInfo, error)
+	ReadRecipeFile(fileName fs.FileInfo) (Recipe, error)
+	GetPopularity(recipeName string) (int, error)
+	LoadPopularityFile() (Popularity, error)
+	WritePopularityFile(pop Popularity) error
+}
+
+type FileInteractionImpl struct{}
+
+func (f *FileInteractionImpl) GetPopularity(recipeName string) (int, error) {
+	return GetPopularityImpl(f, recipeName)
+}
+
+func GetPopularityImpl(f FileReader, recipeName string) (int, error) {
+	pop, err := f.LoadPopularityFile()
 	if err != nil {
 		log.Printf("error unmarshalling file=%s", popularityFileName)
 		return -1, err
@@ -84,37 +105,38 @@ func GetPopularity(recipeName string) (int, error) {
 	if val, ok := mapOfPops[recipeName]; ok {
 		return val, nil
 	}
-
 	pop.Pop = append(pop.Pop, RecipePopularity{Name: recipeName, Count: 0})
-	newFile, _ := json.MarshalIndent(pop, "", " ")
-
-	_ = ioutil.WriteFile(popularityFileName, newFile, 0644)
-	return 0, nil
+	return 0, f.WritePopularityFile(pop)
 }
 
-func ProcessIngredients(recipeFolder string) ([]Recipe, error) {
-	allRecipes := []Recipe{}
+func (*FileInteractionImpl) ReadRecipeDirectory(recipeFolder string) ([]fs.FileInfo, error) {
+	return ioutil.ReadDir(recipeFolder)
+}
 
-	// Get name for all recipe files
-	files, err := ioutil.ReadDir(recipeFolder)
+func (*FileInteractionImpl) ReadRecipeFile(fileName fs.FileInfo) (Recipe, error) {
+	file, err := ioutil.ReadFile(fmt.Sprintf("recipes/%s", fileName.Name()))
+	if err != nil {
+		return Recipe{}, err
+	}
+	recipe := Recipe{}
+	return recipe, json.Unmarshal([]byte(file), &recipe)
+}
+
+func ProcessIngredients(f FileReader, recipeFolder string) ([]Recipe, error) {
+	files, err := f.ReadRecipeDirectory(recipeFolder)
 	if err != nil {
 		return nil, err
 	}
 
 	// Process every file and put into Recipe strucr
+	allRecipes := []Recipe{}
 	for _, fileName := range files {
 		if !fileName.IsDir() {
-			file, err := ioutil.ReadFile(fmt.Sprintf("recipes/%s", fileName.Name()))
+			recipe, err := f.ReadRecipeFile(fileName)
 			if err != nil {
 				return nil, err
 			}
-			recipe := Recipe{}
-			err = json.Unmarshal([]byte(file), &recipe)
-			if err != nil {
-				log.Printf("error for file=%s", fileName)
-				return nil, err
-			}
-			recipe.Count, err = GetPopularity(recipe.Name)
+			recipe.Count, err = f.GetPopularity(recipe.Name)
 			if err != nil {
 				return nil, err
 			}

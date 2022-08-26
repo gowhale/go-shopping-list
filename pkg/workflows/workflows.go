@@ -16,7 +16,7 @@ func runReminder(p *widget.ProgressBar, l *widget.Label, currentIng recipe.Ingre
 	cmd := execCommand("automator", "-i", fmt.Sprintf(`"%s"`, currentIng.String()), "shopping.workflow")
 	_, err := cmd.CombinedOutput()
 	if err != nil {
-		fmt.Printf("error adding the following ingredient=%s err=%e", currentIng.String(), err)
+		fmt.Sprintf("error adding the following ingredient=%s err=%e", currentIng.String(), err)
 	}
 	l.SetText(fmt.Sprintf("Added Ingredient: %s", currentIng.String()))
 	l.Refresh()
@@ -25,7 +25,8 @@ func runReminder(p *widget.ProgressBar, l *widget.Label, currentIng recipe.Ingre
 func AddIngredientsToReminders(r recipe.Recipe, p *widget.ProgressBar, l *widget.Label) error {
 	l.SetText(fmt.Sprintf("Starting to add ingredients for Recipe: %s", r.Name))
 	l.Refresh()
-	if err := recipe.IncrementPopularity(r.Name); err != nil {
+	f := recipe.FileInteractionImpl{}
+	if err := f.IncrementPopularity(r.Name); err != nil {
 		return err
 	}
 	progress := 0.0
