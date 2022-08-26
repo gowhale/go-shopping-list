@@ -5,9 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"os/exec"
 
-	"fyne.io/fyne/v2/widget"
 	"github.com/bradfitz/slice"
 )
 
@@ -130,31 +128,4 @@ func ProcessIngredients(recipeFolder string) ([]Recipe, error) {
 
 	log.Printf("amount of recipes=%d", len(allRecipes))
 	return allRecipes, nil
-}
-
-var execCommand = exec.Command
-
-func AddIngredientsToReminders(r Recipe, p *widget.ProgressBar, l *widget.Label) error {
-	if err := IncrementPopularity(r.Name); err != nil {
-		return err
-	}
-	progress := 0.0
-	for i, ing := range r.Ings {
-		l.SetText(fmt.Sprintf("Adding Ingredient: %s", ing.String()))
-		l.Refresh()
-		progress = float64(i) / float64(len(r.Ings))
-		p.SetValue(progress)
-		log.Printf("progress=%.2f adding ing='%s'", progress, ing.String())
-		cmd := execCommand("automator", "-i", fmt.Sprintf(`"%s"`, ing.String()), "shopping.workflow")
-		_, err := cmd.CombinedOutput()
-		if err != nil {
-			return fmt.Errorf("error adding the following ingredient=%s err=%e", ing.String(), err)
-		}
-	}
-	progress = 1
-	log.Printf("progress=%.2f", progress)
-	p.SetValue(progress)
-	l.SetText("Finished. Select another recipe to add more.")
-	l.Refresh()
-	return nil
 }
