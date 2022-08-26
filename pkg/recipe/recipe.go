@@ -5,10 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"os/exec"
-	"sync"
 
-	"fyne.io/fyne/v2/widget"
 	"github.com/bradfitz/slice"
 )
 
@@ -131,50 +128,4 @@ func ProcessIngredients(recipeFolder string) ([]Recipe, error) {
 
 	log.Printf("amount of recipes=%d", len(allRecipes))
 	return allRecipes, nil
-}
-
-var execCommand = exec.Command
-
-func runReminder(p *widget.ProgressBar, l *widget.Label, currentIng Ingredients) {
-	cmd := execCommand("automator", "-i", fmt.Sprintf(`"%s"`, currentIng.String()), "shopping.workflow")
-	_, err := cmd.CombinedOutput()
-	if err != nil {
-		fmt.Sprintf("error adding the following ingredient=%s err=%e", currentIng.String(), err)
-	}
-	l.SetText(fmt.Sprintf("Added Ingredient: %s", currentIng.String()))
-	l.Refresh()
-}
-
-func AddIngredientsToReminders(r Recipe, p *widget.ProgressBar, l *widget.Label) error {
-	l.SetText(fmt.Sprintf("Starting to add ingredients for Recipe: %s", r.Name))
-	l.Refresh()
-	if err := IncrementPopularity(r.Name); err != nil {
-		return err
-	}
-	progress := 0.0
-	p.SetValue(progress)
-	p.Refresh()
-	ingAdded := []Ingredients{}
-	var wg sync.WaitGroup
-	for _, ing := range r.Ings {
-		wg.Add(1)
-		go func() {
-			runReminder(p, l, ing)
-			defer func() {
-				wg.Done()
-				ing := ing
-				ingAdded = append(ingAdded, ing)
-				progress = float64(len(ingAdded)) / float64(len(r.Ings))
-				p.SetValue(progress)
-				log.Printf("progress=%.2f adding ing='%s'", progress, ing.String())
-			}()
-		}()
-	}
-	wg.Wait()
-	progress = 1
-	log.Printf("progress=%.2f", progress)
-	p.SetValue(progress)
-	l.SetText("Finished. Select another recipe to add more.")
-	l.Refresh()
-	return nil
 }

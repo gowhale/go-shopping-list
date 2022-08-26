@@ -2,6 +2,7 @@ package gui
 
 import (
 	"go-shopping-list/pkg/recipe"
+	"go-shopping-list/pkg/workflows"
 	"log"
 
 	"fyne.io/fyne/v2"
@@ -48,7 +49,7 @@ func NewApp(recipes []recipe.Recipe) fyne.Window {
 }
 
 func itemClicked(r recipe.Recipe, p *widget.ProgressBar, l *widget.Label) {
-	err := recipe.AddIngredientsToReminders(r, p, l)
+	err := workflows.AddIngredientsToReminders(r, p, l)
 	if err != nil {
 		log.Printf("error whilst adding ingredients to reminds err=%e", err)
 	}
