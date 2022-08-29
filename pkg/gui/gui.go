@@ -1,9 +1,11 @@
 package gui
 
 import (
+	"fmt"
 	"go-shopping-list/pkg/recipe"
-	"go-shopping-list/pkg/workflows"
 	"log"
+	"os/exec"
+	"sync"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -11,6 +13,34 @@ import (
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 )
+
+type screen struct {
+	p *widget.ProgressBar
+	l *widget.Label
+}
+
+//go:generate go run github.com/vektra/mockery/cmd/mockery -name ScreenInterface -inpkg --filename screen_mock.go
+type ScreenInterface interface {
+	UpdateProgessBar(float64)
+	UpdateLabel(string)
+}
+
+type macWorkflow struct{}
+
+//go:generate go run github.com/vektra/mockery/cmd/mockery -name WorkflowInterface -inpkg --filename workflow_mock.go
+type WorkflowInterface interface {
+	runReminder(s ScreenInterface, currentIng recipe.Ingredients) error
+}
+
+func (s *screen) UpdateProgessBar(percent float64) {
+	s.p.SetValue(percent)
+	s.p.Refresh()
+}
+
+func (s *screen) UpdateLabel(msg string) {
+	s.l.SetText(msg)
+	s.l.Refresh()
+}
 
 func NewApp(recipes []recipe.Recipe) fyne.Window {
 
@@ -22,18 +52,15 @@ func NewApp(recipes []recipe.Recipe) fyne.Window {
 	// Progress bar for adding ings
 	p := widget.NewProgressBar()
 
+	s := &screen{
+		l: label,
+		p: p,
+	}
+
+	w := macWorkflow{}
+
 	// Recipe list with all recipes
-	recipeList := widget.NewList(
-		func() int {
-			return len(recipes)
-		},
-		func() fyne.CanvasObject {
-			return widget.NewButton("template", func() {})
-		},
-		func(i widget.ListItemID, o fyne.CanvasObject) {
-			o.(*widget.Button).SetText(recipes[i].Name)
-			o.(*widget.Button).OnTapped = func() { itemClicked(recipes[i], p, label) }
-		})
+	recipeList := createNewListOfRecipes(s, &recipe.FileInteractionImpl{}, &w, recipes)
 
 	// Create content grid
 	grid := container.New(layout.NewGridWrapLayout(fyne.NewSize(600, 1150)), recipeList)
@@ -48,9 +75,70 @@ func NewApp(recipes []recipe.Recipe) fyne.Window {
 	return myWindow
 }
 
-func itemClicked(r recipe.Recipe, p *widget.ProgressBar, l *widget.Label) {
-	err := workflows.AddIngredientsToReminders(r, p, l)
+func createNewListOfRecipes(s ScreenInterface, f recipe.FileReader, w WorkflowInterface, recipes []recipe.Recipe) *widget.List {
+	// Recipe list with all recipes
+	return widget.NewList(
+		func() int {
+			return len(recipes)
+		},
+		func() fyne.CanvasObject {
+			return widget.NewButton("template", func() {})
+		},
+		func(i widget.ListItemID, o fyne.CanvasObject) {
+			o.(*widget.Button).SetText(recipes[i].Name)
+			o.(*widget.Button).OnTapped = func() { itemClicked(s, recipes[i], f, w) }
+		})
+}
+
+func itemClicked(s ScreenInterface, r recipe.Recipe, f recipe.FileReader, w WorkflowInterface) {
+	err := AddIngredientsToReminders(r, s, f, w)
 	if err != nil {
 		log.Printf("error whilst adding ingredients to reminds err=%e", err)
 	}
+}
+
+func AddIngredientsToReminders(r recipe.Recipe, s ScreenInterface, f recipe.FileReader, w WorkflowInterface) error {
+	s.UpdateLabel(fmt.Sprintf("Starting to add ingredients for Recipe: %s", r.Name))
+	if err := f.IncrementPopularity(r.Name); err != nil {
+		return err
+	}
+	progress := float64(0.0)
+	s.UpdateProgessBar(progress)
+	ingAdded := []recipe.Ingredients{}
+	var wg sync.WaitGroup
+	for _, ing := range r.Ings {
+		wg.Add(1)
+		ing := ing
+		go func() {
+			if err := w.runReminder(s, ing); err != nil {
+				log.Panicln(err)
+			}
+			defer func() {
+				wg.Done()
+				ingAdded = append(ingAdded, ing)
+				progress = float64(len(ingAdded)) / float64(len(r.Ings))
+				s.UpdateProgessBar(progress)
+				log.Printf("progress=%.2f adding ing='%s'", progress, ing.String())
+			}()
+		}()
+	}
+	wg.Wait()
+
+	progress = 1
+	log.Printf("progress=%.2f", progress)
+	s.UpdateProgessBar(progress)
+	s.UpdateLabel("Finished. Select another recipe to add more.")
+	return nil
+}
+
+var execCommand = exec.Command
+
+func (*macWorkflow) runReminder(s ScreenInterface, currentIng recipe.Ingredients) error {
+	cmd := execCommand("automator", "-i", fmt.Sprintf(`"%s"`, currentIng.String()), "shopping.workflow")
+	_, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("error adding the following ingredient=%s err=%e", currentIng.String(), err)
+	}
+	s.UpdateLabel(fmt.Sprintf("Added Ingredient: %s", currentIng.String()))
+	return nil
 }
