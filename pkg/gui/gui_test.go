@@ -1,6 +1,7 @@
 package gui
 
 import (
+	"fmt"
 	"go-shopping-list/pkg/recipe"
 	"testing"
 
@@ -47,4 +48,46 @@ func (g *guiTest) Test_AddIngredientsToReminders_Pass() {
 	g.mockFileReader.On("IncrementPopularity", "APPLE").Return(nil)
 	err := AddIngredientsToReminders(testRecipe, g.mockScreen, g.mockFileReader, g.mockWorkflow)
 	g.Nil(err)
+}
+
+func (g *guiTest) Test_AddIngredientsToReminders_IncrementPopularity_Error() {
+	ing := recipe.Ingredients{
+		Unit_size:       "PEAR",
+		Unit_type:       "BANANA",
+		Ingredient_name: "RASPBERRY",
+	}
+	testRecipe := recipe.Recipe{
+		Name: "APPLE",
+		Ings: []recipe.Ingredients{ing},
+	}
+	g.mockScreen.On("UpdateLabel", "Starting to add ingredients for Recipe: APPLE")
+	g.mockScreen.On("UpdateProgessBar", float64(0.0))
+	g.mockScreen.On("UpdateProgessBar", float64(1.0))
+	g.mockScreen.On("UpdateLabel", "Finished. Select another recipe to add more.")
+	g.mockWorkflow.On("runReminder", g.mockScreen, ing).Return(nil)
+	g.mockFileReader.On("IncrementPopularity", "APPLE").Return(fmt.Errorf("pop error"))
+	err := AddIngredientsToReminders(testRecipe, g.mockScreen, g.mockFileReader, g.mockWorkflow)
+	g.EqualError(err, "pop error")
+}
+
+func (g *guiTest) Test_AddIngredientsToReminders_runReminder_Error() {
+	ing := recipe.Ingredients{
+		Unit_size:       "PEAR",
+		Unit_type:       "BANANA",
+		Ingredient_name: "RASPBERRY",
+	}
+
+	testRecipe := recipe.Recipe{
+		Name: "APPLE",
+		Ings: []recipe.Ingredients{ing},
+	}
+
+	g.mockScreen.On("UpdateLabel", "Starting to add ingredients for Recipe: APPLE")
+	g.mockScreen.On("UpdateProgessBar", float64(0.0))
+	g.mockScreen.On("UpdateProgessBar", float64(1.0))
+	g.mockScreen.On("UpdateLabel", "Finished. Select another recipe to add more.")
+	g.mockWorkflow.On("runReminder", g.mockScreen, ing).Return(fmt.Errorf("reminder error"))
+	g.mockFileReader.On("IncrementPopularity", "APPLE").Return(nil)
+	err := AddIngredientsToReminders(testRecipe, g.mockScreen, g.mockFileReader, g.mockWorkflow)
+	g.EqualError(err, "reminder error")
 }

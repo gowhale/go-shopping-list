@@ -5,13 +5,13 @@ import (
 	"go-shopping-list/pkg/recipe"
 	"log"
 	"os/exec"
-	"sync"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
+	"golang.org/x/sync/errgroup"
 )
 
 type screen struct {
@@ -99,31 +99,35 @@ func itemClicked(s ScreenInterface, r recipe.Recipe, f recipe.FileReader, w Work
 
 func AddIngredientsToReminders(r recipe.Recipe, s ScreenInterface, f recipe.FileReader, w WorkflowInterface) error {
 	s.UpdateLabel(fmt.Sprintf("Starting to add ingredients for Recipe: %s", r.Name))
-	if err := f.IncrementPopularity(r.Name); err != nil {
-		return err
-	}
+
 	progress := float64(0.0)
 	s.UpdateProgessBar(progress)
 	ingAdded := []recipe.Ingredients{}
-	var wg sync.WaitGroup
+
+	g := new(errgroup.Group)
 	for _, ing := range r.Ings {
-		wg.Add(1)
 		ing := ing
-		go func() {
+		g.Go(func() error {
 			if err := w.runReminder(s, ing); err != nil {
-				log.Panicln(err)
+				return err
 			}
 			defer func() {
-				wg.Done()
 				ingAdded = append(ingAdded, ing)
 				progress = float64(len(ingAdded)) / float64(len(r.Ings))
 				s.UpdateProgessBar(progress)
 				log.Printf("progress=%.2f adding ing='%s'", progress, ing.String())
 			}()
-		}()
+			return nil
+		})
 	}
-	wg.Wait()
+	if err := g.Wait(); err != nil {
+		return err
+	}
 
+	if err := f.IncrementPopularity(r.Name); err != nil {
+		return err
+	}
+	
 	progress = 1
 	log.Printf("progress=%.2f", progress)
 	s.UpdateProgessBar(progress)
