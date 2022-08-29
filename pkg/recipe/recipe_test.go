@@ -41,7 +41,7 @@ func (r *recipeTest) Test_ReadRecipeFile_Pass() {
 	}
 	r.mockFileReader.On("ReadFile", &mockFileInfo{}).Return(testByte, nil)
 	r.mockFileReader.On("UnmarshallJSON", testByte).Return(expectedRecipe, nil)
-	recipe, err := ReadRecipeFile(r.mockFileReader, &mockFileInfo{})
+	recipe, err := ReadRecipeFileImpl(r.mockFileReader, &mockFileInfo{})
 	r.Nil(err)
 	r.Equal(expectedRecipe, recipe)
 }
@@ -49,7 +49,7 @@ func (r *recipeTest) Test_ReadRecipeFile_Pass() {
 func (r *recipeTest) Test_ReadRecipeFile_Error() {
 	testByte := []byte{}
 	r.mockFileReader.On("ReadFile", &mockFileInfo{}).Return(testByte, fmt.Errorf("read file error"))
-	recipe, err := ReadRecipeFile(r.mockFileReader, &mockFileInfo{})
+	recipe, err := ReadRecipeFileImpl(r.mockFileReader, &mockFileInfo{})
 	r.EqualError(err, "read file error")
 	r.Equal(Recipe{}, recipe)
 }

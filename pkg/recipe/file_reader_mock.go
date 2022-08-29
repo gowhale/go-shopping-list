@@ -34,6 +34,20 @@ func (_m *MockFileReader) GetPopularity(recipeName string) (int, error) {
 	return r0, r1
 }
 
+// IncrementPopularity provides a mock function with given fields: recipeName
+func (_m *MockFileReader) IncrementPopularity(recipeName string) error {
+	ret := _m.Called(recipeName)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(recipeName)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // LoadPopularityFile provides a mock function with given fields:
 func (_m *MockFileReader) LoadPopularityFile() (Popularity, error) {
 	ret := _m.Called()
