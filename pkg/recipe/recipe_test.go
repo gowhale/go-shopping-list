@@ -72,13 +72,13 @@ func (r *recipeTest) Test_IncrementPopularity_Pass() {
 
 	r.mockFileReader.On("LoadPopularityFile").Return().Return(mockPopBefore, nil)
 	r.mockFileReader.On("WritePopularityFile", mockPopAfter).Return(nil)
-	err := IncrementPopularity(r.mockFileReader, "DURIAN")
+	err := IncrementPopularityImpl(r.mockFileReader, "DURIAN")
 	r.Nil(err)
 }
 
 func (r *recipeTest) Test_IncrementPopularity_Error() {
 	r.mockFileReader.On("LoadPopularityFile").Return().Return(Popularity{}, fmt.Errorf("load error"))
-	err := IncrementPopularity(r.mockFileReader, "DURIAN")
+	err := IncrementPopularityImpl(r.mockFileReader, "DURIAN")
 	r.EqualError(err, "load error")
 }
 
