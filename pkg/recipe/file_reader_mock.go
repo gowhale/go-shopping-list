@@ -55,6 +55,29 @@ func (_m *MockFileReader) LoadPopularityFile() (Popularity, error) {
 	return r0, r1
 }
 
+// ReadFile provides a mock function with given fields: fileName
+func (_m *MockFileReader) ReadFile(fileName fs.FileInfo) ([]byte, error) {
+	ret := _m.Called(fileName)
+
+	var r0 []byte
+	if rf, ok := ret.Get(0).(func(fs.FileInfo) []byte); ok {
+		r0 = rf(fileName)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]byte)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(fs.FileInfo) error); ok {
+		r1 = rf(fileName)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // ReadRecipeDirectory provides a mock function with given fields: recipeFolder
 func (_m *MockFileReader) ReadRecipeDirectory(recipeFolder string) ([]fs.FileInfo, error) {
 	ret := _m.Called(recipeFolder)
@@ -92,6 +115,27 @@ func (_m *MockFileReader) ReadRecipeFile(fileName fs.FileInfo) (Recipe, error) {
 	var r1 error
 	if rf, ok := ret.Get(1).(func(fs.FileInfo) error); ok {
 		r1 = rf(fileName)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// UnmarshallJSON provides a mock function with given fields: file
+func (_m *MockFileReader) UnmarshallJSON(file []byte) (Recipe, error) {
+	ret := _m.Called(file)
+
+	var r0 Recipe
+	if rf, ok := ret.Get(0).(func([]byte) Recipe); ok {
+		r0 = rf(file)
+	} else {
+		r0 = ret.Get(0).(Recipe)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func([]byte) error); ok {
+		r1 = rf(file)
 	} else {
 		r1 = ret.Error(1)
 	}
