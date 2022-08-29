@@ -3,6 +3,7 @@
 package recipe
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/fs"
 
@@ -234,4 +235,35 @@ func (r *recipeTest) Test_ReadRecipeDirectory_Error() {
 	recipes, err := ProcessIngredients(r.mockFileReader, "EPIC")
 	r.Nil(recipes)
 	r.EqualError(err, "read dir error")
+}
+
+func (r *recipeTest) Test_UnmarshallJSONToRecipe_Pass() {
+	mf := FileInteractionImpl{}
+	expected := Recipe{
+		Name:  "DURIAN",
+		Ings:  nil,
+		Meth:  nil,
+		Count: 0,
+	}
+	bytes, err := json.Marshal(expected)
+	r.Nil(err)
+	result, err := mf.UnmarshallJSONToRecipe(bytes)
+	r.Equal(expected, result)
+	r.Nil(err)
+}
+
+func (r *recipeTest) Test_UnmarshallJSONToPopularity_Pass() {
+	mf := FileInteractionImpl{}
+	rp := []RecipePopularity{{
+		Name:  "Apple",
+		Count: 5,
+	}}
+	mockPop := Popularity{
+		Pop: rp,
+	}
+	bytes, err := json.Marshal(mockPop)
+	r.Nil(err)
+	result, err := mf.UnmarshallJSONToPopularity(bytes)
+	r.Equal(mockPop, result)
+	r.Nil(err)
 }
