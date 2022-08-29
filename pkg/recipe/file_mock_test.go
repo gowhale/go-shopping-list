@@ -23,9 +23,9 @@ func (r *fileMockTest) Test_mockFileInfo() {
 	mf := mockFileInfo{}
 
 	r.Equal("DURIAN", mf.Name())
-	r.Equal(mf.Size(), int64(1))
-	r.Equal(mf.Mode(), fs.FileMode(1))
-	r.Equal(mf.ModTime(), time.Date(1998, time.April, 6, 0, 0, 0, 0, time.UTC))
-	r.Equal(mf.IsDir(), false)
-	r.Equal(mf.Sys(), "APPLE")
+	r.Equal(int64(1), mf.Size())
+	r.Equal(fs.FileMode(1), mf.Mode())
+	r.Equal(time.Date(1998, time.April, 6, 0, 0, 0, 0, time.UTC), mf.ModTime())
+	r.Equal(false, mf.IsDir())
+	r.Equal("APPLE", mf.Sys())
 }
