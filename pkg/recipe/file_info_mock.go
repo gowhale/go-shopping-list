@@ -9,7 +9,7 @@ type mockFileInfo struct{}
 
 func (*mockFileInfo) Name() string {
 	return "DURIAN"
-} // base name of the file
+} 
 func (*mockFileInfo) Size() int64 {
 	return 1
 } // length in bytes for regular files; system-dependent for others

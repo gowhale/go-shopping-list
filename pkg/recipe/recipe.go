@@ -19,60 +19,66 @@ type FileReader interface {
 	GetPopularity(recipeName string) (int, error)
 	IncrementPopularity(recipeName string) error
 	LoadPopularityFile() (Popularity, error)
+	MarshallJSON(pop Popularity) ([]byte, error)
 	ReadRecipeDirectory(recipeFolder string) ([]fs.FileInfo, error)
-	ReadRecipeFile(fileName fs.FileInfo) (Recipe, error)
-	ReadFile(fileName fs.FileInfo) ([]byte, error)
-	UnmarshallJSON(file []byte) (Recipe, error)
+	LoadRecipeFile(fileName fs.FileInfo) (Recipe, error)
+	ReadFile(filePath string) ([]byte, error)
+	UnmarshallJSONToPopularity(file []byte) (Popularity, error)
+	UnmarshallJSONToRecipe(file []byte) (Recipe, error)
 	WritePopularityFile(pop Popularity) error
+	WriteFile(newFile []byte) error
 }
 
 type FileInteractionImpl struct{}
 
 func (f *FileInteractionImpl) GetPopularity(recipeName string) (int, error) {
-	return GetPopularityImpl(f, recipeName)
+	return getPopularityImpl(f, recipeName)
 }
 
 func (f *FileInteractionImpl) IncrementPopularity(recipeName string) error {
-	return IncrementPopularityImpl(f, recipeName)
+	return incrementPopularityImpl(f, recipeName)
 }
 
 func (f *FileInteractionImpl) LoadPopularityFile() (Popularity, error) {
-	file, err := ioutil.ReadFile(popularityFileName)
-	if err != nil {
-		return Popularity{}, err
-	}
-	pop := Popularity{}
-	return pop, json.Unmarshal([]byte(file), &pop)
+	return loadPopularityFileImpl(f)
 }
 
 func (*FileInteractionImpl) ReadRecipeDirectory(recipeFolder string) ([]fs.FileInfo, error) {
 	return ioutil.ReadDir(recipeFolder)
 }
 
-func (f *FileInteractionImpl) ReadRecipeFile(fileName fs.FileInfo) (Recipe, error) {
-	return ReadRecipeFileImpl(f, fileName)
+func (f *FileInteractionImpl) LoadRecipeFile(fileName fs.FileInfo) (Recipe, error) {
+	return loadRecipeFileImpl(f, fileName)
 }
 
-func (*FileInteractionImpl) ReadFile(fileName fs.FileInfo) ([]byte, error) {
-	return ioutil.ReadFile(fmt.Sprintf("recipes/%s", fileName.Name()))
+func (*FileInteractionImpl) ReadFile(filePath string) ([]byte, error) {
+	return ioutil.ReadFile(filePath)
 }
 
-func (*FileInteractionImpl) UnmarshallJSON(file []byte) (Recipe, error) {
+func (*FileInteractionImpl) UnmarshallJSONToPopularity(file []byte) (Popularity, error) {
+	popularity := Popularity{}
+	return popularity, json.Unmarshal([]byte(file), &popularity)
+}
+
+func (*FileInteractionImpl) UnmarshallJSONToRecipe(file []byte) (Recipe, error) {
 	recipe := Recipe{}
 	return recipe, json.Unmarshal([]byte(file), &recipe)
 }
 
-func (f *FileInteractionImpl) WritePopularityFile(pop Popularity) error {
-	newFile, err := json.MarshalIndent(pop, "", " ")
-	if err != nil {
-		return err
-	}
+func (*FileInteractionImpl) MarshallJSON(pop Popularity) ([]byte, error) {
+	return json.MarshalIndent(pop, "", " ")
+}
+
+func (f *FileInteractionImpl) WriteFile(newFile []byte) error {
 	return ioutil.WriteFile(popularityFileName, newFile, 0644)
 }
 
-// Implementations of functions
+func (f *FileInteractionImpl) WritePopularityFile(pop Popularity) error {
+	return writePopularityFileImpl(f, pop)
+}
 
-func IncrementPopularityImpl(f FileReader, recipeName string) error {
+// Implementations of functions
+func incrementPopularityImpl(f FileReader, recipeName string) error {
 	pop, err := f.LoadPopularityFile()
 	if err != nil {
 		return err
@@ -89,7 +95,7 @@ func IncrementPopularityImpl(f FileReader, recipeName string) error {
 	return f.WritePopularityFile(pop)
 }
 
-func GetPopularityImpl(f FileReader, recipeName string) (int, error) {
+func getPopularityImpl(f FileReader, recipeName string) (int, error) {
 	pop, err := f.LoadPopularityFile()
 	if err != nil {
 		log.Printf("error unmarshalling file=%s", popularityFileName)
@@ -109,14 +115,29 @@ func GetPopularityImpl(f FileReader, recipeName string) (int, error) {
 	return 0, f.WritePopularityFile(pop)
 }
 
-func ReadRecipeFileImpl(f FileReader, fileName fs.FileInfo) (Recipe, error) {
-	file, err := f.ReadFile(fileName)
+func loadPopularityFileImpl(f FileReader) (Popularity, error) {
+	file, err := f.ReadFile(popularityFileName)
+	if err != nil {
+		return Popularity{}, err
+	}
+	return f.UnmarshallJSONToPopularity(file)
+}
+
+func loadRecipeFileImpl(f FileReader, fileName fs.FileInfo) (Recipe, error) {
+	file, err := f.ReadFile(fmt.Sprintf("recipes/%s", fileName.Name()))
 	if err != nil {
 		return Recipe{}, err
 	}
-	return f.UnmarshallJSON(file)
+	return f.UnmarshallJSONToRecipe(file)
 }
 
+func writePopularityFileImpl(f FileReader, pop Popularity) error {
+	newFile, err := f.MarshallJSON(pop)
+	if err != nil {
+		return err
+	}
+	return f.WriteFile(newFile)
+}
 
 func ProcessIngredients(f FileReader, recipeFolder string) ([]Recipe, error) {
 	files, err := f.ReadRecipeDirectory(recipeFolder)
@@ -128,7 +149,7 @@ func ProcessIngredients(f FileReader, recipeFolder string) ([]Recipe, error) {
 	allRecipes := []Recipe{}
 	for _, fileName := range files {
 		if !fileName.IsDir() {
-			recipe, err := f.ReadRecipeFile(fileName)
+			recipe, err := f.LoadRecipeFile(fileName)
 			if err != nil {
 				return nil, err
 			}
