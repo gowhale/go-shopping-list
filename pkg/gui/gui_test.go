@@ -8,11 +8,12 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
+// TODO: Test fyne.io properly
 type guiTest struct {
 	suite.Suite
 }
 
-func (g *guiTest) SetupTest() {
+func (*guiTest) SetupTest() {
 
 }
 

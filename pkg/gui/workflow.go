@@ -16,15 +16,20 @@ import (
 const (
 	workflowName = "shopping.workflow"
 	macOSName    = "darwin"
+
+	minMilliseconds = 100
+	maxMilliseconds = 500
 )
 
-func NewWorkflow(f fileChecker, os string) (workflowInterface, error) {
+// NewWorkflow will return a mac workflow if workflow file present and running on mac
+// Else will return terminal workflow which prints to terminal
+func NewWorkflow(f fileChecker, osString string) (workflowInterface, error) {
 	workflowPresent, err := f.checkWorkflowExists()
 	if err != nil {
 		return nil, err
 	}
 	if workflowPresent {
-		if os == macOSName {
+		if osString == macOSName {
 			log.Println("Using mac workflow to create reminders")
 			return &macWorkflow{}, nil
 		}
@@ -36,6 +41,7 @@ func NewWorkflow(f fileChecker, os string) (workflowInterface, error) {
 	return &TerminalFakeWorkflow{}, nil
 }
 
+// WorkflowChecker is struct used to check if the shopping.workflow file exists
 type WorkflowChecker struct{}
 
 //go:generate go run github.com/vektra/mockery/cmd/mockery -name fileChecker -inpkg --filename file_checker_mock.go
@@ -50,11 +56,11 @@ func (f *WorkflowChecker) checkWorkflowExists() (bool, error) {
 	return checkWorkflowExistsImpl(f)
 }
 
-func (f *WorkflowChecker) stat(name string) (fs.FileInfo, error) {
+func (*WorkflowChecker) stat(name string) (fs.FileInfo, error) {
 	return os.Stat(name)
 }
 
-func (f *WorkflowChecker) isNotExist(err error) bool {
+func (*WorkflowChecker) isNotExist(err error) bool {
 	return os.IsNotExist(err)
 }
 
@@ -126,12 +132,11 @@ func (*macWorkflow) runReminder(s screenInterface, currentIng recipe.Ingredient)
 	return nil
 }
 
+// TerminalFakeWorkflow can be used to just print to termnial
 type TerminalFakeWorkflow struct{}
 
-func (*TerminalFakeWorkflow) runReminder(s screenInterface, currentIng recipe.Ingredient) error {
+func (*TerminalFakeWorkflow) runReminder(_ screenInterface, currentIng recipe.Ingredient) error {
 	log.Printf("PRETENDING TO ADD INGREDIENT=%s", currentIng.String())
-	minMilliseconds := 100
-	maxMilliseconds := 500
 	millisecondsToWait := rand.Intn(maxMilliseconds-minMilliseconds) + minMilliseconds
 	time.Sleep(time.Millisecond * time.Duration(millisecondsToWait))
 	// The below line creates a bug. I think because race conditions. Maybe I should implement mutex?

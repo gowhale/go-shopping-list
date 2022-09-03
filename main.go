@@ -21,6 +21,8 @@ func main() {
 		log.Fatalf("error calculating workflow to use err=%e", err)
 	}
 
+	// wf = &gui.TerminalFakeWorkflow{} // Uncomment me if you want to just print to terminal!
+
 	// Show Window
 	myWindow := gui.NewApp(allRecipes, wf)
 	myWindow.ShowAndRun()

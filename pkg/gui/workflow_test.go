@@ -21,6 +21,8 @@ const (
 	runReminderString         = "runReminder"
 	updateLabelString         = "updateLabel"
 	updateProgessBarString    = "updateProgessBar"
+	checkWorkflowExistsString = "checkWorkflowExists"
+	statString                = "stat"
 )
 
 type workflowTest struct {
@@ -184,31 +186,31 @@ func (g *workflowTest) Test_terminal_runReminder_Pass() {
 }
 
 func (g *workflowTest) Test_NewWorkflow_macWorkflow_Pass() {
-	g.mockFileChecker.On("checkWorkflowExists").Return(true, nil)
+	g.mockFileChecker.On(checkWorkflowExistsString).Return(true, nil)
 
-	wf, err := NewWorkflow(g.mockFileChecker, "darwin")
+	wf, err := NewWorkflow(g.mockFileChecker, macOSName)
 	g.Nil(err)
 	g.Equal(&macWorkflow{}, wf)
 }
 
 func (g *workflowTest) Test_NewWorkflow_checkWorkflowExists_Error() {
-	g.mockFileChecker.On("checkWorkflowExists").Return(false, fmt.Errorf("file check error"))
+	g.mockFileChecker.On(checkWorkflowExistsString).Return(false, fmt.Errorf("file check error"))
 
-	wf, err := NewWorkflow(g.mockFileChecker, "darwin")
+	wf, err := NewWorkflow(g.mockFileChecker, macOSName)
 	g.EqualError(err, "file check error")
 	g.Nil(wf)
 }
 
 func (g *workflowTest) Test_NewWorkflow_termWorkflow_Pass() {
-	g.mockFileChecker.On("checkWorkflowExists").Return(false, nil)
+	g.mockFileChecker.On(checkWorkflowExistsString).Return(false, nil)
 
-	wf, err := NewWorkflow(g.mockFileChecker, "darwin")
+	wf, err := NewWorkflow(g.mockFileChecker, macOSName)
 	g.Nil(err)
 	g.Equal(&TerminalFakeWorkflow{}, wf)
 }
 
 func (g *workflowTest) Test_NewWorkflow_termWorkflow_workflowPresent_Pass() {
-	g.mockFileChecker.On("checkWorkflowExists").Return(true, nil)
+	g.mockFileChecker.On(checkWorkflowExistsString).Return(true, nil)
 
 	wf, err := NewWorkflow(g.mockFileChecker, "windows")
 	g.Nil(err)
@@ -216,7 +218,7 @@ func (g *workflowTest) Test_NewWorkflow_termWorkflow_workflowPresent_Pass() {
 }
 
 func (g *workflowTest) Test_checkWorkflowExistsImpl_Present_Pass() {
-	g.mockFileChecker.On("stat", workflowName).Return(nil, nil)
+	g.mockFileChecker.On(statString, workflowName).Return(nil, nil)
 
 	present, err := checkWorkflowExistsImpl(g.mockFileChecker)
 	g.Nil(err)
@@ -225,7 +227,7 @@ func (g *workflowTest) Test_checkWorkflowExistsImpl_Present_Pass() {
 
 func (g *workflowTest) Test_checkWorkflowExistsImpl_stat_Error() {
 	statError := "stat error"
-	g.mockFileChecker.On("stat", workflowName).Return(nil, fmt.Errorf(statError))
+	g.mockFileChecker.On(statString, workflowName).Return(nil, fmt.Errorf(statError))
 	g.mockFileChecker.On("isNotExist", fmt.Errorf(statError)).Return(false)
 
 	present, err := checkWorkflowExistsImpl(g.mockFileChecker)
@@ -234,7 +236,7 @@ func (g *workflowTest) Test_checkWorkflowExistsImpl_stat_Error() {
 }
 
 func (g *workflowTest) Test_checkWorkflowExistsImpl_NotPresent_Pass() {
-	g.mockFileChecker.On("stat", workflowName).Return(nil, fs.ErrNotExist)
+	g.mockFileChecker.On(statString, workflowName).Return(nil, fs.ErrNotExist)
 	g.mockFileChecker.On("isNotExist", fs.ErrNotExist).Return(true)
 
 	present, err := checkWorkflowExistsImpl(g.mockFileChecker)
