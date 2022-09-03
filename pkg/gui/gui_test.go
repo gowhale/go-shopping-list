@@ -3,6 +3,8 @@ package gui
 import (
 	"fmt"
 	"go-shopping-list/pkg/recipe"
+	"os"
+	"os/exec"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -90,4 +92,62 @@ func (g *guiTest) Test_AddIngredientsToReminders_runReminder_Error() {
 	g.mockFileReader.On("IncrementPopularity", "APPLE").Return(nil)
 	err := AddIngredientsToReminders(testRecipe, g.mockScreen, g.mockFileReader, g.mockWorkflow)
 	g.EqualError(err, "reminder error")
+}
+
+func TestHelperProcess(t *testing.T) {
+	helper := os.Getenv("GO_WANT_HELPER_PROCESS")
+	//pass
+	if helper == "1" {
+		os.Exit(0)
+		return
+	}
+	//fail
+	if helper == "2" {
+		os.Exit(1)
+		return
+	}
+}
+
+func fakeExecCommandPass(command string, args ...string) *exec.Cmd {
+	cs := []string{"-test.run=TestHelperProcess", "--", command}
+	cs = append(cs, args...)
+	cmd := exec.Command(os.Args[0], cs...)
+	cmd.Env = []string{"GO_WANT_HELPER_PROCESS=1"}
+	return cmd
+}
+
+func fakeExecCommandFail(command string, args ...string) *exec.Cmd {
+	cs := []string{"-test.run=TestHelperProcess", "--", command}
+	cs = append(cs, args...)
+	cmd := exec.Command(os.Args[0], cs...)
+	cmd.Env = []string{"GO_WANT_HELPER_PROCESS=2"}
+	return cmd
+}
+
+func (g *guiTest) Test_runReminder_Pass() {
+	execCommand = fakeExecCommandPass
+	defer func() { execCommand = exec.Command }()
+	m := macWorkflow{}
+	ing := recipe.Ingredients{
+		Unit_size:       "PEAR",
+		Unit_type:       "BANANA",
+		Ingredient_name: "RASPBERRY",
+	}
+	g.mockScreen.On("UpdateLabel", "Added Ingredient: PEAR BANANA RASPBERRY")
+	err := m.runReminder(g.mockScreen, ing)
+	g.Nil(err)
+}
+
+func (g *guiTest) Test_runReminder_Error() {
+	execCommand = fakeExecCommandFail
+	defer func() { execCommand = exec.Command }()
+	m := macWorkflow{}
+	ing := recipe.Ingredients{
+		Unit_size:       "PEAR",
+		Unit_type:       "BANANA",
+		Ingredient_name: "RASPBERRY",
+	}
+	g.mockScreen.On("UpdateLabel", "Added Ingredient: PEAR BANANA RASPBERRY")
+	err := m.runReminder(g.mockScreen, ing)
+	g.EqualError(err, "error adding the following ingredient=PEAR BANANA RASPBERRY err=exit status 1")
 }

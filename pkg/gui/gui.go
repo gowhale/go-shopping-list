@@ -14,6 +14,11 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+const (
+	screenWidth  = 600
+	screenHeight = 1200
+)
+
 type screen struct {
 	p *widget.ProgressBar
 	l *widget.Label
@@ -69,7 +74,7 @@ func NewApp(recipes []recipe.Recipe) fyne.Window {
 
 	// Set Window and execute
 	myWindow.SetFixedSize(true)
-	myWindow.Resize(fyne.Size{Width: 600, Height: 1200})
+	myWindow.Resize(fyne.Size{Width: screenWidth, Height: screenHeight})
 	myWindow.SetContent(masterGrid)
 
 	return myWindow
@@ -127,7 +132,7 @@ func AddIngredientsToReminders(r recipe.Recipe, s ScreenInterface, f recipe.File
 	if err := f.IncrementPopularity(r.Name); err != nil {
 		return err
 	}
-	
+
 	progress = 1
 	log.Printf("progress=%.2f", progress)
 	s.UpdateProgessBar(progress)
@@ -141,7 +146,7 @@ func (*macWorkflow) runReminder(s ScreenInterface, currentIng recipe.Ingredients
 	cmd := execCommand("automator", "-i", fmt.Sprintf(`"%s"`, currentIng.String()), "shopping.workflow")
 	_, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf("error adding the following ingredient=%s err=%e", currentIng.String(), err)
+		return fmt.Errorf("error adding the following ingredient=%s err=%w", currentIng.String(), err)
 	}
 	s.UpdateLabel(fmt.Sprintf("Added Ingredient: %s", currentIng.String()))
 	return nil
