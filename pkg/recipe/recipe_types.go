@@ -8,9 +8,9 @@ type Recipe struct {
 }
 
 type Ingredients struct {
-	Unit_size       string `json:"unit_size"`
-	Unit_type       string `json:"unit_type"`
-	Ingredient_name string `json:"ingredient_name"`
+	UnitSize       string `json:"unit_size"`
+	UnitType       string `json:"unit_type"`
+	IngredientName string `json:"ingredient_name"`
 }
 
 type Popularity struct {

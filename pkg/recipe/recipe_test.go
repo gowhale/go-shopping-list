@@ -22,15 +22,15 @@ func (t *recipeTest) SetupTest() {
 	t.mockFileReader = new(MockFileReader)
 }
 
-func TestRecipeTest(t *testing.T) {
-	suite.Run(t, new(recipeTest))
+func TestRecipeTest(r *testing.T) {
+	suite.Run(r, new(recipeTest))
 }
 
 func (r *recipeTest) Test_String() {
 	i := Ingredients{
-		Unit_size:       "DURIAN",
-		Unit_type:       "APPLE",
-		Ingredient_name: "PEAR",
+		UnitSize:       "DURIAN",
+		UnitType:       "APPLE",
+		IngredientName: "PEAR",
 	}
 	r.Equal("DURIAN APPLE PEAR", i.String())
 }
@@ -199,10 +199,10 @@ func (r *recipeTest) Test_ProcessIngredients_Pass() {
 	}
 	expectedResult := []Recipe{expectedRecipe, expectedRecipe}
 	filesReturned := []fs.FileInfo{&mockFileInfo{}, &mockFileInfo{}}
-	r.mockFileReader.On("ReadRecipeDirectory", "EPIC").Return(filesReturned, nil)
+	r.mockFileReader.On("ReadRecipeDirectory").Return(filesReturned, nil)
 	r.mockFileReader.On("LoadRecipeFile", &mockFileInfo{}).Return(expectedRecipe, nil)
 	r.mockFileReader.On("GetPopularity", expectedRecipe.Name).Return(5, nil)
-	recipes, err := ProcessIngredients(r.mockFileReader, "EPIC")
+	recipes, err := ProcessIngredients(r.mockFileReader)
 	r.Nil(err)
 	r.Equal(expectedResult, recipes)
 }
@@ -213,26 +213,26 @@ func (r *recipeTest) Test_ProcessIngredients_GetPopularity_Error() {
 		Count: 5,
 	}
 	filesReturned := []fs.FileInfo{&mockFileInfo{}, &mockFileInfo{}}
-	r.mockFileReader.On("ReadRecipeDirectory", "EPIC").Return(filesReturned, nil)
+	r.mockFileReader.On("ReadRecipeDirectory").Return(filesReturned, nil)
 	r.mockFileReader.On("LoadRecipeFile", &mockFileInfo{}).Return(expectedRecipe, nil)
 	r.mockFileReader.On("GetPopularity", expectedRecipe.Name).Return(-1, fmt.Errorf("pop error"))
-	recipes, err := ProcessIngredients(r.mockFileReader, "EPIC")
+	recipes, err := ProcessIngredients(r.mockFileReader)
 	r.Nil(recipes)
 	r.EqualError(err, "pop error")
 }
 
 func (r *recipeTest) Test_ProcessIngredients_ReadRecipeFile_Error() {
 	filesReturned := []fs.FileInfo{&mockFileInfo{}, &mockFileInfo{}}
-	r.mockFileReader.On("ReadRecipeDirectory", "EPIC").Return(filesReturned, nil)
+	r.mockFileReader.On("ReadRecipeDirectory").Return(filesReturned, nil)
 	r.mockFileReader.On("LoadRecipeFile", &mockFileInfo{}).Return(Recipe{}, fmt.Errorf("read file error"))
-	recipes, err := ProcessIngredients(r.mockFileReader, "EPIC")
+	recipes, err := ProcessIngredients(r.mockFileReader)
 	r.Nil(recipes)
 	r.EqualError(err, "read file error")
 }
 
 func (r *recipeTest) Test_ReadRecipeDirectory_Error() {
-	r.mockFileReader.On("ReadRecipeDirectory", "EPIC").Return(nil, fmt.Errorf("read dir error"))
-	recipes, err := ProcessIngredients(r.mockFileReader, "EPIC")
+	r.mockFileReader.On("ReadRecipeDirectory").Return(nil, fmt.Errorf("read dir error"))
+	recipes, err := ProcessIngredients(r.mockFileReader)
 	r.Nil(recipes)
 	r.EqualError(err, "read dir error")
 }
@@ -240,10 +240,9 @@ func (r *recipeTest) Test_ReadRecipeDirectory_Error() {
 func (r *recipeTest) Test_UnmarshallJSONToRecipe_Pass() {
 	mf := FileInteractionImpl{}
 	expected := Recipe{
-		Name:  "DURIAN",
-		Ings:  nil,
-		Meth:  nil,
-		Count: 0,
+		Name: "DURIAN",
+		Ings: nil,
+		Meth: nil,
 	}
 	bytes, err := json.Marshal(expected)
 	r.Nil(err)

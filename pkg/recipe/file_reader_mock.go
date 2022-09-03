@@ -136,13 +136,13 @@ func (_m *MockFileReader) ReadFile(filePath string) ([]byte, error) {
 	return r0, r1
 }
 
-// ReadRecipeDirectory provides a mock function with given fields: recipeFolder
-func (_m *MockFileReader) ReadRecipeDirectory(recipeFolder string) ([]fs.FileInfo, error) {
-	ret := _m.Called(recipeFolder)
+// ReadRecipeDirectory provides a mock function with given fields:
+func (_m *MockFileReader) ReadRecipeDirectory() ([]fs.FileInfo, error) {
+	ret := _m.Called()
 
 	var r0 []fs.FileInfo
-	if rf, ok := ret.Get(0).(func(string) []fs.FileInfo); ok {
-		r0 = rf(recipeFolder)
+	if rf, ok := ret.Get(0).(func() []fs.FileInfo); ok {
+		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]fs.FileInfo)
@@ -150,8 +150,8 @@ func (_m *MockFileReader) ReadRecipeDirectory(recipeFolder string) ([]fs.FileInf
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(recipeFolder)
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
 	} else {
 		r1 = ret.Error(1)
 	}

@@ -12,6 +12,7 @@ import (
 
 const (
 	popularityFileName = "popularity.json"
+	recipeFolder       = "recipes/"
 )
 
 //go:generate go run github.com/vektra/mockery/cmd/mockery -name FileReader -inpkg --filename file_reader_mock.go
@@ -20,7 +21,7 @@ type FileReader interface {
 	IncrementPopularity(recipeName string) error
 	LoadPopularityFile() (Popularity, error)
 	MarshallJSON(pop Popularity) ([]byte, error)
-	ReadRecipeDirectory(recipeFolder string) ([]fs.FileInfo, error)
+	ReadRecipeDirectory() ([]fs.FileInfo, error)
 	LoadRecipeFile(fileName fs.FileInfo) (Recipe, error)
 	ReadFile(filePath string) ([]byte, error)
 	UnmarshallJSONToPopularity(file []byte) (Popularity, error)
@@ -43,7 +44,7 @@ func (f *FileInteractionImpl) LoadPopularityFile() (Popularity, error) {
 	return loadPopularityFileImpl(f)
 }
 
-func (*FileInteractionImpl) ReadRecipeDirectory(recipeFolder string) ([]fs.FileInfo, error) {
+func (*FileInteractionImpl) ReadRecipeDirectory() ([]fs.FileInfo, error) {
 	return ioutil.ReadDir(recipeFolder)
 }
 
@@ -139,8 +140,8 @@ func writePopularityFileImpl(f FileReader, pop Popularity) error {
 	return f.WriteFile(newFile)
 }
 
-func ProcessIngredients(f FileReader, recipeFolder string) ([]Recipe, error) {
-	files, err := f.ReadRecipeDirectory(recipeFolder)
+func ProcessIngredients(f FileReader) ([]Recipe, error) {
+	files, err := f.ReadRecipeDirectory()
 	if err != nil {
 		return nil, err
 	}
@@ -170,5 +171,5 @@ func ProcessIngredients(f FileReader, recipeFolder string) ([]Recipe, error) {
 }
 
 func (i *Ingredients) String() string {
-	return fmt.Sprintf("%s %s %s", i.Unit_size, i.Unit_type, i.Ingredient_name)
+	return fmt.Sprintf("%s %s %s", i.UnitSize, i.UnitType, i.IngredientName)
 }

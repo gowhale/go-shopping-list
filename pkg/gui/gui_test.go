@@ -46,9 +46,9 @@ func (*guiTest) Test_mockFileInfo() {
 
 func (g *guiTest) Test_AddIngredientsToReminders_Pass() {
 	ing := recipe.Ingredients{
-		Unit_size:       "PEAR",
-		Unit_type:       "BANANA",
-		Ingredient_name: "LYCHE",
+		UnitSize:       "PEAR",
+		UnitType:       "BANANA",
+		IngredientName: "LYCHE",
 	}
 	testRecipe := recipe.Recipe{
 		Name: "DURIAN",
@@ -66,9 +66,9 @@ func (g *guiTest) Test_AddIngredientsToReminders_Pass() {
 
 func (g *guiTest) Test_AddIngredientsToReminders_IncrementPopularity_Error() {
 	ing := recipe.Ingredients{
-		Unit_size:       "PEACH",
-		Unit_type:       "BLUEBERRY",
-		Ingredient_name: "RASPBERRY",
+		UnitSize:       "PEACH",
+		UnitType:       "BLUEBERRY",
+		IngredientName: "RASPBERRY",
 	}
 	testRecipe := recipe.Recipe{
 		Name: "MANGO",
@@ -86,9 +86,9 @@ func (g *guiTest) Test_AddIngredientsToReminders_IncrementPopularity_Error() {
 
 func (g *guiTest) Test_AddIngredientsToReminders_runReminder_Error() {
 	ing := recipe.Ingredients{
-		Unit_size:       "ORANGE",
-		Unit_type:       "BANANA",
-		Ingredient_name: "RASPBERRY",
+		UnitSize:       "ORANGE",
+		UnitType:       "BANANA",
+		IngredientName: "RASPBERRY",
 	}
 
 	testRecipe := recipe.Recipe{
@@ -143,9 +143,9 @@ func (g *guiTest) Test_runReminder_Pass() {
 	}()
 	m := macWorkflow{}
 	ing := recipe.Ingredients{
-		Unit_size:       "WATERMELON",
-		Unit_type:       "CHERRY",
-		Ingredient_name: "PITAYA",
+		UnitSize:       "WATERMELON",
+		UnitType:       "CHERRY",
+		IngredientName: "PITAYA",
 	}
 	g.mockScreen.On(updateLabelString, "Added Ingredient: WATERMELON CHERRY PITAYA")
 	err := m.runReminder(g.mockScreen, ing)
@@ -159,9 +159,9 @@ func (g *guiTest) Test_runReminder_Error() {
 	}()
 	m := macWorkflow{}
 	ing := recipe.Ingredients{
-		Unit_size:       "PEAR",
-		Unit_type:       "FIG",
-		Ingredient_name: "AVOCADO",
+		UnitSize:       "PEAR",
+		UnitType:       "FIG",
+		IngredientName: "AVOCADO",
 	}
 	g.mockScreen.On(updateLabelString, "Added Ingredient: PEAR FIG AVOCADO")
 	err := m.runReminder(g.mockScreen, ing)
