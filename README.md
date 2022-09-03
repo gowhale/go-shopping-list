@@ -15,3 +15,11 @@ https://user-images.githubusercontent.com/32711718/188265124-ef39dce0-62ee-43b5-
 3. When one of the list items is clicked it will run automation scripts which add a reminder to my reminders app
 4. The reminders app is an app available on mac and iphone.
 5. The iCloud then syncs the items in my list to my phone so I can go to the shops and get the stuff I need.
+
+## Maintaining Proffesional Standards
+
+To ensure my code is proffesional and extendable I followed these rules when making changes:
+
+1. Apply unit testing wherever possible and aim for 80% coverage in packages
+2. Use `golangci-lint run` and the revive linter with all rules enabled: https://github.com/mgechev/revive 
+3. Using Intefaces to mock results using the following module: https://github.com/vektra/mockery 
