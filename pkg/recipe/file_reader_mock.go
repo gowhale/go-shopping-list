@@ -49,14 +49,14 @@ func (_m *MockFileReader) IncrementPopularity(recipeName string) error {
 }
 
 // loadPopularityFile provides a mock function with given fields:
-func (_m *MockFileReader) loadPopularityFile() (Popularity, error) {
+func (_m *MockFileReader) loadPopularityFile() (PopularityFile, error) {
 	ret := _m.Called()
 
-	var r0 Popularity
-	if rf, ok := ret.Get(0).(func() Popularity); ok {
+	var r0 PopularityFile
+	if rf, ok := ret.Get(0).(func() PopularityFile); ok {
 		r0 = rf()
 	} else {
-		r0 = ret.Get(0).(Popularity)
+		r0 = ret.Get(0).(PopularityFile)
 	}
 
 	var r1 error
@@ -91,11 +91,11 @@ func (_m *MockFileReader) loadRecipeFile(fileName fs.FileInfo) (Recipe, error) {
 }
 
 // marshallJSON provides a mock function with given fields: pop
-func (_m *MockFileReader) marshallJSON(pop Popularity) ([]byte, error) {
+func (_m *MockFileReader) marshallJSON(pop PopularityFile) ([]byte, error) {
 	ret := _m.Called(pop)
 
 	var r0 []byte
-	if rf, ok := ret.Get(0).(func(Popularity) []byte); ok {
+	if rf, ok := ret.Get(0).(func(PopularityFile) []byte); ok {
 		r0 = rf(pop)
 	} else {
 		if ret.Get(0) != nil {
@@ -104,7 +104,7 @@ func (_m *MockFileReader) marshallJSON(pop Popularity) ([]byte, error) {
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(Popularity) error); ok {
+	if rf, ok := ret.Get(1).(func(PopularityFile) error); ok {
 		r1 = rf(pop)
 	} else {
 		r1 = ret.Error(1)
@@ -160,14 +160,14 @@ func (_m *MockFileReader) readRecipeDirectory() ([]fs.FileInfo, error) {
 }
 
 // unmarshallJSONToPopularity provides a mock function with given fields: file
-func (_m *MockFileReader) unmarshallJSONToPopularity(file []byte) (Popularity, error) {
+func (_m *MockFileReader) unmarshallJSONToPopularity(file []byte) (PopularityFile, error) {
 	ret := _m.Called(file)
 
-	var r0 Popularity
-	if rf, ok := ret.Get(0).(func([]byte) Popularity); ok {
+	var r0 PopularityFile
+	if rf, ok := ret.Get(0).(func([]byte) PopularityFile); ok {
 		r0 = rf(file)
 	} else {
-		r0 = ret.Get(0).(Popularity)
+		r0 = ret.Get(0).(PopularityFile)
 	}
 
 	var r1 error
@@ -216,11 +216,11 @@ func (_m *MockFileReader) writeFile(newFile []byte) error {
 }
 
 // writePopularityFile provides a mock function with given fields: pop
-func (_m *MockFileReader) writePopularityFile(pop Popularity) error {
+func (_m *MockFileReader) writePopularityFile(pop PopularityFile) error {
 	ret := _m.Called(pop)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(Popularity) error); ok {
+	if rf, ok := ret.Get(0).(func(PopularityFile) error); ok {
 		r0 = rf(pop)
 	} else {
 		r0 = ret.Error(0)

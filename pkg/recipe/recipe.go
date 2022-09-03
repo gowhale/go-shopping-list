@@ -15,21 +15,23 @@ const (
 	recipeFolder       = "recipes/"
 )
 
+// FileReader deals with interactions with files
 //go:generate go run github.com/vektra/mockery/cmd/mockery -name FileReader -inpkg --filename file_reader_mock.go
 type FileReader interface {
 	getPopularity(recipeName string) (int, error)
 	IncrementPopularity(recipeName string) error
-	loadPopularityFile() (Popularity, error)
-	marshallJSON(pop Popularity) ([]byte, error)
+	loadPopularityFile() (PopularityFile, error)
+	marshallJSON(pop PopularityFile) ([]byte, error)
 	readRecipeDirectory() ([]fs.FileInfo, error)
 	loadRecipeFile(fileName fs.FileInfo) (Recipe, error)
 	readFile(filePath string) ([]byte, error)
-	unmarshallJSONToPopularity(file []byte) (Popularity, error)
+	unmarshallJSONToPopularity(file []byte) (PopularityFile, error)
 	unmarshallJSONToRecipe(file []byte) (Recipe, error)
-	writePopularityFile(pop Popularity) error
+	writePopularityFile(pop PopularityFile) error
 	writeFile(newFile []byte) error
 }
 
+// FileInteractionImpl is a struct to implement FileReader
 type FileInteractionImpl struct{}
 
 func (f *FileInteractionImpl) getPopularity(recipeName string) (int, error) {
@@ -41,7 +43,7 @@ func (f *FileInteractionImpl) IncrementPopularity(recipeName string) error {
 	return incrementPopularityImpl(f, recipeName)
 }
 
-func (f *FileInteractionImpl) loadPopularityFile() (Popularity, error) {
+func (f *FileInteractionImpl) loadPopularityFile() (PopularityFile, error) {
 	return loadPopularityFileImpl(f)
 }
 
@@ -57,8 +59,8 @@ func (*FileInteractionImpl) readFile(filePath string) ([]byte, error) {
 	return ioutil.ReadFile(filePath)
 }
 
-func (*FileInteractionImpl) unmarshallJSONToPopularity(file []byte) (Popularity, error) {
-	popularity := Popularity{}
+func (*FileInteractionImpl) unmarshallJSONToPopularity(file []byte) (PopularityFile, error) {
+	popularity := PopularityFile{}
 	return popularity, json.Unmarshal([]byte(file), &popularity)
 }
 
@@ -67,7 +69,7 @@ func (*FileInteractionImpl) unmarshallJSONToRecipe(file []byte) (Recipe, error) 
 	return recipe, json.Unmarshal([]byte(file), &recipe)
 }
 
-func (*FileInteractionImpl) marshallJSON(pop Popularity) ([]byte, error) {
+func (*FileInteractionImpl) marshallJSON(pop PopularityFile) ([]byte, error) {
 	return json.MarshalIndent(pop, "", " ")
 }
 
@@ -75,7 +77,7 @@ func (*FileInteractionImpl) writeFile(newFile []byte) error {
 	return ioutil.WriteFile(popularityFileName, newFile, 0644)
 }
 
-func (f *FileInteractionImpl) writePopularityFile(pop Popularity) error {
+func (f *FileInteractionImpl) writePopularityFile(pop PopularityFile) error {
 	return writePopularityFileImpl(f, pop)
 }
 
@@ -113,14 +115,14 @@ func getPopularityImpl(f FileReader, recipeName string) (int, error) {
 	if val, ok := mapOfPops[recipeName]; ok {
 		return val, nil
 	}
-	pop.Pop = append(pop.Pop, RecipePopularity{Name: recipeName, Count: 0})
+	pop.Pop = append(pop.Pop, Popularity{Name: recipeName, Count: 0})
 	return 0, f.writePopularityFile(pop)
 }
 
-func loadPopularityFileImpl(f FileReader) (Popularity, error) {
+func loadPopularityFileImpl(f FileReader) (PopularityFile, error) {
 	file, err := f.readFile(popularityFileName)
 	if err != nil {
-		return Popularity{}, err
+		return PopularityFile{}, err
 	}
 	return f.unmarshallJSONToPopularity(file)
 }
@@ -133,7 +135,7 @@ func loadRecipeFileImpl(f FileReader, fileName fs.FileInfo) (Recipe, error) {
 	return f.unmarshallJSONToRecipe(file)
 }
 
-func writePopularityFileImpl(f FileReader, pop Popularity) error {
+func writePopularityFileImpl(f FileReader, pop PopularityFile) error {
 	newFile, err := f.marshallJSON(pop)
 	if err != nil {
 		return err
@@ -141,7 +143,8 @@ func writePopularityFileImpl(f FileReader, pop Popularity) error {
 	return f.writeFile(newFile)
 }
 
-func ProcessIngredients(f FileReader) ([]Recipe, error) {
+// ProcessRecipes processes recipe JSON files from the recipe folder
+func ProcessRecipes(f FileReader) ([]Recipe, error) {
 	files, err := f.readRecipeDirectory()
 	if err != nil {
 		return nil, err

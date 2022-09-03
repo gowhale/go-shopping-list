@@ -9,7 +9,7 @@ import (
 
 func main() {
 	//Fetch Recipes
-	allRecipes, err := recipe.ProcessIngredients(&recipe.FileInteractionImpl{})
+	allRecipes, err := recipe.ProcessRecipes(&recipe.FileInteractionImpl{})
 	if err != nil {
 		log.Fatalf("error getting all recipes err=%e", err)
 	}
