@@ -10,15 +10,26 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
+const (
+	exitCodePass         = 0
+	exitCodeFail         = 1
+	firstArgumentInSlice = 0
+
+	IncrementPopularityString = "IncrementPopularity"
+	runReminderString         = "runReminder"
+	updateLabelString         = "updateLabel"
+	updateProgessBarString    = "updateProgessBar"
+)
+
 type guiTest struct {
 	suite.Suite
-	mockScreen     *MockScreenInterface
+	mockScreen     *mockScreenInterface
 	mockFileReader *recipe.MockFileReader
 	mockWorkflow   *MockWorkflowInterface
 }
 
 func (g *guiTest) SetupTest() {
-	g.mockScreen = new(MockScreenInterface)
+	g.mockScreen = new(mockScreenInterface)
 	g.mockFileReader = new(recipe.MockFileReader)
 	g.mockWorkflow = new(MockWorkflowInterface)
 }
@@ -27,7 +38,7 @@ func TestGuiTest(t *testing.T) {
 	suite.Run(t, new(guiTest))
 }
 
-func (g *guiTest) Test_mockFileInfo() {
+func (*guiTest) Test_mockFileInfo() {
 	testRecipe := []recipe.Recipe{}
 	_ = NewApp(testRecipe)
 }
@@ -36,45 +47,45 @@ func (g *guiTest) Test_AddIngredientsToReminders_Pass() {
 	ing := recipe.Ingredients{
 		Unit_size:       "PEAR",
 		Unit_type:       "BANANA",
-		Ingredient_name: "RASPBERRY",
+		Ingredient_name: "LYCHE",
 	}
 	testRecipe := recipe.Recipe{
-		Name: "APPLE",
+		Name: "DURIAN",
 		Ings: []recipe.Ingredients{ing},
 	}
-	g.mockScreen.On("UpdateLabel", "Starting to add ingredients for Recipe: APPLE")
-	g.mockScreen.On("UpdateProgessBar", float64(0.0))
-	g.mockScreen.On("UpdateProgessBar", float64(1.0))
-	g.mockScreen.On("UpdateLabel", "Finished. Select another recipe to add more.")
-	g.mockWorkflow.On("runReminder", g.mockScreen, ing).Return(nil)
-	g.mockFileReader.On("IncrementPopularity", "APPLE").Return(nil)
-	err := AddIngredientsToReminders(testRecipe, g.mockScreen, g.mockFileReader, g.mockWorkflow)
+	g.mockScreen.On(updateLabelString, "Starting to add ingredients for Recipe: DURIAN")
+	g.mockScreen.On(updateProgessBarString, progressBarEmpty)
+	g.mockScreen.On(updateProgessBarString, progressBarFull)
+	g.mockScreen.On(updateLabelString, recipeFinishLabel)
+	g.mockWorkflow.On(runReminderString, g.mockScreen, ing).Return(nil)
+	g.mockFileReader.On(IncrementPopularityString, "DURIAN").Return(nil)
+	err := addIngredientsToReminders(testRecipe, g.mockScreen, g.mockFileReader, g.mockWorkflow)
 	g.Nil(err)
 }
 
 func (g *guiTest) Test_AddIngredientsToReminders_IncrementPopularity_Error() {
 	ing := recipe.Ingredients{
-		Unit_size:       "PEAR",
-		Unit_type:       "BANANA",
+		Unit_size:       "PEACH",
+		Unit_type:       "BLUEBERRY",
 		Ingredient_name: "RASPBERRY",
 	}
 	testRecipe := recipe.Recipe{
-		Name: "APPLE",
+		Name: "MANGO",
 		Ings: []recipe.Ingredients{ing},
 	}
-	g.mockScreen.On("UpdateLabel", "Starting to add ingredients for Recipe: APPLE")
-	g.mockScreen.On("UpdateProgessBar", float64(0.0))
-	g.mockScreen.On("UpdateProgessBar", float64(1.0))
-	g.mockScreen.On("UpdateLabel", "Finished. Select another recipe to add more.")
-	g.mockWorkflow.On("runReminder", g.mockScreen, ing).Return(nil)
-	g.mockFileReader.On("IncrementPopularity", "APPLE").Return(fmt.Errorf("pop error"))
-	err := AddIngredientsToReminders(testRecipe, g.mockScreen, g.mockFileReader, g.mockWorkflow)
+	g.mockScreen.On(updateLabelString, "Starting to add ingredients for Recipe: MANGO")
+	g.mockScreen.On(updateProgessBarString, progressBarEmpty)
+	g.mockScreen.On(updateProgessBarString, progressBarFull)
+	g.mockScreen.On(updateLabelString, recipeFinishLabel)
+	g.mockWorkflow.On(runReminderString, g.mockScreen, ing).Return(nil)
+	g.mockFileReader.On(IncrementPopularityString, "MANGO").Return(fmt.Errorf("pop error"))
+	err := addIngredientsToReminders(testRecipe, g.mockScreen, g.mockFileReader, g.mockWorkflow)
 	g.EqualError(err, "pop error")
 }
 
 func (g *guiTest) Test_AddIngredientsToReminders_runReminder_Error() {
 	ing := recipe.Ingredients{
-		Unit_size:       "PEAR",
+		Unit_size:       "ORANGE",
 		Unit_type:       "BANANA",
 		Ingredient_name: "RASPBERRY",
 	}
@@ -84,26 +95,26 @@ func (g *guiTest) Test_AddIngredientsToReminders_runReminder_Error() {
 		Ings: []recipe.Ingredients{ing},
 	}
 
-	g.mockScreen.On("UpdateLabel", "Starting to add ingredients for Recipe: APPLE")
-	g.mockScreen.On("UpdateProgessBar", float64(0.0))
-	g.mockScreen.On("UpdateProgessBar", float64(1.0))
-	g.mockScreen.On("UpdateLabel", "Finished. Select another recipe to add more.")
-	g.mockWorkflow.On("runReminder", g.mockScreen, ing).Return(fmt.Errorf("reminder error"))
-	g.mockFileReader.On("IncrementPopularity", "APPLE").Return(nil)
-	err := AddIngredientsToReminders(testRecipe, g.mockScreen, g.mockFileReader, g.mockWorkflow)
+	g.mockScreen.On(updateLabelString, "Starting to add ingredients for Recipe: APPLE")
+	g.mockScreen.On(updateProgessBarString, progressBarEmpty)
+	g.mockScreen.On(updateProgessBarString, progressBarFull)
+	g.mockScreen.On(updateLabelString, recipeFinishLabel)
+	g.mockWorkflow.On(runReminderString, g.mockScreen, ing).Return(fmt.Errorf("reminder error"))
+	g.mockFileReader.On(IncrementPopularityString, "APPLE").Return(nil)
+	err := addIngredientsToReminders(testRecipe, g.mockScreen, g.mockFileReader, g.mockWorkflow)
 	g.EqualError(err, "reminder error")
 }
 
-func TestHelperProcess(t *testing.T) {
+func TestHelperProcess(*testing.T) {
 	helper := os.Getenv("GO_WANT_HELPER_PROCESS")
 	//pass
 	if helper == "1" {
-		os.Exit(0)
+		os.Exit(exitCodePass)
 		return
 	}
 	//fail
 	if helper == "2" {
-		os.Exit(1)
+		os.Exit(exitCodeFail)
 		return
 	}
 }
@@ -111,7 +122,7 @@ func TestHelperProcess(t *testing.T) {
 func fakeExecCommandPass(command string, args ...string) *exec.Cmd {
 	cs := []string{"-test.run=TestHelperProcess", "--", command}
 	cs = append(cs, args...)
-	cmd := exec.Command(os.Args[0], cs...)
+	cmd := exec.Command(os.Args[firstArgumentInSlice], cs...)
 	cmd.Env = []string{"GO_WANT_HELPER_PROCESS=1"}
 	return cmd
 }
@@ -119,35 +130,39 @@ func fakeExecCommandPass(command string, args ...string) *exec.Cmd {
 func fakeExecCommandFail(command string, args ...string) *exec.Cmd {
 	cs := []string{"-test.run=TestHelperProcess", "--", command}
 	cs = append(cs, args...)
-	cmd := exec.Command(os.Args[0], cs...)
+	cmd := exec.Command(os.Args[firstArgumentInSlice], cs...)
 	cmd.Env = []string{"GO_WANT_HELPER_PROCESS=2"}
 	return cmd
 }
 
 func (g *guiTest) Test_runReminder_Pass() {
 	execCommand = fakeExecCommandPass
-	defer func() { execCommand = exec.Command }()
+	defer func() {
+		execCommand = exec.Command
+	}()
 	m := macWorkflow{}
 	ing := recipe.Ingredients{
-		Unit_size:       "PEAR",
-		Unit_type:       "BANANA",
-		Ingredient_name: "RASPBERRY",
+		Unit_size:       "WATERMELON",
+		Unit_type:       "CHERRY",
+		Ingredient_name: "PITAYA",
 	}
-	g.mockScreen.On("UpdateLabel", "Added Ingredient: PEAR BANANA RASPBERRY")
+	g.mockScreen.On(updateLabelString, "Added Ingredient: WATERMELON CHERRY PITAYA")
 	err := m.runReminder(g.mockScreen, ing)
 	g.Nil(err)
 }
 
 func (g *guiTest) Test_runReminder_Error() {
 	execCommand = fakeExecCommandFail
-	defer func() { execCommand = exec.Command }()
+	defer func() {
+		execCommand = exec.Command
+	}()
 	m := macWorkflow{}
 	ing := recipe.Ingredients{
 		Unit_size:       "PEAR",
-		Unit_type:       "BANANA",
-		Ingredient_name: "RASPBERRY",
+		Unit_type:       "FIG",
+		Ingredient_name: "AVOCADO",
 	}
-	g.mockScreen.On("UpdateLabel", "Added Ingredient: PEAR BANANA RASPBERRY")
+	g.mockScreen.On(updateLabelString, "Added Ingredient: PEAR FIG AVOCADO")
 	err := m.runReminder(g.mockScreen, ing)
-	g.EqualError(err, "error adding the following ingredient=PEAR BANANA RASPBERRY err=exit status 1")
+	g.EqualError(err, "error adding the following ingredient=PEAR FIG AVOCADO err=exit status 1")
 }
