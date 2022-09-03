@@ -22,5 +22,5 @@ func TestGuiTest(t *testing.T) {
 
 func (*guiTest) Test_mockFileInfo() {
 	testRecipe := []recipe.Recipe{}
-	_ = NewApp(testRecipe, &terminalFakeWorkflow{})
+	_ = NewApp(testRecipe, &TerminalFakeWorkflow{})
 }

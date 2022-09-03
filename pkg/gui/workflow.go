@@ -5,9 +5,10 @@ import (
 	"go-shopping-list/pkg/recipe"
 	"io/fs"
 	"log"
+	"math/rand"
 	"os"
-	"os/exec"	
-
+	"os/exec"
+	"time"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -32,7 +33,7 @@ func NewWorkflow(f fileChecker, os string) (workflowInterface, error) {
 		log.Println("No workflow found!")
 	}
 	log.Println("Printing to terminal to simulate adding of ingredients!")
-	return &terminalFakeWorkflow{}, nil
+	return &TerminalFakeWorkflow{}, nil
 }
 
 type WorkflowChecker struct{}
@@ -125,10 +126,15 @@ func (*macWorkflow) runReminder(s screenInterface, currentIng recipe.Ingredient)
 	return nil
 }
 
-type terminalFakeWorkflow struct{}
+type TerminalFakeWorkflow struct{}
 
-func (*terminalFakeWorkflow) runReminder(s screenInterface, currentIng recipe.Ingredient) error {
+func (*TerminalFakeWorkflow) runReminder(s screenInterface, currentIng recipe.Ingredient) error {
 	log.Printf("PRETENDING TO ADD INGREDIENT=%s", currentIng.String())
-	s.updateLabel(fmt.Sprintf("Added Ingredient: %s", currentIng.String()))
+	minMilliseconds := 100
+	maxMilliseconds := 500
+	millisecondsToWait := rand.Intn(maxMilliseconds-minMilliseconds) + minMilliseconds
+	time.Sleep(time.Millisecond * time.Duration(millisecondsToWait))
+	// The below line creates a bug. I think because race conditions. Maybe I should implement mutex?
+	// s.updateLabel(fmt.Sprintf("Added Ingredient: %s", currentIng.String()))
 	return nil
 }

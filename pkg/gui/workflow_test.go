@@ -44,7 +44,7 @@ func Test_workflowTest(t *testing.T) {
 
 func (*workflowTest) Test_mockFileInfo() {
 	testRecipe := []recipe.Recipe{}
-	_ = NewApp(testRecipe, &terminalFakeWorkflow{})
+	_ = NewApp(testRecipe, &TerminalFakeWorkflow{})
 }
 
 func (g *workflowTest) Test_AddIngredientsToReminders_Pass() {
@@ -172,7 +172,7 @@ func (g *workflowTest) Test_macWorkflow_runReminder_Error() {
 }
 
 func (g *workflowTest) Test_terminal_runReminder_Pass() {
-	m := terminalFakeWorkflow{}
+	m := TerminalFakeWorkflow{}
 	ing := recipe.Ingredient{
 		UnitSize:       "WATERMELON",
 		UnitType:       "CHERRY",
@@ -204,7 +204,7 @@ func (g *workflowTest) Test_NewWorkflow_termWorkflow_Pass() {
 
 	wf, err := NewWorkflow(g.mockFileChecker, "darwin")
 	g.Nil(err)
-	g.Equal(&terminalFakeWorkflow{}, wf)
+	g.Equal(&TerminalFakeWorkflow{}, wf)
 }
 
 func (g *workflowTest) Test_NewWorkflow_termWorkflow_workflowPresent_Pass() {
@@ -212,7 +212,7 @@ func (g *workflowTest) Test_NewWorkflow_termWorkflow_workflowPresent_Pass() {
 
 	wf, err := NewWorkflow(g.mockFileChecker, "windows")
 	g.Nil(err)
-	g.Equal(&terminalFakeWorkflow{}, wf)
+	g.Equal(&TerminalFakeWorkflow{}, wf)
 }
 
 func (g *workflowTest) Test_checkWorkflowExistsImpl_Present_Pass() {
