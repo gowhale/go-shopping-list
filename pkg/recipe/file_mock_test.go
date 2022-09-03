@@ -12,7 +12,7 @@ type fileMockTest struct {
 	suite.Suite
 }
 
-func (t *fileMockTest) SetupTest() {
+func (*fileMockTest) SetupTest() {
 }
 
 func TestFileMockTest(t *testing.T) {
@@ -23,9 +23,9 @@ func (r *fileMockTest) Test_mockFileInfo() {
 	mf := mockFileInfo{}
 
 	r.Equal("DURIAN", mf.Name())
-	r.Equal(int64(1), mf.Size())
-	r.Equal(fs.FileMode(1), mf.Mode())
-	r.Equal(time.Date(1998, time.April, 6, 0, 0, 0, 0, time.UTC), mf.ModTime())
+	r.Equal(int64(mockIntReturn), mf.Size())
+	r.Equal(fs.FileMode(mockIntReturn), mf.Mode())
+	r.Equal(time.Date(mockDateYear, mockDateMonth, mockDateDay, mockDateHour, mockDateMin, mockDateSec, mockDateNsec, time.UTC), mf.ModTime())
 	r.Equal(false, mf.IsDir())
 	r.Equal("APPLE", mf.Sys())
 }
