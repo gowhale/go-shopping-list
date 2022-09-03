@@ -13,6 +13,11 @@ import (
 const (
 	popularityFileName = "popularity.json"
 	recipeFolder       = "recipes/"
+
+	errorIntReturn = -1
+	defaultCount   = 0
+
+	writePermissionCode = 0644
 )
 
 // FileReader deals with interactions with files
@@ -74,7 +79,7 @@ func (*FileInteractionImpl) marshallJSON(pop PopularityFile) ([]byte, error) {
 }
 
 func (*FileInteractionImpl) writeFile(newFile []byte) error {
-	return ioutil.WriteFile(popularityFileName, newFile, 0644)
+	return ioutil.WriteFile(popularityFileName, newFile, writePermissionCode)
 }
 
 func (f *FileInteractionImpl) writePopularityFile(pop PopularityFile) error {
@@ -88,7 +93,7 @@ func incrementPopularityImpl(f FileReader, recipeName string) error {
 		return err
 	}
 
-	updateIndex := -1
+	updateIndex := errorIntReturn
 	for i, p := range pop.Pop {
 		if recipeName == p.Name {
 			updateIndex = i
@@ -103,7 +108,7 @@ func getPopularityImpl(f FileReader, recipeName string) (int, error) {
 	pop, err := f.loadPopularityFile()
 	if err != nil {
 		log.Printf("error unmarshalling file=%s", popularityFileName)
-		return -1, err
+		return errorIntReturn, err
 	}
 
 	mapOfPops := map[string]int{}
@@ -115,8 +120,8 @@ func getPopularityImpl(f FileReader, recipeName string) (int, error) {
 	if val, ok := mapOfPops[recipeName]; ok {
 		return val, nil
 	}
-	pop.Pop = append(pop.Pop, Popularity{Name: recipeName, Count: 0})
-	return 0, f.writePopularityFile(pop)
+	pop.Pop = append(pop.Pop, Popularity{Name: recipeName, Count: defaultCount})
+	return defaultCount, f.writePopularityFile(pop)
 }
 
 func loadPopularityFileImpl(f FileReader) (PopularityFile, error) {

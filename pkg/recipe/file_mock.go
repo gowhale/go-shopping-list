@@ -5,19 +5,31 @@ import (
 	"time"
 )
 
+const (
+	mockIntReturn = 1
+
+	mockDateYear  = 1998
+	mockDateMonth = time.April
+	mockDateDay   = 26
+	mockDateHour  = 0
+	mockDateMin   = 0
+	mockDateSec   = 0
+	mockDateNsec  = 0
+)
+
 type mockFileInfo struct{}
 
 func (*mockFileInfo) Name() string {
 	return "DURIAN"
 }
 func (*mockFileInfo) Size() int64 {
-	return 1
+	return mockIntReturn
 } // length in bytes for regular files; system-dependent for others
 func (*mockFileInfo) Mode() fs.FileMode {
-	return 1
+	return mockIntReturn
 }
 func (*mockFileInfo) ModTime() time.Time {
-	return time.Date(1998, time.April, 6, 0, 0, 0, 0, time.UTC)
+	return time.Date(mockDateYear, mockDateMonth, mockDateDay, mockDateHour, mockDateMin, mockDateSec, mockDateNsec, time.UTC)
 }
 func (*mockFileInfo) IsDir() bool {
 	return false

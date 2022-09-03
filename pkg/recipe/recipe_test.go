@@ -16,8 +16,12 @@ const (
 	marshallJSONString        = "marshallJSON"
 	loadRecipeFileString      = "loadRecipeFile"
 	readRecipeDirectoryString = "readRecipeDirectory"
+	loadPopularityFileString  = "loadPopularityFile"
+	readFileString            = "readFile"
 
-	readFileError = "read file error"
+	readFileError       = "read file error"
+	testCount           = 5
+	countAfterIncrement = 6
 )
 
 type recipeTest struct {
@@ -36,11 +40,11 @@ func TestRecipeTest(r *testing.T) {
 
 func (r *recipeTest) Test_String() {
 	i := Ingredient{
-		UnitSize:       "DURIAN",
-		UnitType:       "APPLE",
+		UnitSize:       "PEACH",
+		UnitType:       "WATERMELON",
 		IngredientName: "PEAR",
 	}
-	r.Equal("DURIAN APPLE PEAR", i.String())
+	r.Equal("PEACH WATERMELON PEAR", i.String())
 }
 
 func (r *recipeTest) Test_loadPopularityFileImpl_Pass() {
@@ -48,12 +52,12 @@ func (r *recipeTest) Test_loadPopularityFileImpl_Pass() {
 	expectedPop := PopularityFile{
 		Pop: []Popularity{
 			{
-				Name:  "DURIAN",
-				Count: 5,
+				Name:  "LEMON",
+				Count: testCount,
 			},
 		},
 	}
-	r.mockFileReader.On("readFile", popularityFileName).Return(testByte, nil)
+	r.mockFileReader.On(readFileString, popularityFileName).Return(testByte, nil)
 	r.mockFileReader.On("unmarshallJSONToPopularity", testByte).Return(expectedPop, nil)
 	pop, err := loadPopularityFileImpl(r.mockFileReader)
 	r.Nil(err)
@@ -65,12 +69,12 @@ func (r *recipeTest) Test_loadPopularityFileImpl_Error() {
 	expectedPop := PopularityFile{
 		Pop: []Popularity{
 			{
-				Name:  "DURIAN",
-				Count: 5,
+				Name:  "CRANBERRY",
+				Count: testCount,
 			},
 		},
 	}
-	r.mockFileReader.On("readFile", popularityFileName).Return(testByte, fmt.Errorf("read error"))
+	r.mockFileReader.On(readFileString, popularityFileName).Return(testByte, fmt.Errorf("read error"))
 	r.mockFileReader.On("unmarshallJSONToPopularity", testByte).Return(expectedPop, nil)
 	pop, err := loadPopularityFileImpl(r.mockFileReader)
 	r.EqualError(err, "read error")
@@ -82,7 +86,7 @@ func (r *recipeTest) Test_ReadRecipeFile_Pass() {
 	expectedRecipe := Recipe{
 		Name: "APPLE",
 	}
-	r.mockFileReader.On("readFile", "recipes/DURIAN").Return(testByte, nil)
+	r.mockFileReader.On(readFileString, "recipes/DURIAN").Return(testByte, nil)
 	r.mockFileReader.On("unmarshallJSONToRecipe", testByte).Return(expectedRecipe, nil)
 	recipe, err := loadRecipeFileImpl(r.mockFileReader, &mockFileInfo{})
 	r.Nil(err)
@@ -91,86 +95,87 @@ func (r *recipeTest) Test_ReadRecipeFile_Pass() {
 
 func (r *recipeTest) Test_ReadRecipeFile_Error() {
 	testByte := []byte{}
-	r.mockFileReader.On("readFile", "recipes/DURIAN").Return(testByte, fmt.Errorf(readFileError))
+	r.mockFileReader.On(readFileString, "recipes/DURIAN").Return(testByte, fmt.Errorf(readFileError))
 	recipe, err := loadRecipeFileImpl(r.mockFileReader, &mockFileInfo{})
 	r.EqualError(err, readFileError)
 	r.Equal(Recipe{}, recipe)
 }
 
 func (r *recipeTest) Test_IncrementPopularity_Pass() {
+	testFruit := "GUAVA"
 	rp1 := []Popularity{{
-		Name:  "DURIAN",
-		Count: 5,
+		Name:  testFruit,
+		Count: testCount,
 	}}
 	mockPopBefore := PopularityFile{
 		Pop: rp1,
 	}
 	rp2 := []Popularity{{
-		Name:  "DURIAN",
-		Count: 6,
+		Name:  testFruit,
+		Count: countAfterIncrement,
 	}}
 	mockPopAfter := PopularityFile{
 		Pop: rp2,
 	}
 
-	r.mockFileReader.On("loadPopularityFile").Return().Return(mockPopBefore, nil)
+	r.mockFileReader.On(loadPopularityFileString).Return().Return(mockPopBefore, nil)
 	r.mockFileReader.On("writePopularityFile", mockPopAfter).Return(nil)
-	err := incrementPopularityImpl(r.mockFileReader, "DURIAN")
+	err := incrementPopularityImpl(r.mockFileReader, testFruit)
 	r.Nil(err)
 }
 
 func (r *recipeTest) Test_IncrementPopularity_Error() {
-	r.mockFileReader.On("loadPopularityFile").Return().Return(PopularityFile{}, fmt.Errorf("load error"))
-	err := incrementPopularityImpl(r.mockFileReader, "DURIAN")
+	r.mockFileReader.On(loadPopularityFileString).Return().Return(PopularityFile{}, fmt.Errorf("load error"))
+	err := incrementPopularityImpl(r.mockFileReader, "STRAWBERRY")
 	r.EqualError(err, "load error")
 }
 
 func (r *recipeTest) Test_GetPopularityImpl_Present_Pass() {
 	rp := []Popularity{{
-		Name:  "DURIAN",
-		Count: 5,
+		Name:  "JACKFRUIT",
+		Count: testCount,
 	}}
 	mockPop := PopularityFile{
 		Pop: rp,
 	}
 
-	r.mockFileReader.On("loadPopularityFile").Return().Return(mockPop, nil)
-	pop, err := getPopularityImpl(r.mockFileReader, "DURIAN")
-	r.Equal(pop, 5)
+	r.mockFileReader.On(loadPopularityFileString).Return().Return(mockPop, nil)
+	pop, err := getPopularityImpl(r.mockFileReader, "JACKFRUIT")
+	r.Equal(pop, testCount)
 	r.Nil(err)
 }
 
 func (r *recipeTest) Test_GetPopularityImpl_Error() {
 	rp := []Popularity{{
-		Name:  "DURIAN",
-		Count: 5,
+		Name:  "PLANTAIN",
+		Count: testCount,
 	}}
 	mockPop := PopularityFile{
 		Pop: rp,
 	}
 
-	r.mockFileReader.On("loadPopularityFile").Return().Return(mockPop, fmt.Errorf("load file error"))
-	pop, err := getPopularityImpl(r.mockFileReader, "DURIAN")
-	r.Equal(pop, -1)
+	r.mockFileReader.On(loadPopularityFileString).Return().Return(mockPop, fmt.Errorf("load file error"))
+	pop, err := getPopularityImpl(r.mockFileReader, "PLANTAIN")
+	r.Equal(pop, errorIntReturn)
 	r.EqualError(err, "load file error")
 }
 
 func (r *recipeTest) Test_GetPopularityImpl_NotPresent_Pass() {
 	rp := []Popularity{{
 		Name:  "Apple",
-		Count: 5,
+		Count: testCount,
 	}}
 	mockPop := PopularityFile{
 		Pop: rp,
 	}
-	writePopularity := append(rp, Popularity{Name: "DURIAN", Count: 0})
+	writePopularity := append(rp, Popularity{Name: "LIME", Count: defaultCount})
 
-	r.mockFileReader.On("loadPopularityFile").Return(mockPop, nil)
+	r.mockFileReader.On(loadPopularityFileString).Return(mockPop, nil)
 	r.mockFileReader.On("writePopularityFile", PopularityFile{
 		Pop: writePopularity,
 	}).Return(nil)
-	pop, err := getPopularityImpl(r.mockFileReader, "DURIAN")
-	r.Equal(0, pop)
+	pop, err := getPopularityImpl(r.mockFileReader, "LIME")
+	r.Equal(defaultCount, pop)
 	r.Nil(err)
 }
 
@@ -203,13 +208,13 @@ func (r *recipeTest) Test_WritePopularityFileImpl_MarshallJSON_Error() {
 func (r *recipeTest) Test_ProcessIngredients_Pass() {
 	expectedRecipe := Recipe{
 		Name:  "APPLE",
-		Count: 5,
+		Count: testCount,
 	}
 	expectedResult := []Recipe{expectedRecipe, expectedRecipe}
 	filesReturned := []fs.FileInfo{&mockFileInfo{}, &mockFileInfo{}}
 	r.mockFileReader.On(readRecipeDirectoryString).Return(filesReturned, nil)
 	r.mockFileReader.On(loadRecipeFileString, &mockFileInfo{}).Return(expectedRecipe, nil)
-	r.mockFileReader.On("getPopularity", expectedRecipe.Name).Return(5, nil)
+	r.mockFileReader.On("getPopularity", expectedRecipe.Name).Return(testCount, nil)
 	recipes, err := ProcessRecipes(r.mockFileReader)
 	r.Nil(err)
 	r.Equal(expectedResult, recipes)
@@ -217,13 +222,13 @@ func (r *recipeTest) Test_ProcessIngredients_Pass() {
 
 func (r *recipeTest) Test_ProcessIngredients_GetPopularity_Error() {
 	expectedRecipe := Recipe{
-		Name:  "APPLE",
-		Count: 5,
+		Name:  "DURIAN",
+		Count: testCount,
 	}
 	filesReturned := []fs.FileInfo{&mockFileInfo{}, &mockFileInfo{}}
 	r.mockFileReader.On(readRecipeDirectoryString).Return(filesReturned, nil)
 	r.mockFileReader.On(loadRecipeFileString, &mockFileInfo{}).Return(expectedRecipe, nil)
-	r.mockFileReader.On("getPopularity", expectedRecipe.Name).Return(-1, fmt.Errorf("pop error"))
+	r.mockFileReader.On("getPopularity", expectedRecipe.Name).Return(errorIntReturn, fmt.Errorf("pop error"))
 	recipes, err := ProcessRecipes(r.mockFileReader)
 	r.Nil(recipes)
 	r.EqualError(err, "pop error")
@@ -248,7 +253,7 @@ func (r *recipeTest) Test_ReadRecipeDirectory_Error() {
 func (r *recipeTest) Test_UnmarshallJSONToRecipe_Pass() {
 	mf := FileInteractionImpl{}
 	expected := Recipe{
-		Name: "DURIAN",
+		Name: "LEMON",
 		Ings: nil,
 		Meth: nil,
 	}
@@ -263,7 +268,7 @@ func (r *recipeTest) Test_UnmarshallJSONToPopularity_Pass() {
 	mf := FileInteractionImpl{}
 	rp := []Popularity{{
 		Name:  "Apple",
-		Count: 5,
+		Count: testCount,
 	}}
 	mockPop := PopularityFile{
 		Pop: rp,
