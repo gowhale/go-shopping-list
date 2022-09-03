@@ -4,6 +4,7 @@ package gui
 import (
 	"fmt"
 	"go-shopping-list/pkg/recipe"
+	fs "io/fs"
 	"os"
 	"os/exec"
 	"testing"
@@ -212,4 +213,31 @@ func (g *workflowTest) Test_NewWorkflow_termWorkflow_workflowPresent_Pass() {
 	wf, err := NewWorkflow(g.mockFileChecker, "windows")
 	g.Nil(err)
 	g.Equal(&terminalFakeWorkflow{}, wf)
+}
+
+func (g *workflowTest) Test_checkWorkflowExistsImpl_Present_Pass() {
+	g.mockFileChecker.On("stat", workflowName).Return(nil, nil)
+
+	present, err := checkWorkflowExistsImpl(g.mockFileChecker)
+	g.Nil(err)
+	g.Equal(true, present)
+}
+
+func (g *workflowTest) Test_checkWorkflowExistsImpl_stat_Error() {
+	statError := "stat error"
+	g.mockFileChecker.On("stat", workflowName).Return(nil, fmt.Errorf(statError))
+	g.mockFileChecker.On("isNotExist", fmt.Errorf(statError)).Return(false)
+
+	present, err := checkWorkflowExistsImpl(g.mockFileChecker)
+	g.EqualError(err, statError)
+	g.Equal(false, present)
+}
+
+func (g *workflowTest) Test_checkWorkflowExistsImpl_NotPresent_Pass() {
+	g.mockFileChecker.On("stat", workflowName).Return(nil, fs.ErrNotExist)
+	g.mockFileChecker.On("isNotExist", fs.ErrNotExist).Return(true)
+
+	present, err := checkWorkflowExistsImpl(g.mockFileChecker)
+	g.Nil(err)
+	g.Equal(false, present)
 }

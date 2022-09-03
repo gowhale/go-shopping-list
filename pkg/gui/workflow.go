@@ -3,9 +3,11 @@ package gui
 import (
 	"fmt"
 	"go-shopping-list/pkg/recipe"
+	"io/fs"
 	"log"
 	"os"
-	"os/exec"
+	"os/exec"	
+
 
 	"golang.org/x/sync/errgroup"
 )
@@ -26,8 +28,9 @@ func NewWorkflow(f fileChecker, os string) (workflowInterface, error) {
 			return &macWorkflow{}, nil
 		}
 		log.Println("Not running on mac!")
+	} else {
+		log.Println("No workflow found!")
 	}
-	log.Println("No workflow found!")
 	log.Println("Printing to terminal to simulate adding of ingredients!")
 	return &terminalFakeWorkflow{}, nil
 }
@@ -37,15 +40,29 @@ type WorkflowChecker struct{}
 //go:generate go run github.com/vektra/mockery/cmd/mockery -name fileChecker -inpkg --filename file_checker_mock.go
 type fileChecker interface {
 	checkWorkflowExists() (bool, error)
+	stat(name string) (fs.FileInfo, error)
+	isNotExist(err error) bool
 }
 
 // checkWorkflowExists tests to see if the mac workflow exists
-func (*WorkflowChecker) checkWorkflowExists() (bool, error) {
-	_, err := os.Stat(workflowName)
+func (f *WorkflowChecker) checkWorkflowExists() (bool, error) {
+	return checkWorkflowExistsImpl(f)
+}
+
+func (f *WorkflowChecker) stat(name string) (fs.FileInfo, error) {
+	return os.Stat(name)
+}
+
+func (f *WorkflowChecker) isNotExist(err error) bool {
+	return os.IsNotExist(err)
+}
+
+func checkWorkflowExistsImpl(f fileChecker) (bool, error) {
+	_, err := f.stat(workflowName)
 	if err == nil {
 		return true, nil
 	}
-	if os.IsNotExist(err) {
+	if f.isNotExist(err) {
 		return false, nil
 	}
 	return false, err
