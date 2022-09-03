@@ -1,17 +1,14 @@
 package gui
 
 import (
-	"fmt"
 	"go-shopping-list/pkg/recipe"
 	"log"
-	"os/exec"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
-	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -35,13 +32,6 @@ type screenInterface interface {
 	updateLabel(string)
 }
 
-type macWorkflow struct{}
-
-//go:generate go run github.com/vektra/mockery/cmd/mockery -name workflowInterface -inpkg --filename workflow_mock.go
-type workflowInterface interface {
-	runReminder(s screenInterface, currentIng recipe.Ingredient) error
-}
-
 func (s *screen) updateProgessBar(percent float64) {
 	s.p.SetValue(percent)
 	s.p.Refresh()
@@ -53,7 +43,7 @@ func (s *screen) updateLabel(msg string) {
 }
 
 // NewApp returns a fyne.Window
-func NewApp(recipes []recipe.Recipe) fyne.Window {
+func NewApp(recipes []recipe.Recipe, wf workflowInterface) fyne.Window {
 	myApp := app.New()
 	myWindow := myApp.NewWindow("List Widget")
 
@@ -67,10 +57,8 @@ func NewApp(recipes []recipe.Recipe) fyne.Window {
 		p: p,
 	}
 
-	w := macWorkflow{}
-
 	// Recipe list with all recipes
-	recipeList := createNewListOfRecipes(s, &recipe.FileInteractionImpl{}, &w, recipes)
+	recipeList := createNewListOfRecipes(s, &recipe.FileInteractionImpl{}, wf, recipes)
 
 	// Create content grid
 	grid := container.New(layout.NewGridWrapLayout(fyne.NewSize(screenWidth, recipeListHeight)), recipeList)
@@ -107,54 +95,4 @@ func itemClicked(s screenInterface, r recipe.Recipe, f recipe.FileReader, w work
 	if err != nil {
 		log.Printf("error whilst adding ingredients to reminds err=%e", err)
 	}
-}
-
-func addIngredientsToReminders(r recipe.Recipe, s screenInterface, f recipe.FileReader, w workflowInterface) error {
-	s.updateLabel(fmt.Sprintf("Starting to add ingredients for Recipe: %s", r.Name))
-
-	progress := float64(progressBarEmpty)
-	s.updateProgessBar(progress)
-	ingAdded := []recipe.Ingredient{}
-
-	g := new(errgroup.Group)
-	for _, ing := range r.Ings {
-		ing := ing
-		g.Go(func() error {
-			if err := w.runReminder(s, ing); err != nil {
-				return err
-			}
-			defer func() {
-				ingAdded = append(ingAdded, ing)
-				progress = float64(len(ingAdded)) / float64(len(r.Ings))
-				s.updateProgessBar(progress)
-				log.Printf("progress=%.2f adding ing='%s'", progress, ing.String())
-			}()
-			return nil
-		})
-	}
-	if err := g.Wait(); err != nil {
-		return err
-	}
-
-	if err := f.IncrementPopularity(r.Name); err != nil {
-		return err
-	}
-
-	progress = progressBarFull
-	log.Printf("progress=%.2f", progress)
-	s.updateProgessBar(progress)
-	s.updateLabel(recipeFinishLabel)
-	return nil
-}
-
-var execCommand = exec.Command
-
-func (*macWorkflow) runReminder(s screenInterface, currentIng recipe.Ingredient) error {
-	cmd := execCommand("automator", "-i", fmt.Sprintf(`"%s"`, currentIng.String()), "shopping.workflow")
-	_, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("error adding the following ingredient=%s err=%w", currentIng.String(), err)
-	}
-	s.updateLabel(fmt.Sprintf("Added Ingredient: %s", currentIng.String()))
-	return nil
 }

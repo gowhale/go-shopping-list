@@ -179,6 +179,3 @@ func ProcessRecipes(f FileReader) ([]Recipe, error) {
 	return allRecipes, nil
 }
 
-func (i *Ingredient) String() string {
-	return fmt.Sprintf("%s %s %s", i.UnitSize, i.UnitType, i.IngredientName)
-}
