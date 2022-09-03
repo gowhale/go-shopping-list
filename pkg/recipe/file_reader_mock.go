@@ -13,8 +13,8 @@ type MockFileReader struct {
 	mock.Mock
 }
 
-// GetPopularity provides a mock function with given fields: recipeName
-func (_m *MockFileReader) GetPopularity(recipeName string) (int, error) {
+// getPopularity provides a mock function with given fields: recipeName
+func (_m *MockFileReader) getPopularity(recipeName string) (int, error) {
 	ret := _m.Called(recipeName)
 
 	var r0 int
@@ -48,8 +48,8 @@ func (_m *MockFileReader) IncrementPopularity(recipeName string) error {
 	return r0
 }
 
-// LoadPopularityFile provides a mock function with given fields:
-func (_m *MockFileReader) LoadPopularityFile() (Popularity, error) {
+// loadPopularityFile provides a mock function with given fields:
+func (_m *MockFileReader) loadPopularityFile() (Popularity, error) {
 	ret := _m.Called()
 
 	var r0 Popularity
@@ -69,8 +69,8 @@ func (_m *MockFileReader) LoadPopularityFile() (Popularity, error) {
 	return r0, r1
 }
 
-// LoadRecipeFile provides a mock function with given fields: fileName
-func (_m *MockFileReader) LoadRecipeFile(fileName fs.FileInfo) (Recipe, error) {
+// loadRecipeFile provides a mock function with given fields: fileName
+func (_m *MockFileReader) loadRecipeFile(fileName fs.FileInfo) (Recipe, error) {
 	ret := _m.Called(fileName)
 
 	var r0 Recipe
@@ -90,8 +90,8 @@ func (_m *MockFileReader) LoadRecipeFile(fileName fs.FileInfo) (Recipe, error) {
 	return r0, r1
 }
 
-// MarshallJSON provides a mock function with given fields: pop
-func (_m *MockFileReader) MarshallJSON(pop Popularity) ([]byte, error) {
+// marshallJSON provides a mock function with given fields: pop
+func (_m *MockFileReader) marshallJSON(pop Popularity) ([]byte, error) {
 	ret := _m.Called(pop)
 
 	var r0 []byte
@@ -113,8 +113,8 @@ func (_m *MockFileReader) MarshallJSON(pop Popularity) ([]byte, error) {
 	return r0, r1
 }
 
-// ReadFile provides a mock function with given fields: filePath
-func (_m *MockFileReader) ReadFile(filePath string) ([]byte, error) {
+// readFile provides a mock function with given fields: filePath
+func (_m *MockFileReader) readFile(filePath string) ([]byte, error) {
 	ret := _m.Called(filePath)
 
 	var r0 []byte
@@ -136,8 +136,8 @@ func (_m *MockFileReader) ReadFile(filePath string) ([]byte, error) {
 	return r0, r1
 }
 
-// ReadRecipeDirectory provides a mock function with given fields:
-func (_m *MockFileReader) ReadRecipeDirectory() ([]fs.FileInfo, error) {
+// readRecipeDirectory provides a mock function with given fields:
+func (_m *MockFileReader) readRecipeDirectory() ([]fs.FileInfo, error) {
 	ret := _m.Called()
 
 	var r0 []fs.FileInfo
@@ -159,8 +159,8 @@ func (_m *MockFileReader) ReadRecipeDirectory() ([]fs.FileInfo, error) {
 	return r0, r1
 }
 
-// UnmarshallJSONToPopularity provides a mock function with given fields: file
-func (_m *MockFileReader) UnmarshallJSONToPopularity(file []byte) (Popularity, error) {
+// unmarshallJSONToPopularity provides a mock function with given fields: file
+func (_m *MockFileReader) unmarshallJSONToPopularity(file []byte) (Popularity, error) {
 	ret := _m.Called(file)
 
 	var r0 Popularity
@@ -180,8 +180,8 @@ func (_m *MockFileReader) UnmarshallJSONToPopularity(file []byte) (Popularity, e
 	return r0, r1
 }
 
-// UnmarshallJSONToRecipe provides a mock function with given fields: file
-func (_m *MockFileReader) UnmarshallJSONToRecipe(file []byte) (Recipe, error) {
+// unmarshallJSONToRecipe provides a mock function with given fields: file
+func (_m *MockFileReader) unmarshallJSONToRecipe(file []byte) (Recipe, error) {
 	ret := _m.Called(file)
 
 	var r0 Recipe
@@ -201,8 +201,8 @@ func (_m *MockFileReader) UnmarshallJSONToRecipe(file []byte) (Recipe, error) {
 	return r0, r1
 }
 
-// WriteFile provides a mock function with given fields: newFile
-func (_m *MockFileReader) WriteFile(newFile []byte) error {
+// writeFile provides a mock function with given fields: newFile
+func (_m *MockFileReader) writeFile(newFile []byte) error {
 	ret := _m.Called(newFile)
 
 	var r0 error
@@ -215,8 +215,8 @@ func (_m *MockFileReader) WriteFile(newFile []byte) error {
 	return r0
 }
 
-// WritePopularityFile provides a mock function with given fields: pop
-func (_m *MockFileReader) WritePopularityFile(pop Popularity) error {
+// writePopularityFile provides a mock function with given fields: pop
+func (_m *MockFileReader) writePopularityFile(pop Popularity) error {
 	ret := _m.Called(pop)
 
 	var r0 error
