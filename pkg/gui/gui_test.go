@@ -1,3 +1,4 @@
+// Package gui is responsible for code relating to user interaction
 package gui
 
 import (
