@@ -39,7 +39,7 @@ type macWorkflow struct{}
 
 //go:generate go run github.com/vektra/mockery/cmd/mockery -name workflowInterface -inpkg --filename workflow_mock.go
 type workflowInterface interface {
-	runReminder(s screenInterface, currentIng recipe.Ingredients) error
+	runReminder(s screenInterface, currentIng recipe.Ingredient) error
 }
 
 func (s *screen) updateProgessBar(percent float64) {
@@ -114,7 +114,7 @@ func addIngredientsToReminders(r recipe.Recipe, s screenInterface, f recipe.File
 
 	progress := float64(progressBarEmpty)
 	s.updateProgessBar(progress)
-	ingAdded := []recipe.Ingredients{}
+	ingAdded := []recipe.Ingredient{}
 
 	g := new(errgroup.Group)
 	for _, ing := range r.Ings {
@@ -149,7 +149,7 @@ func addIngredientsToReminders(r recipe.Recipe, s screenInterface, f recipe.File
 
 var execCommand = exec.Command
 
-func (*macWorkflow) runReminder(s screenInterface, currentIng recipe.Ingredients) error {
+func (*macWorkflow) runReminder(s screenInterface, currentIng recipe.Ingredient) error {
 	cmd := execCommand("automator", "-i", fmt.Sprintf(`"%s"`, currentIng.String()), "shopping.workflow")
 	_, err := cmd.CombinedOutput()
 	if err != nil {

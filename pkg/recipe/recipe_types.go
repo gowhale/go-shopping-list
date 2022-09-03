@@ -1,13 +1,13 @@
 package recipe
 
 type Recipe struct {
-	Name  string        `json:"recipe_name"`
-	Ings  []Ingredients `json:"ingredients"`
-	Meth  []string      `json:"method"`
+	Name  string       `json:"recipe_name"`
+	Ings  []Ingredient `json:"ingredients"`
+	Meth  []string     `json:"method"`
 	Count int
 }
 
-type Ingredients struct {
+type Ingredient struct {
 	UnitSize       string `json:"unit_size"`
 	UnitType       string `json:"unit_type"`
 	IngredientName string `json:"ingredient_name"`

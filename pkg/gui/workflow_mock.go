@@ -14,11 +14,11 @@ type MockWorkflowInterface struct {
 }
 
 // runReminder provides a mock function with given fields: s, currentIng
-func (_m *MockWorkflowInterface) runReminder(s screenInterface, currentIng recipe.Ingredients) error {
+func (_m *MockWorkflowInterface) runReminder(s screenInterface, currentIng recipe.Ingredient) error {
 	ret := _m.Called(s, currentIng)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(screenInterface, recipe.Ingredients) error); ok {
+	if rf, ok := ret.Get(0).(func(screenInterface, recipe.Ingredient) error); ok {
 		r0 = rf(s, currentIng)
 	} else {
 		r0 = ret.Error(0)

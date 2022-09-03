@@ -45,14 +45,14 @@ func (*guiTest) Test_mockFileInfo() {
 }
 
 func (g *guiTest) Test_AddIngredientsToReminders_Pass() {
-	ing := recipe.Ingredients{
+	ing := recipe.Ingredient{
 		UnitSize:       "PEAR",
 		UnitType:       "BANANA",
 		IngredientName: "LYCHE",
 	}
 	testRecipe := recipe.Recipe{
 		Name: "DURIAN",
-		Ings: []recipe.Ingredients{ing},
+		Ings: []recipe.Ingredient{ing},
 	}
 	g.mockScreen.On(updateLabelString, "Starting to add ingredients for Recipe: DURIAN")
 	g.mockScreen.On(updateProgessBarString, progressBarEmpty)
@@ -65,14 +65,14 @@ func (g *guiTest) Test_AddIngredientsToReminders_Pass() {
 }
 
 func (g *guiTest) Test_AddIngredientsToReminders_IncrementPopularity_Error() {
-	ing := recipe.Ingredients{
+	ing := recipe.Ingredient{
 		UnitSize:       "PEACH",
 		UnitType:       "BLUEBERRY",
 		IngredientName: "RASPBERRY",
 	}
 	testRecipe := recipe.Recipe{
 		Name: "MANGO",
-		Ings: []recipe.Ingredients{ing},
+		Ings: []recipe.Ingredient{ing},
 	}
 	g.mockScreen.On(updateLabelString, "Starting to add ingredients for Recipe: MANGO")
 	g.mockScreen.On(updateProgessBarString, progressBarEmpty)
@@ -85,7 +85,7 @@ func (g *guiTest) Test_AddIngredientsToReminders_IncrementPopularity_Error() {
 }
 
 func (g *guiTest) Test_AddIngredientsToReminders_runReminder_Error() {
-	ing := recipe.Ingredients{
+	ing := recipe.Ingredient{
 		UnitSize:       "ORANGE",
 		UnitType:       "BANANA",
 		IngredientName: "RASPBERRY",
@@ -93,7 +93,7 @@ func (g *guiTest) Test_AddIngredientsToReminders_runReminder_Error() {
 
 	testRecipe := recipe.Recipe{
 		Name: "APPLE",
-		Ings: []recipe.Ingredients{ing},
+		Ings: []recipe.Ingredient{ing},
 	}
 
 	g.mockScreen.On(updateLabelString, "Starting to add ingredients for Recipe: APPLE")
@@ -142,7 +142,7 @@ func (g *guiTest) Test_runReminder_Pass() {
 		execCommand = exec.Command
 	}()
 	m := macWorkflow{}
-	ing := recipe.Ingredients{
+	ing := recipe.Ingredient{
 		UnitSize:       "WATERMELON",
 		UnitType:       "CHERRY",
 		IngredientName: "PITAYA",
@@ -158,7 +158,7 @@ func (g *guiTest) Test_runReminder_Error() {
 		execCommand = exec.Command
 	}()
 	m := macWorkflow{}
-	ing := recipe.Ingredients{
+	ing := recipe.Ingredient{
 		UnitSize:       "PEAR",
 		UnitType:       "FIG",
 		IngredientName: "AVOCADO",

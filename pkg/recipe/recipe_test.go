@@ -27,7 +27,7 @@ func TestRecipeTest(r *testing.T) {
 }
 
 func (r *recipeTest) Test_String() {
-	i := Ingredients{
+	i := Ingredient{
 		UnitSize:       "DURIAN",
 		UnitType:       "APPLE",
 		IngredientName: "PEAR",

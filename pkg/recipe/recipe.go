@@ -71,7 +71,7 @@ func (*FileInteractionImpl) marshallJSON(pop Popularity) ([]byte, error) {
 	return json.MarshalIndent(pop, "", " ")
 }
 
-func (f *FileInteractionImpl) writeFile(newFile []byte) error {
+func (*FileInteractionImpl) writeFile(newFile []byte) error {
 	return ioutil.WriteFile(popularityFileName, newFile, 0644)
 }
 
@@ -171,6 +171,6 @@ func ProcessIngredients(f FileReader) ([]Recipe, error) {
 	return allRecipes, nil
 }
 
-func (i *Ingredients) String() string {
+func (i *Ingredient) String() string {
 	return fmt.Sprintf("%s %s %s", i.UnitSize, i.UnitType, i.IngredientName)
 }
