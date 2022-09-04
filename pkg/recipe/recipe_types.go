@@ -29,5 +29,8 @@ type Ingredient struct {
 }
 
 func (i *Ingredient) String() string {
+	if i.UnitSize == "0" {
+		return fmt.Sprintf("%s %s", i.UnitType, i.IngredientName)
+	}
 	return fmt.Sprintf("%s %s %s", i.UnitSize, i.UnitType, i.IngredientName)
 }
