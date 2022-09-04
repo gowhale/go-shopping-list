@@ -1,6 +1,7 @@
 package gui
 
 import (
+	"fmt"
 	"go-shopping-list/pkg/recipe"
 	"log"
 
@@ -13,8 +14,8 @@ import (
 
 const (
 	screenWidth       = 600
-	screenHeight      = 1200
-	recipeListHeight  = 1050
+	screenHeight      = 700
+	recipeListHeight  = 650
 	progressBarHeight = 50
 	progressBarEmpty  = 0.0
 	progressBarFull   = 1.0
@@ -43,7 +44,7 @@ func (s *screen) updateLabel(msg string) {
 }
 
 // NewApp returns a fyne.Window
-func NewApp(recipes []recipe.Recipe, wf workflowInterface) fyne.Window {
+func NewApp(recipes []recipe.Recipe, recipeMap map[string]recipe.Recipe, wf workflowInterface) fyne.Window {
 	myApp := app.New()
 	myWindow := myApp.NewWindow("List Widget")
 
@@ -60,10 +61,18 @@ func NewApp(recipes []recipe.Recipe, wf workflowInterface) fyne.Window {
 	// Recipe list with all recipes
 	recipeList := createNewListOfRecipes(s, &recipe.FileInteractionImpl{}, wf, recipes)
 
-	// Create content grid
-	grid := container.New(layout.NewGridWrapLayout(fyne.NewSize(screenWidth, recipeListHeight)), recipeList)
+	submit := widget.NewButton("Add To Shopping List", func() {
+		fmt.Println("Currently selected Recipes:")
+		for _, v := range recipeList.Selected {
+			if r, ok := recipeMap[v]; ok {
+				addIngredientsToReminders(r, s, &recipe.FileInteractionImpl{}, wf)
+			}
+		}
+	})
 	gridTop := container.New(layout.NewGridWrapLayout(fyne.NewSize(screenWidth, progressBarHeight)), label, p)
-	masterGrid := container.New(layout.NewVBoxLayout(), gridTop, grid)
+	grid := container.New(layout.NewGridWrapLayout(fyne.NewSize(screenWidth, recipeListHeight)), recipeList)
+	gridBottum := container.New(layout.NewGridWrapLayout(fyne.NewSize(screenWidth, progressBarHeight)), submit)
+	masterGrid := container.New(layout.NewVBoxLayout(), gridTop, grid, gridBottum)
 
 	// Set Window and execute
 	myWindow.SetFixedSize(true)
@@ -73,21 +82,24 @@ func NewApp(recipes []recipe.Recipe, wf workflowInterface) fyne.Window {
 	return myWindow
 }
 
-func createNewListOfRecipes(s screenInterface, f recipe.FileReader, w workflowInterface, recipes []recipe.Recipe) *widget.List {
-	// Recipe list with all recipes
-	return widget.NewList(
-		func() int {
-			return len(recipes)
-		},
-		func() fyne.CanvasObject {
-			return widget.NewButton("template", func() {})
-		},
-		func(i widget.ListItemID, o fyne.CanvasObject) {
-			o.(*widget.Button).SetText(recipes[i].Name)
-			o.(*widget.Button).OnTapped = func() {
-				itemClicked(s, recipes[i], f, w)
-			}
+func createCheckBoxs(recipes []recipe.Recipe) []fyne.CanvasObject {
+	allChecks := []fyne.CanvasObject{}
+	for _, r := range recipes {
+		check := widget.NewCheck(r.Name, func(value bool) {
+			log.Printf("recipt=%s value=%t", r.Name, value)
 		})
+		allChecks = append(allChecks, check)
+	}
+	return allChecks
+}
+
+func createNewListOfRecipes(s screenInterface, f recipe.FileReader, w workflowInterface, recipes []recipe.Recipe) *widget.CheckGroup {
+	// Recipe list with all recipes
+	var s2 []string
+	for _, v := range recipes {
+		s2 = append(s2, v.Name)
+	}
+	return widget.NewCheckGroup(s2, nil)
 }
 
 func itemClicked(s screenInterface, r recipe.Recipe, f recipe.FileReader, w workflowInterface) {

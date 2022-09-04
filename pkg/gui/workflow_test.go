@@ -46,7 +46,7 @@ func Test_workflowTest(t *testing.T) {
 
 func (*workflowTest) Test_mockFileInfo() {
 	testRecipe := []recipe.Recipe{}
-	_ = NewApp(testRecipe, &TerminalFakeWorkflow{})
+	_ = NewApp(testRecipe, nil, &TerminalFakeWorkflow{})
 }
 
 func (g *workflowTest) Test_AddIngredientsToReminders_Pass() {

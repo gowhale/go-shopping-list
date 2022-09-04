@@ -149,11 +149,13 @@ func writePopularityFileImpl(f FileReader, pop PopularityFile) error {
 }
 
 // ProcessRecipes processes recipe JSON files from the recipe folder
-func ProcessRecipes(f FileReader) ([]Recipe, error) {
+func ProcessRecipes(f FileReader) ([]Recipe, map[string]Recipe, error) {
 	files, err := f.readRecipeDirectory()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
+
+	uniqueRecipeNames := map[string]Recipe{}
 
 	// Process every file and put into Recipe strucr
 	allRecipes := []Recipe{}
@@ -161,13 +163,20 @@ func ProcessRecipes(f FileReader) ([]Recipe, error) {
 		if !fileName.IsDir() {
 			recipe, err := f.loadRecipeFile(fileName)
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
+			
+			// Check if duplicate recipe name
+			if _, ok := uniqueRecipeNames[recipe.Name]; ok {
+				return nil, nil, fmt.Errorf("duplicate recipe name detected. name=%s", recipe.Name)
+			}
+
 			recipe.Count, err = f.getPopularity(recipe.Name)
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 			allRecipes = append(allRecipes, recipe)
+			uniqueRecipeNames[recipe.Name] = recipe
 		}
 	}
 
@@ -176,6 +185,5 @@ func ProcessRecipes(f FileReader) ([]Recipe, error) {
 	})
 
 	log.Printf("amount of recipes=%d", len(allRecipes))
-	return allRecipes, nil
+	return allRecipes, uniqueRecipeNames, nil
 }
-
