@@ -24,7 +24,7 @@ func (i *ingredientsTest) Test_CombineRecipesToIngredients_Nil() {
 	i.Equal([]Ingredient{}, ings)
 }
 
-func (i *ingredientsTest) Test_CombineRecipesToIngredients_Combine() {
+func (i *ingredientsTest) Test_CombineRecipesToIngredients_SameIng_Combine() {
 	r1 := Recipe{
 		Ings: []Ingredient{
 			Ingredient{
@@ -48,6 +48,43 @@ func (i *ingredientsTest) Test_CombineRecipesToIngredients_Combine() {
 		UnitType:       "tsbp",
 		IngredientName: "Olive Oil",
 	}}
+	ings := CombineRecipesToIngredients([]Recipe{r1, r2})
+	i.Equal(expected, ings)
+}
+func (i *ingredientsTest) Test_CombineRecipesToIngredients_DiffIng_Combine() {
+	r1 := Recipe{
+		Ings: []Ingredient{
+			Ingredient{
+				UnitSize:       "1",
+				UnitType:       "large",
+				IngredientName: "onion",
+			},
+		},
+	}
+	r2 := Recipe{
+		Ings: []Ingredient{
+			Ingredient{
+				UnitSize:       "3",
+				UnitType:       "large",
+				IngredientName: "onion",
+			},
+			Ingredient{
+				UnitSize:       "1",
+				UnitType:       "tsp",
+				IngredientName: "oil",
+			},
+		},
+	}
+	expected := []Ingredient{{
+		UnitSize:       "4.00",
+		UnitType:       "large",
+		IngredientName: "onion",
+	}, {
+		UnitSize:       "1",
+		UnitType:       "tsp",
+		IngredientName: "oil",
+	},
+	}
 	ings := CombineRecipesToIngredients([]Recipe{r1, r2})
 	i.Equal(expected, ings)
 }

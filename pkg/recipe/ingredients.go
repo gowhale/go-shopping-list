@@ -2,26 +2,28 @@ package recipe
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 )
 
 func CombineRecipesToIngredients(recipes []Recipe) []Ingredient {
-	ingsToReturn := []Ingredient{}
 	uniqueIngredients := map[string]Ingredient{}
 	for _, r := range recipes {
 		for _, i := range r.Ings {
+
+			// unique identifier is type and name, as could have grams, ounces, kg's of same ing
 			combineTypeName := fmt.Sprintf("%s-%s", i.UnitType, i.IngredientName)
 			if _, ok := uniqueIngredients[combineTypeName]; !ok {
 				uniqueIngredients[combineTypeName] = i
 			} else {
 				currentSize, err := strconv.ParseFloat(uniqueIngredients[combineTypeName].UnitSize, 32)
 				if err != nil {
-					fmt.Println() // 3.1415927410125732
+					log.Fatalln(err)
 				}
 
 				sizeToAdd, err := strconv.ParseFloat(i.UnitSize, 32)
 				if err != nil {
-					fmt.Println() // 3.1415927410125732
+					log.Fatalln(err)
 				}
 				oldIng := uniqueIngredients[combineTypeName]
 				newSize := fmt.Sprintf("%.2f", currentSize+sizeToAdd)
@@ -31,6 +33,7 @@ func CombineRecipesToIngredients(recipes []Recipe) []Ingredient {
 		}
 	}
 
+	ingsToReturn := []Ingredient{}
 	for _, ing := range uniqueIngredients {
 		ingsToReturn = append(ingsToReturn, ing)
 	}

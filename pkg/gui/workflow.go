@@ -80,15 +80,14 @@ type workflowInterface interface {
 	runReminder(s screenInterface, currentIng recipe.Ingredient) error
 }
 
-func addIngredientsToReminders(r recipe.Recipe, s screenInterface, f recipe.FileReader, w workflowInterface) error {
-	s.updateLabel(fmt.Sprintf("Starting to add ingredients for Recipe: %s", r.Name))
+func addIngredientsToReminders(ings []recipe.Ingredient, s screenInterface, f recipe.FileReader, w workflowInterface) error {
 
 	progress := float64(progressBarEmpty)
 	s.updateProgessBar(progress)
 	ingAdded := []recipe.Ingredient{}
 
 	g := new(errgroup.Group)
-	for _, ing := range r.Ings {
+	for _, ing := range ings {
 		ing := ing
 		g.Go(func() error {
 			if err := w.runReminder(s, ing); err != nil {
@@ -96,7 +95,7 @@ func addIngredientsToReminders(r recipe.Recipe, s screenInterface, f recipe.File
 			}
 			defer func() {
 				ingAdded = append(ingAdded, ing)
-				progress = float64(len(ingAdded)) / float64(len(r.Ings))
+				progress = float64(len(ingAdded)) / float64(len(ings))
 				s.updateProgessBar(progress)
 				log.Printf("progress=%.2f adding ing='%s'", progress, ing.String())
 			}()
@@ -104,10 +103,6 @@ func addIngredientsToReminders(r recipe.Recipe, s screenInterface, f recipe.File
 		})
 	}
 	if err := g.Wait(); err != nil {
-		return err
-	}
-
-	if err := f.IncrementPopularity(r.Name); err != nil {
 		return err
 	}
 

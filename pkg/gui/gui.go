@@ -63,10 +63,21 @@ func NewApp(recipes []recipe.Recipe, recipeMap map[string]recipe.Recipe, wf work
 
 	submit := widget.NewButton("Add To Shopping List", func() {
 		fmt.Println("Currently selected Recipes:")
+		recipesSelected := []recipe.Recipe{}
 		for _, v := range recipeList.Selected {
 			if r, ok := recipeMap[v]; ok {
-				addIngredientsToReminders(r, s, &recipe.FileInteractionImpl{}, wf)
+				recipesSelected = append(recipesSelected, r)
+				f := recipe.FileInteractionImpl{}
+				if err := f.IncrementPopularity(r.Name); err != nil {
+					log.Fatalln(err)
+				}
 			}
+			
+		}
+		ings := recipe.CombineRecipesToIngredients(recipesSelected)
+		err := addIngredientsToReminders(ings, s, &recipe.FileInteractionImpl{}, wf)
+		if err != nil {
+			log.Fatalln(err)
 		}
 	})
 	gridTop := container.New(layout.NewGridWrapLayout(fyne.NewSize(screenWidth, progressBarHeight)), label, p)
@@ -100,11 +111,4 @@ func createNewListOfRecipes(s screenInterface, f recipe.FileReader, w workflowIn
 		s2 = append(s2, v.Name)
 	}
 	return widget.NewCheckGroup(s2, nil)
-}
-
-func itemClicked(s screenInterface, r recipe.Recipe, f recipe.FileReader, w workflowInterface) {
-	err := addIngredientsToReminders(r, s, f, w)
-	if err != nil {
-		log.Printf("error whilst adding ingredients to reminds err=%e", err)
-	}
 }
