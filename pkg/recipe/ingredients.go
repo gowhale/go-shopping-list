@@ -18,7 +18,6 @@ func CombineRecipesToIngredients(recipes []Recipe) []Ingredient {
 			} else {
 				currentSize, err := strconv.ParseFloat(uniqueIngredients[combineTypeName].UnitSize, 32)
 				if err != nil {
-					log.Fatalln(err)
 				}
 
 				sizeToAdd, err := strconv.ParseFloat(i.UnitSize, 32)

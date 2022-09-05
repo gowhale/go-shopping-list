@@ -77,11 +77,28 @@ func checkWorkflowExistsImpl(f fileChecker) (bool, error) {
 
 //go:generate go run github.com/vektra/mockery/cmd/mockery -name workflowInterface -inpkg --filename workflow_mock.go
 type workflowInterface interface {
+	addIngredientsToReminders(ings []recipe.Ingredient, s screenInterface, f recipe.FileReader, w workflowInterface) error
 	runReminder(s screenInterface, currentIng recipe.Ingredient) error
+	submitShoppingList(s screenInterface, wf workflowInterface, fr recipe.FileReader, recipes []string, recipeMap map[string]recipe.Recipe) error
+}
+
+func submitShoppingList(s screenInterface, wf workflowInterface, fr recipe.FileReader, recipes []string, recipeMap map[string]recipe.Recipe) error {
+	fmt.Println("Currently selected Recipes:")
+	recipesSelected := []recipe.Recipe{}
+	for _, v := range recipes {
+		if r, ok := recipeMap[v]; ok {
+			recipesSelected = append(recipesSelected, r)
+			if err := fr.IncrementPopularity(r.Name); err != nil {
+				return err
+			}
+		}
+
+	}
+	ings := recipe.CombineRecipesToIngredients(recipesSelected)
+	return wf.addIngredientsToReminders(ings, s, &recipe.FileInteractionImpl{}, wf)
 }
 
 func addIngredientsToReminders(ings []recipe.Ingredient, s screenInterface, f recipe.FileReader, w workflowInterface) error {
-
 	progress := float64(progressBarEmpty)
 	s.updateProgessBar(progress)
 	ingAdded := []recipe.Ingredient{}
@@ -117,6 +134,14 @@ var execCommand = exec.Command
 
 type macWorkflow struct{}
 
+func (*macWorkflow) submitShoppingList(s screenInterface, wf workflowInterface, fr recipe.FileReader, recipes []string, recipeMap map[string]recipe.Recipe) error {
+	return submitShoppingList(s, wf, fr, recipes, recipeMap)
+}
+
+func (*macWorkflow) addIngredientsToReminders(ings []recipe.Ingredient, s screenInterface, f recipe.FileReader, w workflowInterface) error {
+	return addIngredientsToReminders(ings, s, f, w)
+}
+
 func (*macWorkflow) runReminder(s screenInterface, currentIng recipe.Ingredient) error {
 	cmd := execCommand("automator", "-i", fmt.Sprintf(`"%s"`, currentIng.String()), "shopping.workflow")
 	_, err := cmd.CombinedOutput()
@@ -129,6 +154,14 @@ func (*macWorkflow) runReminder(s screenInterface, currentIng recipe.Ingredient)
 
 // TerminalFakeWorkflow can be used to just print to termnial
 type TerminalFakeWorkflow struct{}
+
+func (*TerminalFakeWorkflow) submitShoppingList(s screenInterface, wf workflowInterface, fr recipe.FileReader, recipes []string, recipeMap map[string]recipe.Recipe) error {
+	return submitShoppingList(s, wf, fr, recipes, recipeMap)
+}
+
+func (*TerminalFakeWorkflow) addIngredientsToReminders(ings []recipe.Ingredient, s screenInterface, f recipe.FileReader, w workflowInterface) error {
+	return addIngredientsToReminders(ings, s, f, w)
+}
 
 func (*TerminalFakeWorkflow) runReminder(_ screenInterface, currentIng recipe.Ingredient) error {
 	log.Printf("PRETENDING TO ADD INGREDIENT=%s", currentIng.String())

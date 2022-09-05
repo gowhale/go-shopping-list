@@ -1,7 +1,6 @@
 package gui
 
 import (
-	"fmt"
 	"go-shopping-list/pkg/recipe"
 
 	"fyne.io/fyne/v2"
@@ -42,26 +41,9 @@ func (s *screen) updateLabel(msg string) {
 	s.l.Refresh()
 }
 
-func submitShoppingList(s screenInterface, wf workflowInterface, recipes []string, recipeMap map[string]recipe.Recipe) error {
-	fmt.Println("Currently selected Recipes:")
-	recipesSelected := []recipe.Recipe{}
-	for _, v := range recipes {
-		if r, ok := recipeMap[v]; ok {
-			recipesSelected = append(recipesSelected, r)
-			f := recipe.FileInteractionImpl{}
-			if err := f.IncrementPopularity(r.Name); err != nil {
-				return err
-			}
-		}
-
-	}
-	ings := recipe.CombineRecipesToIngredients(recipesSelected)
-	return addIngredientsToReminders(ings, s, &recipe.FileInteractionImpl{}, wf)
-}
-
-func createSubmitButton(s screenInterface, wf workflowInterface, recipes []string, recipeMap map[string]recipe.Recipe) *widget.Button {
+func createSubmitButton(s screenInterface, wf workflowInterface, fr recipe.FileReader, recipes []string, recipeMap map[string]recipe.Recipe) *widget.Button {
 	return widget.NewButton("Add To Shopping List", func() {
-		submitShoppingList(s, wf, recipes, recipeMap)
+		wf.submitShoppingList(s, wf, fr, recipes, recipeMap)
 	})
 }
 
@@ -80,6 +62,8 @@ func NewApp(recipes []recipe.Recipe, recipeMap map[string]recipe.Recipe, wf work
 		p: p,
 	}
 
+	fr := &recipe.FileInteractionImpl{}
+
 	// Recipe list with all recipes
 	var recipesAsStrings []string
 	for _, v := range recipes {
@@ -87,7 +71,7 @@ func NewApp(recipes []recipe.Recipe, recipeMap map[string]recipe.Recipe, wf work
 	}
 	recipeList := createNewListOfRecipes(s, &recipe.FileInteractionImpl{}, wf, recipesAsStrings)
 
-	submit := createSubmitButton(s, wf, recipesAsStrings, recipeMap)
+	submit := createSubmitButton(s, wf, fr, recipesAsStrings, recipeMap)
 	gridTop := container.New(layout.NewGridWrapLayout(fyne.NewSize(screenWidth, progressBarHeight)), label, p)
 	grid := container.New(layout.NewGridWrapLayout(fyne.NewSize(screenWidth, recipeListHeight)), recipeList)
 	gridBottum := container.New(layout.NewGridWrapLayout(fyne.NewSize(screenWidth, progressBarHeight)), submit)
