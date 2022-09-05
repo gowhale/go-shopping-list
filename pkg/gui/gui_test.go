@@ -37,29 +37,7 @@ func (g *guiTest) Test_buttonPress() {
 	g.mockScreen.On(updateProgessBarString, progressBarEmpty)
 	g.mockScreen.On(updateProgessBarString, progressBarFull)
 	g.mockScreen.On(updateLabelString, recipeFinishLabel)
+	g.mockWorkflow.On("submitShoppingList", g.mockScreen, g.mockWorkflow, g.mockFileReader, []string{}, map[string]recipe.Recipe{}).Return(nil)
 	test.Tap(b)
 }
 
-// func (g *guiTest) Test_submitShoppingList() {
-// 	testRecipe := recipe.Recipe{
-// 		Name: "MELON",
-// 		Ings: []recipe.Ingredient{
-// 			recipe.Ingredient{
-// 				IngredientName: "PEACH",
-// 				UnitSize:       "1",
-// 				UnitType:       "APPLE",
-// 			},
-// 		},
-// 	}
-// 	recipeMap := map[string]recipe.Recipe{
-// 		testRecipe.Name: testRecipe,
-// 	}
-// 	recipeString := []string{testRecipe.Name}
-// 	g.mockScreen.On(updateProgessBarString, progressBarEmpty)
-// 	g.mockScreen.On(updateProgessBarString, progressBarFull)
-// 	g.mockScreen.On(updateLabelString, recipeFinishLabel)
-// 	g.mockFileReader.On(incrementPopularityString, "MELON").Return(nil)
-// 	g.mockWorkflow.On("addIngredientsToReminders", []recipe.Ingredient{testRecipe.Ings[0]}, g.mockScreen, g.mockFileReader, g.mockWorkflow).Return(nil)
-// 	err := submitShoppingList(g.mockScreen, g.mockWorkflow, g.mockFileReader, recipeString, recipeMap)
-// 	g.Nil(err)
-// }

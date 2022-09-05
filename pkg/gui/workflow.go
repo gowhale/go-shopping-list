@@ -95,7 +95,7 @@ func submitShoppingList(s screenInterface, wf workflowInterface, fr recipe.FileR
 
 	}
 	ings := recipe.CombineRecipesToIngredients(recipesSelected)
-	return wf.addIngredientsToReminders(ings, s, &recipe.FileInteractionImpl{}, wf)
+	return wf.addIngredientsToReminders(ings, s, fr, wf)
 }
 
 func addIngredientsToReminders(ings []recipe.Ingredient, s screenInterface, f recipe.FileReader, w workflowInterface) error {
