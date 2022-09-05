@@ -3,7 +3,6 @@ package gui
 import (
 	"fmt"
 	"go-shopping-list/pkg/recipe"
-	"log"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -100,17 +99,6 @@ func NewApp(recipes []recipe.Recipe, recipeMap map[string]recipe.Recipe, wf work
 	myWindow.SetContent(masterGrid)
 
 	return myWindow
-}
-
-func createCheckBoxs(recipes []recipe.Recipe) []fyne.CanvasObject {
-	allChecks := []fyne.CanvasObject{}
-	for _, r := range recipes {
-		check := widget.NewCheck(r.Name, func(value bool) {
-			log.Printf("recipt=%s value=%t", r.Name, value)
-		})
-		allChecks = append(allChecks, check)
-	}
-	return allChecks
 }
 
 func createNewListOfRecipes(s screenInterface, f recipe.FileReader, w workflowInterface, recipesStr []string) *widget.CheckGroup {
