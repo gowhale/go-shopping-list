@@ -23,12 +23,12 @@ const (
 // FileReader deals with interactions with files
 //go:generate go run github.com/vektra/mockery/cmd/mockery -name FileReader -inpkg --filename file_reader_mock.go
 type FileReader interface {
-	getPopularity(recipeName string) (int, error)
-	IncrementPopularity(recipeName string) error
-	loadPopularityFile() (PopularityFile, error)
+	getPopularity(f FileReader, recipeName string) (int, error)
+	IncrementPopularity(f FileReader, recipeName string) error
+	loadPopularityFile(f FileReader) (PopularityFile, error)
 	marshallJSON(pop PopularityFile) ([]byte, error)
 	readRecipeDirectory() ([]fs.FileInfo, error)
-	loadRecipeFile(fileName fs.FileInfo) (Recipe, error)
+	loadRecipeFile(f FileReader, fileName fs.FileInfo) (Recipe, error)
 	readFile(filePath string) ([]byte, error)
 	unmarshallJSONToPopularity(file []byte) (PopularityFile, error)
 	unmarshallJSONToRecipe(file []byte) (Recipe, error)
@@ -39,16 +39,16 @@ type FileReader interface {
 // FileInteractionImpl is a struct to implement FileReader
 type FileInteractionImpl struct{}
 
-func (f *FileInteractionImpl) getPopularity(recipeName string) (int, error) {
+func (*FileInteractionImpl) getPopularity(f FileReader, recipeName string) (int, error) {
 	return getPopularityImpl(f, recipeName)
 }
 
 // IncrementPopularity incrementes the popularity count of a recipe by 1
-func (f *FileInteractionImpl) IncrementPopularity(recipeName string) error {
+func (*FileInteractionImpl) IncrementPopularity(f FileReader, recipeName string) error {
 	return incrementPopularityImpl(f, recipeName)
 }
 
-func (f *FileInteractionImpl) loadPopularityFile() (PopularityFile, error) {
+func (*FileInteractionImpl) loadPopularityFile(f FileReader) (PopularityFile, error) {
 	return loadPopularityFileImpl(f)
 }
 
@@ -56,7 +56,7 @@ func (*FileInteractionImpl) readRecipeDirectory() ([]fs.FileInfo, error) {
 	return ioutil.ReadDir(recipeFolder)
 }
 
-func (f *FileInteractionImpl) loadRecipeFile(fileName fs.FileInfo) (Recipe, error) {
+func (*FileInteractionImpl) loadRecipeFile(f FileReader, fileName fs.FileInfo) (Recipe, error) {
 	return loadRecipeFileImpl(f, fileName)
 }
 
@@ -88,7 +88,7 @@ func (f *FileInteractionImpl) writePopularityFile(pop PopularityFile) error {
 
 // Implementations of functions
 func incrementPopularityImpl(f FileReader, recipeName string) error {
-	pop, err := f.loadPopularityFile()
+	pop, err := f.loadPopularityFile(f)
 	if err != nil {
 		return err
 	}
@@ -105,7 +105,7 @@ func incrementPopularityImpl(f FileReader, recipeName string) error {
 }
 
 func getPopularityImpl(f FileReader, recipeName string) (int, error) {
-	pop, err := f.loadPopularityFile()
+	pop, err := f.loadPopularityFile(f)
 	if err != nil {
 		log.Printf("error unmarshalling file=%s", popularityFileName)
 		return errorIntReturn, err
@@ -161,17 +161,17 @@ func ProcessRecipes(f FileReader) ([]Recipe, map[string]Recipe, error) {
 	allRecipes := []Recipe{}
 	for _, fileName := range files {
 		if !fileName.IsDir() {
-			recipe, err := f.loadRecipeFile(fileName)
+			recipe, err := f.loadRecipeFile(f, fileName)
 			if err != nil {
 				return nil, nil, err
 			}
-			
+
 			// Check if duplicate recipe name
 			if _, ok := uniqueRecipeNames[recipe.Name]; ok {
 				return nil, nil, fmt.Errorf("duplicate recipe name detected. name=%s", recipe.Name)
 			}
 
-			recipe.Count, err = f.getPopularity(recipe.Name)
+			recipe.Count, err = f.getPopularity(f, recipe.Name)
 			if err != nil {
 				return nil, nil, err
 			}

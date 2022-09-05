@@ -88,7 +88,7 @@ func submitShoppingList(s screenInterface, wf workflowInterface, fr recipe.FileR
 	for _, v := range recipes {
 		if r, ok := recipeMap[v]; ok {
 			recipesSelected = append(recipesSelected, r)
-			if err := fr.IncrementPopularity(r.Name); err != nil {
+			if err := fr.IncrementPopularity(fr, r.Name); err != nil {
 				return err
 			}
 		}
