@@ -2,6 +2,7 @@
 package gui
 
 import (
+	"go-shopping-list/pkg/recipe"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -20,7 +21,7 @@ func TestGuiTest(t *testing.T) {
 	suite.Run(t, new(guiTest))
 }
 
-// func (*guiTest) Test_mockFileInfo() {
-// 	testRecipe := []recipe.Recipe{}
-// 	_ = NewApp(testRecipe, nil, &TerminalFakeWorkflow{})
-// }
+func (*guiTest) Test_mockFileInfo() {
+	testRecipe := []recipe.Recipe{}
+	_ = NewApp(testRecipe, nil, &TerminalFakeWorkflow{})
+}

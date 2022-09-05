@@ -50,64 +50,35 @@ func (*workflowTest) Test_mockFileInfo() {
 }
 
 func (g *workflowTest) Test_AddIngredientsToReminders_Pass() {
-	ing := recipe.Ingredient{
+	ings := []recipe.Ingredient{{
 		UnitSize:       "PEAR",
 		UnitType:       "BANANA",
 		IngredientName: "LYCHE",
-	}
-	testRecipe := recipe.Recipe{
-		Name: "DURIAN",
-		Ings: []recipe.Ingredient{ing},
-	}
+	}}
 	g.mockScreen.On(updateLabelString, "Starting to add ingredients for Recipe: DURIAN")
 	g.mockScreen.On(updateProgessBarString, progressBarEmpty)
 	g.mockScreen.On(updateProgessBarString, progressBarFull)
 	g.mockScreen.On(updateLabelString, recipeFinishLabel)
-	g.mockWorkflow.On(runReminderString, g.mockScreen, ing).Return(nil)
+	g.mockWorkflow.On(runReminderString, g.mockScreen, ings[0]).Return(nil)
 	g.mockFileReader.On(incrementPopularityString, "DURIAN").Return(nil)
-	err := addIngredientsToReminders(testRecipe, g.mockScreen, g.mockFileReader, g.mockWorkflow)
+	err := addIngredientsToReminders(ings, g.mockScreen, g.mockFileReader, g.mockWorkflow)
 	g.Nil(err)
 }
 
-func (g *workflowTest) Test_AddIngredientsToReminders_IncrementPopularity_Error() {
-	ing := recipe.Ingredient{
-		UnitSize:       "PEACH",
-		UnitType:       "BLUEBERRY",
-		IngredientName: "RASPBERRY",
-	}
-	testRecipe := recipe.Recipe{
-		Name: "MANGO",
-		Ings: []recipe.Ingredient{ing},
-	}
-	g.mockScreen.On(updateLabelString, "Starting to add ingredients for Recipe: MANGO")
-	g.mockScreen.On(updateProgessBarString, progressBarEmpty)
-	g.mockScreen.On(updateProgessBarString, progressBarFull)
-	g.mockScreen.On(updateLabelString, recipeFinishLabel)
-	g.mockWorkflow.On(runReminderString, g.mockScreen, ing).Return(nil)
-	g.mockFileReader.On(incrementPopularityString, "MANGO").Return(fmt.Errorf("pop error"))
-	err := addIngredientsToReminders(testRecipe, g.mockScreen, g.mockFileReader, g.mockWorkflow)
-	g.EqualError(err, "pop error")
-}
-
 func (g *workflowTest) Test_AddIngredientsToReminders_runReminder_Error() {
-	ing := recipe.Ingredient{
+	ings := []recipe.Ingredient{{
 		UnitSize:       "ORANGE",
 		UnitType:       "BANANA",
 		IngredientName: "RASPBERRY",
-	}
-
-	testRecipe := recipe.Recipe{
-		Name: "APPLE",
-		Ings: []recipe.Ingredient{ing},
-	}
+	}}
 
 	g.mockScreen.On(updateLabelString, "Starting to add ingredients for Recipe: APPLE")
 	g.mockScreen.On(updateProgessBarString, progressBarEmpty)
 	g.mockScreen.On(updateProgessBarString, progressBarFull)
 	g.mockScreen.On(updateLabelString, recipeFinishLabel)
-	g.mockWorkflow.On(runReminderString, g.mockScreen, ing).Return(fmt.Errorf("reminder error"))
+	g.mockWorkflow.On(runReminderString, g.mockScreen, ings[0]).Return(fmt.Errorf("reminder error"))
 	g.mockFileReader.On(incrementPopularityString, "APPLE").Return(nil)
-	err := addIngredientsToReminders(testRecipe, g.mockScreen, g.mockFileReader, g.mockWorkflow)
+	err := addIngredientsToReminders(ings, g.mockScreen, g.mockFileReader, g.mockWorkflow)
 	g.EqualError(err, "reminder error")
 }
 

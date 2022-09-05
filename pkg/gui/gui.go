@@ -43,6 +43,23 @@ func (s *screen) updateLabel(msg string) {
 	s.l.Refresh()
 }
 
+func submitShoppingList(s screenInterface, wf workflowInterface, recipes []string, recipeMap map[string]recipe.Recipe) error {
+	fmt.Println("Currently selected Recipes:")
+	recipesSelected := []recipe.Recipe{}
+	for _, v := range recipes {
+		if r, ok := recipeMap[v]; ok {
+			recipesSelected = append(recipesSelected, r)
+			f := recipe.FileInteractionImpl{}
+			if err := f.IncrementPopularity(r.Name); err != nil {
+				return err
+			}
+		}
+
+	}
+	ings := recipe.CombineRecipesToIngredients(recipesSelected)
+	return addIngredientsToReminders(ings, s, &recipe.FileInteractionImpl{}, wf)
+}
+
 // NewApp returns a fyne.Window
 func NewApp(recipes []recipe.Recipe, recipeMap map[string]recipe.Recipe, wf workflowInterface) fyne.Window {
 	myApp := app.New()
@@ -59,26 +76,14 @@ func NewApp(recipes []recipe.Recipe, recipeMap map[string]recipe.Recipe, wf work
 	}
 
 	// Recipe list with all recipes
-	recipeList := createNewListOfRecipes(s, &recipe.FileInteractionImpl{}, wf, recipes)
+	var s2 []string
+	for _, v := range recipes {
+		s2 = append(s2, v.Name)
+	}
+	recipeList := createNewListOfRecipes(s, &recipe.FileInteractionImpl{}, wf, s2)
 
 	submit := widget.NewButton("Add To Shopping List", func() {
-		fmt.Println("Currently selected Recipes:")
-		recipesSelected := []recipe.Recipe{}
-		for _, v := range recipeList.Selected {
-			if r, ok := recipeMap[v]; ok {
-				recipesSelected = append(recipesSelected, r)
-				f := recipe.FileInteractionImpl{}
-				if err := f.IncrementPopularity(r.Name); err != nil {
-					log.Fatalln(err)
-				}
-			}
-			
-		}
-		ings := recipe.CombineRecipesToIngredients(recipesSelected)
-		err := addIngredientsToReminders(ings, s, &recipe.FileInteractionImpl{}, wf)
-		if err != nil {
-			log.Fatalln(err)
-		}
+		submitShoppingList(s, wf, s2, recipeMap)
 	})
 	gridTop := container.New(layout.NewGridWrapLayout(fyne.NewSize(screenWidth, progressBarHeight)), label, p)
 	grid := container.New(layout.NewGridWrapLayout(fyne.NewSize(screenWidth, recipeListHeight)), recipeList)
@@ -104,11 +109,7 @@ func createCheckBoxs(recipes []recipe.Recipe) []fyne.CanvasObject {
 	return allChecks
 }
 
-func createNewListOfRecipes(s screenInterface, f recipe.FileReader, w workflowInterface, recipes []recipe.Recipe) *widget.CheckGroup {
+func createNewListOfRecipes(s screenInterface, f recipe.FileReader, w workflowInterface, recipesStr []string) *widget.CheckGroup {
 	// Recipe list with all recipes
-	var s2 []string
-	for _, v := range recipes {
-		s2 = append(s2, v.Name)
-	}
-	return widget.NewCheckGroup(s2, nil)
+	return widget.NewCheckGroup(recipesStr, nil)
 }
