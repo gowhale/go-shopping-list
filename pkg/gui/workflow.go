@@ -94,7 +94,10 @@ func submitShoppingList(s screenInterface, wf workflowInterface, fr recipe.FileR
 		}
 
 	}
-	ings := recipe.CombineRecipesToIngredients(recipesSelected)
+	ings, err := recipe.CombineRecipesToIngredients(recipesSelected)
+	if err != nil{
+		return err
+	}
 	return wf.addIngredientsToReminders(ings, s, fr, wf)
 }
 

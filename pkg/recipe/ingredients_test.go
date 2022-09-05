@@ -20,8 +20,9 @@ func TestGuiTest(t *testing.T) {
 }
 
 func (i *ingredientsTest) Test_CombineRecipesToIngredients_Nil() {
-	ings := CombineRecipesToIngredients(nil)
+	ings, err := CombineRecipesToIngredients(nil)
 	i.Equal([]Ingredient{}, ings)
+	i.Nil(err)
 }
 
 func (i *ingredientsTest) Test_CombineRecipesToIngredients_SameIng_Combine() {
@@ -48,9 +49,11 @@ func (i *ingredientsTest) Test_CombineRecipesToIngredients_SameIng_Combine() {
 		UnitType:       "tsbp",
 		IngredientName: "Olive Oil",
 	}}
-	ings := CombineRecipesToIngredients([]Recipe{r1, r2})
+	ings, err := CombineRecipesToIngredients([]Recipe{r1, r2})
 	i.Equal(expected, ings)
+	i.Nil(err)
 }
+
 func (i *ingredientsTest) Test_CombineRecipesToIngredients_DiffIng_Combine() {
 	r1 := Recipe{
 		Ings: []Ingredient{
@@ -85,6 +88,36 @@ func (i *ingredientsTest) Test_CombineRecipesToIngredients_DiffIng_Combine() {
 		IngredientName: "oil",
 	},
 	}
-	ings := CombineRecipesToIngredients([]Recipe{r1, r2})
+	ings, err := CombineRecipesToIngredients([]Recipe{r1, r2})
+	i.Nil(err)
 	i.Equal(expected, ings)
+}
+
+func (i *ingredientsTest) Test_CombineRecipesToIngredients_DiffIng_Combine_Error() {
+	r1 := Recipe{
+		Ings: []Ingredient{
+			Ingredient{
+				UnitSize:       "1",
+				UnitType:       "large",
+				IngredientName: "onion",
+			},
+		},
+	}
+	r2 := Recipe{
+		Ings: []Ingredient{
+			Ingredient{
+				UnitSize:       "EGG",
+				UnitType:       "large",
+				IngredientName: "onion",
+			},
+			Ingredient{
+				UnitSize:       "EGG",
+				UnitType:       "tsp",
+				IngredientName: "oil",
+			},
+		},
+	}
+	ings, err := CombineRecipesToIngredients([]Recipe{r1, r2})
+	i.Nil(ings)
+	i.EqualError(err, "strconv.ParseFloat: parsing \"EGG\": invalid syntax")
 }

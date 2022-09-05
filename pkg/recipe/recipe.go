@@ -32,7 +32,7 @@ type FileReader interface {
 	readFile(filePath string) ([]byte, error)
 	unmarshallJSONToPopularity(file []byte) (PopularityFile, error)
 	unmarshallJSONToRecipe(file []byte) (Recipe, error)
-	writePopularityFile(pop PopularityFile) error
+	writePopularityFile(f FileReader, pop PopularityFile) error
 	writeFile(newFile []byte) error
 }
 
@@ -82,7 +82,7 @@ func (*FileInteractionImpl) writeFile(newFile []byte) error {
 	return ioutil.WriteFile(popularityFileName, newFile, writePermissionCode)
 }
 
-func (f *FileInteractionImpl) writePopularityFile(pop PopularityFile) error {
+func (*FileInteractionImpl) writePopularityFile(f FileReader, pop PopularityFile) error {
 	return writePopularityFileImpl(f, pop)
 }
 
@@ -101,7 +101,7 @@ func incrementPopularityImpl(f FileReader, recipeName string) error {
 	}
 	pop.Pop[updateIndex].Count++
 
-	return f.writePopularityFile(pop)
+	return f.writePopularityFile(f, pop)
 }
 
 func getPopularityImpl(f FileReader, recipeName string) (int, error) {
@@ -121,7 +121,7 @@ func getPopularityImpl(f FileReader, recipeName string) (int, error) {
 		return val, nil
 	}
 	pop.Pop = append(pop.Pop, Popularity{Name: recipeName, Count: defaultCount})
-	return defaultCount, f.writePopularityFile(pop)
+	return defaultCount, f.writePopularityFile(f, pop)
 }
 
 func loadPopularityFileImpl(f FileReader) (PopularityFile, error) {

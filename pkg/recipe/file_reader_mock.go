@@ -215,13 +215,13 @@ func (_m *MockFileReader) writeFile(newFile []byte) error {
 	return r0
 }
 
-// writePopularityFile provides a mock function with given fields: pop
-func (_m *MockFileReader) writePopularityFile(pop PopularityFile) error {
-	ret := _m.Called(pop)
+// writePopularityFile provides a mock function with given fields: f, pop
+func (_m *MockFileReader) writePopularityFile(f FileReader, pop PopularityFile) error {
+	ret := _m.Called(f, pop)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(PopularityFile) error); ok {
-		r0 = rf(pop)
+	if rf, ok := ret.Get(0).(func(FileReader, PopularityFile) error); ok {
+		r0 = rf(f, pop)
 	} else {
 		r0 = ret.Error(0)
 	}
