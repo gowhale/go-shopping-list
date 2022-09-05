@@ -24,7 +24,7 @@ const (
 // NewWorkflow will return a mac workflow if workflow file present and running on mac
 // Else will return terminal workflow which prints to terminal
 func NewWorkflow(f fileChecker, osString string) (workflowInterface, error) {
-	workflowPresent, err := f.checkWorkflowExists()
+	workflowPresent, err := f.checkWorkflowExists(f)
 	if err != nil {
 		return nil, err
 	}
@@ -46,13 +46,13 @@ type WorkflowChecker struct{}
 
 //go:generate go run github.com/vektra/mockery/cmd/mockery -name fileChecker -inpkg --filename file_checker_mock.go
 type fileChecker interface {
-	checkWorkflowExists() (bool, error)
+	checkWorkflowExists(f fileChecker) (bool, error)
 	stat(name string) (fs.FileInfo, error)
 	isNotExist(err error) bool
 }
 
 // checkWorkflowExists tests to see if the mac workflow exists
-func (f *WorkflowChecker) checkWorkflowExists() (bool, error) {
+func (*WorkflowChecker) checkWorkflowExists(f fileChecker) (bool, error) {
 	return checkWorkflowExistsImpl(f)
 }
 

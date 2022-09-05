@@ -61,7 +61,16 @@ func (g *workflowTest) Test_AddIngredientsToReminders_Pass() {
 	g.mockScreen.On(updateLabelString, recipeFinishLabel)
 	g.mockWorkflow.On(runReminderString, g.mockScreen, ings[0]).Return(nil)
 	g.mockFileReader.On(incrementPopularityString, "DURIAN").Return(nil)
+
 	err := addIngredientsToReminders(ings, g.mockScreen, g.mockFileReader, g.mockWorkflow)
+	g.Nil(err)
+
+	t := TerminalFakeWorkflow{}
+	err = t.addIngredientsToReminders(ings, g.mockScreen, g.mockFileReader, g.mockWorkflow)
+	g.Nil(err)
+
+	m := macWorkflow{}
+	err = m.addIngredientsToReminders(ings, g.mockScreen, g.mockFileReader, g.mockWorkflow)
 	g.Nil(err)
 }
 
@@ -157,7 +166,7 @@ func (g *workflowTest) Test_terminal_runReminder_Pass() {
 }
 
 func (g *workflowTest) Test_NewWorkflow_macWorkflow_Pass() {
-	g.mockFileChecker.On(checkWorkflowExistsString).Return(true, nil)
+	g.mockFileChecker.On(checkWorkflowExistsString, g.mockFileChecker).Return(true, nil)
 
 	wf, err := NewWorkflow(g.mockFileChecker, macOSName)
 	g.Nil(err)
@@ -165,7 +174,7 @@ func (g *workflowTest) Test_NewWorkflow_macWorkflow_Pass() {
 }
 
 func (g *workflowTest) Test_NewWorkflow_checkWorkflowExists_Error() {
-	g.mockFileChecker.On(checkWorkflowExistsString).Return(false, fmt.Errorf("file check error"))
+	g.mockFileChecker.On(checkWorkflowExistsString, g.mockFileChecker).Return(false, fmt.Errorf("file check error"))
 
 	wf, err := NewWorkflow(g.mockFileChecker, macOSName)
 	g.EqualError(err, "file check error")
@@ -173,7 +182,7 @@ func (g *workflowTest) Test_NewWorkflow_checkWorkflowExists_Error() {
 }
 
 func (g *workflowTest) Test_NewWorkflow_termWorkflow_Pass() {
-	g.mockFileChecker.On(checkWorkflowExistsString).Return(false, nil)
+	g.mockFileChecker.On(checkWorkflowExistsString, g.mockFileChecker).Return(false, nil)
 
 	wf, err := NewWorkflow(g.mockFileChecker, macOSName)
 	g.Nil(err)
@@ -181,7 +190,7 @@ func (g *workflowTest) Test_NewWorkflow_termWorkflow_Pass() {
 }
 
 func (g *workflowTest) Test_NewWorkflow_termWorkflow_workflowPresent_Pass() {
-	g.mockFileChecker.On(checkWorkflowExistsString).Return(true, nil)
+	g.mockFileChecker.On(checkWorkflowExistsString, g.mockFileChecker).Return(true, nil)
 
 	wf, err := NewWorkflow(g.mockFileChecker, "windows")
 	g.Nil(err)
@@ -192,6 +201,11 @@ func (g *workflowTest) Test_checkWorkflowExistsImpl_Present_Pass() {
 	g.mockFileChecker.On(statString, workflowName).Return(nil, nil)
 
 	present, err := checkWorkflowExistsImpl(g.mockFileChecker)
+	g.Nil(err)
+	g.Equal(true, present)
+
+	w := WorkflowChecker{}
+	present, err = w.checkWorkflowExists(g.mockFileChecker)
 	g.Nil(err)
 	g.Equal(true, present)
 }
@@ -235,8 +249,18 @@ func (g *workflowTest) Test_submitShoppingList_Pass() {
 	g.mockScreen.On(updateLabelString, recipeFinishLabel)
 	g.mockFileReader.On(incrementPopularityString, "MELON").Return(nil)
 	g.mockWorkflow.On("addIngredientsToReminders", []recipe.Ingredient{testRecipe.Ings[0]}, g.mockScreen, g.mockFileReader, g.mockWorkflow).Return(nil)
+
 	err := submitShoppingList(g.mockScreen, g.mockWorkflow, g.mockFileReader, recipeString, recipeMap)
 	g.Nil(err)
+
+	t := TerminalFakeWorkflow{}
+	err = t.submitShoppingList(g.mockScreen, g.mockWorkflow, g.mockFileReader, recipeString, recipeMap)
+	g.Nil(err)
+
+	m := macWorkflow{}
+	err = m.submitShoppingList(g.mockScreen, g.mockWorkflow, g.mockFileReader, recipeString, recipeMap)
+	g.Nil(err)
+
 }
 
 func (g *workflowTest) Test_submitShoppingList_Error() {
