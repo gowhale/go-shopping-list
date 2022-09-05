@@ -3,78 +3,112 @@ package recipe
 import (
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"io/ioutil"
 	"log"
-	"os/exec"
 
-	"fyne.io/fyne/v2/widget"
 	"github.com/bradfitz/slice"
 )
 
 const (
 	popularityFileName = "popularity.json"
+	recipeFolder       = "recipes/"
+
+	errorIntReturn = -1
+	defaultCount   = 0
+
+	writePermissionCode = 0644
 )
 
-type Recipe struct {
-	Name  string        `json:"recipe_name"`
-	Ings  []Ingredients `json:"ingredients"`
-	Meth  []string      `json:"method"`
-	Count int
+// FileReader deals with interactions with files
+//go:generate go run github.com/vektra/mockery/cmd/mockery -name FileReader -inpkg --filename file_reader_mock.go
+type FileReader interface {
+	getPopularity(recipeName string) (int, error)
+	IncrementPopularity(recipeName string) error
+	loadPopularityFile() (PopularityFile, error)
+	marshallJSON(pop PopularityFile) ([]byte, error)
+	readRecipeDirectory() ([]fs.FileInfo, error)
+	loadRecipeFile(fileName fs.FileInfo) (Recipe, error)
+	readFile(filePath string) ([]byte, error)
+	unmarshallJSONToPopularity(file []byte) (PopularityFile, error)
+	unmarshallJSONToRecipe(file []byte) (Recipe, error)
+	writePopularityFile(pop PopularityFile) error
+	writeFile(newFile []byte) error
 }
 
-type Ingredients struct {
-	Unit_size       string `json:"unit_size"`
-	Unit_type       string `json:"unit_type"`
-	Ingredient_name string `json:"ingredient_name"`
+// FileInteractionImpl is a struct to implement FileReader
+type FileInteractionImpl struct{}
+
+func (f *FileInteractionImpl) getPopularity(recipeName string) (int, error) {
+	return getPopularityImpl(f, recipeName)
 }
 
-type Popularity struct {
-	Pop []RecipePopularity `json:"popularity"`
+// IncrementPopularity incrementes the popularity count of a recipe by 1
+func (f *FileInteractionImpl) IncrementPopularity(recipeName string) error {
+	return incrementPopularityImpl(f, recipeName)
 }
 
-type RecipePopularity struct {
-	Name  string `json:"name"`
-	Count int    `json:"count"`
+func (f *FileInteractionImpl) loadPopularityFile() (PopularityFile, error) {
+	return loadPopularityFileImpl(f)
 }
 
-func (i *Ingredients) String() string {
-	return fmt.Sprintf("%s %s %s", i.Unit_size, i.Unit_type, i.Ingredient_name)
+func (*FileInteractionImpl) readRecipeDirectory() ([]fs.FileInfo, error) {
+	return ioutil.ReadDir(recipeFolder)
 }
 
-func IncrementPopularity(recipeName string) error {
-	file, err := ioutil.ReadFile(popularityFileName)
+func (f *FileInteractionImpl) loadRecipeFile(fileName fs.FileInfo) (Recipe, error) {
+	return loadRecipeFileImpl(f, fileName)
+}
+
+func (*FileInteractionImpl) readFile(filePath string) ([]byte, error) {
+	return ioutil.ReadFile(filePath)
+}
+
+func (*FileInteractionImpl) unmarshallJSONToPopularity(file []byte) (PopularityFile, error) {
+	popularity := PopularityFile{}
+	return popularity, json.Unmarshal([]byte(file), &popularity)
+}
+
+func (*FileInteractionImpl) unmarshallJSONToRecipe(file []byte) (Recipe, error) {
+	recipe := Recipe{}
+	return recipe, json.Unmarshal([]byte(file), &recipe)
+}
+
+func (*FileInteractionImpl) marshallJSON(pop PopularityFile) ([]byte, error) {
+	return json.MarshalIndent(pop, "", " ")
+}
+
+func (*FileInteractionImpl) writeFile(newFile []byte) error {
+	return ioutil.WriteFile(popularityFileName, newFile, writePermissionCode)
+}
+
+func (f *FileInteractionImpl) writePopularityFile(pop PopularityFile) error {
+	return writePopularityFileImpl(f, pop)
+}
+
+// Implementations of functions
+func incrementPopularityImpl(f FileReader, recipeName string) error {
+	pop, err := f.loadPopularityFile()
 	if err != nil {
 		return err
 	}
-	pop := Popularity{}
-	err = json.Unmarshal([]byte(file), &pop)
-	if err != nil {
-		log.Printf("error unmarshalling file=%s", popularityFileName)
-		return err
-	}
-	updateIndex := -1
+
+	updateIndex := errorIntReturn
 	for i, p := range pop.Pop {
 		if recipeName == p.Name {
 			updateIndex = i
 		}
 	}
 	pop.Pop[updateIndex].Count++
-	newFile, _ := json.MarshalIndent(pop, "", " ")
 
-	_ = ioutil.WriteFile(popularityFileName, newFile, 0644)
-	return nil
+	return f.writePopularityFile(pop)
 }
 
-func GetPopularity(recipeName string) (int, error) {
-	file, err := ioutil.ReadFile(popularityFileName)
-	if err != nil {
-		return -1, err
-	}
-	pop := Popularity{}
-	err = json.Unmarshal([]byte(file), &pop)
+func getPopularityImpl(f FileReader, recipeName string) (int, error) {
+	pop, err := f.loadPopularityFile()
 	if err != nil {
 		log.Printf("error unmarshalling file=%s", popularityFileName)
-		return -1, err
+		return errorIntReturn, err
 	}
 
 	mapOfPops := map[string]int{}
@@ -86,37 +120,50 @@ func GetPopularity(recipeName string) (int, error) {
 	if val, ok := mapOfPops[recipeName]; ok {
 		return val, nil
 	}
-
-	pop.Pop = append(pop.Pop, RecipePopularity{Name: recipeName, Count: 0})
-	newFile, _ := json.MarshalIndent(pop, "", " ")
-
-	_ = ioutil.WriteFile(popularityFileName, newFile, 0644)
-	return 0, nil
+	pop.Pop = append(pop.Pop, Popularity{Name: recipeName, Count: defaultCount})
+	return defaultCount, f.writePopularityFile(pop)
 }
 
-func ProcessIngredients(recipeFolder string) ([]Recipe, error) {
-	allRecipes := []Recipe{}
+func loadPopularityFileImpl(f FileReader) (PopularityFile, error) {
+	file, err := f.readFile(popularityFileName)
+	if err != nil {
+		return PopularityFile{}, err
+	}
+	return f.unmarshallJSONToPopularity(file)
+}
 
-	// Get name for all recipe files
-	files, err := ioutil.ReadDir(recipeFolder)
+func loadRecipeFileImpl(f FileReader, fileName fs.FileInfo) (Recipe, error) {
+	file, err := f.readFile(fmt.Sprintf("recipes/%s", fileName.Name()))
+	if err != nil {
+		return Recipe{}, err
+	}
+	return f.unmarshallJSONToRecipe(file)
+}
+
+func writePopularityFileImpl(f FileReader, pop PopularityFile) error {
+	newFile, err := f.marshallJSON(pop)
+	if err != nil {
+		return err
+	}
+	return f.writeFile(newFile)
+}
+
+// ProcessRecipes processes recipe JSON files from the recipe folder
+func ProcessRecipes(f FileReader) ([]Recipe, error) {
+	files, err := f.readRecipeDirectory()
 	if err != nil {
 		return nil, err
 	}
 
 	// Process every file and put into Recipe strucr
+	allRecipes := []Recipe{}
 	for _, fileName := range files {
 		if !fileName.IsDir() {
-			file, err := ioutil.ReadFile(fmt.Sprintf("recipes/%s", fileName.Name()))
+			recipe, err := f.loadRecipeFile(fileName)
 			if err != nil {
 				return nil, err
 			}
-			recipe := Recipe{}
-			err = json.Unmarshal([]byte(file), &recipe)
-			if err != nil {
-				log.Printf("error for file=%s", fileName)
-				return nil, err
-			}
-			recipe.Count, err = GetPopularity(recipe.Name)
+			recipe.Count, err = f.getPopularity(recipe.Name)
 			if err != nil {
 				return nil, err
 			}
@@ -132,29 +179,3 @@ func ProcessIngredients(recipeFolder string) ([]Recipe, error) {
 	return allRecipes, nil
 }
 
-var execCommand = exec.Command
-
-func AddIngredientsToReminders(r Recipe, p *widget.ProgressBar, l *widget.Label) error {
-	if err := IncrementPopularity(r.Name); err != nil {
-		return err
-	}
-	progress := 0.0
-	for i, ing := range r.Ings {
-		l.SetText(fmt.Sprintf("Adding Ingredient: %s", ing.String()))
-		l.Refresh()
-		progress = float64(i) / float64(len(r.Ings))
-		p.SetValue(progress)
-		log.Printf("progress=%.2f adding ing='%s'", progress, ing.String())
-		cmd := execCommand("automator", "-i", fmt.Sprintf(`"%s"`, ing.String()), "shopping.workflow")
-		_, err := cmd.CombinedOutput()
-		if err != nil {
-			return fmt.Errorf("error adding the following ingredient=%s err=%e", ing.String(), err)
-		}
-	}
-	progress = 1
-	log.Printf("progress=%.2f", progress)
-	p.SetValue(progress)
-	l.SetText("Finished. Select another recipe to add more.")
-	l.Refresh()
-	return nil
-}
