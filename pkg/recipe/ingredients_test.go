@@ -13,6 +13,7 @@ const (
 	largeType = "large"
 	oneUnit   = "1"
 	onion     = "onion"
+	oil       = "oil"
 )
 
 // TODO: Test fyne.io properly()
@@ -83,7 +84,7 @@ func (i *ingredientsTest) Test_CombineRecipesToIngredients_DiffIng_Combine() {
 			Ingredient{
 				UnitSize:       oneUnit,
 				UnitType:       tsp,
-				IngredientName: "oil",
+				IngredientName: oil,
 			},
 		},
 	}
@@ -94,7 +95,7 @@ func (i *ingredientsTest) Test_CombineRecipesToIngredients_DiffIng_Combine() {
 	}, {
 		UnitSize:       oneUnit,
 		UnitType:       tsp,
-		IngredientName: "oil",
+		IngredientName: oil,
 	},
 	}
 	ings, err := CombineRecipesToIngredients([]Recipe{r1, r2})
@@ -122,7 +123,7 @@ func (i *ingredientsTest) Test_CombineRecipesToIngredients_DiffIng_Combine_Error
 			Ingredient{
 				UnitSize:       "EGG",
 				UnitType:       tsp,
-				IngredientName: "oil",
+				IngredientName: oil,
 			},
 		},
 	}

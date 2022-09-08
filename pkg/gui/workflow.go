@@ -92,7 +92,6 @@ func submitShoppingList(s screenInterface, wf workflowInterface, fr recipe.FileR
 				return err
 			}
 		}
-
 	}
 	ings, err := recipe.CombineRecipesToIngredients(recipesSelected)
 	if err != nil {

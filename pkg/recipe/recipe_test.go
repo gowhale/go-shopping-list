@@ -21,9 +21,12 @@ const (
 	writePopularityFileString = "writePopularityFile"
 	getPopularityString       = "getPopularity"
 
-	readFileError       = "read file error"
-	testCount           = 5
-	countAfterIncrement = 6
+	readFileError           = "read file error"
+	testCount               = 5
+	countAfterIncrement     = 6
+	countAfterTwoIncrements = 7
+
+	jackfruit = "JACKFRUIT"
 )
 
 type recipeTest struct {
@@ -140,7 +143,7 @@ func (r *recipeTest) Test_IncrementPopularity_Pass() {
 
 	rp3 := []Popularity{{
 		Name:  testFruit,
-		Count: 7,
+		Count: countAfterTwoIncrements,
 	}}
 
 	mockPopAfter2 := PopularityFile{
@@ -160,7 +163,7 @@ func (r *recipeTest) Test_IncrementPopularity_Error() {
 
 func (r *recipeTest) Test_GetPopularityImpl_Present_Pass() {
 	rp := []Popularity{{
-		Name:  "JACKFRUIT",
+		Name:  jackfruit,
 		Count: testCount,
 	}}
 	mockPop := PopularityFile{
@@ -169,11 +172,11 @@ func (r *recipeTest) Test_GetPopularityImpl_Present_Pass() {
 
 	r.mockFileReader.On(loadPopularityFileString, r.mockFileReader).Return().Return(mockPop, nil)
 
-	pop, err := getPopularityImpl(r.mockFileReader, "JACKFRUIT")
+	pop, err := getPopularityImpl(r.mockFileReader, jackfruit)
 	r.Equal(pop, testCount)
 	r.Nil(err)
 
-	pop, err = r.fileImpl.getPopularity(r.mockFileReader, "JACKFRUIT")
+	pop, err = r.fileImpl.getPopularity(r.mockFileReader, jackfruit)
 	r.Equal(pop, testCount)
 	r.Nil(err)
 }
