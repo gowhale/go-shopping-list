@@ -13,13 +13,13 @@ type MockFileReader struct {
 	mock.Mock
 }
 
-// IncrementPopularity provides a mock function with given fields: recipeName
-func (_m *MockFileReader) IncrementPopularity(recipeName string) error {
-	ret := _m.Called(recipeName)
+// IncrementPopularity provides a mock function with given fields: f, recipeName
+func (_m *MockFileReader) IncrementPopularity(f FileReader, recipeName string) error {
+	ret := _m.Called(f, recipeName)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(string) error); ok {
-		r0 = rf(recipeName)
+	if rf, ok := ret.Get(0).(func(FileReader, string) error); ok {
+		r0 = rf(f, recipeName)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -27,20 +27,20 @@ func (_m *MockFileReader) IncrementPopularity(recipeName string) error {
 	return r0
 }
 
-// getPopularity provides a mock function with given fields: recipeName
-func (_m *MockFileReader) getPopularity(recipeName string) (int, error) {
-	ret := _m.Called(recipeName)
+// getPopularity provides a mock function with given fields: f, recipeName
+func (_m *MockFileReader) getPopularity(f FileReader, recipeName string) (int, error) {
+	ret := _m.Called(f, recipeName)
 
 	var r0 int
-	if rf, ok := ret.Get(0).(func(string) int); ok {
-		r0 = rf(recipeName)
+	if rf, ok := ret.Get(0).(func(FileReader, string) int); ok {
+		r0 = rf(f, recipeName)
 	} else {
 		r0 = ret.Get(0).(int)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(recipeName)
+	if rf, ok := ret.Get(1).(func(FileReader, string) error); ok {
+		r1 = rf(f, recipeName)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -48,20 +48,20 @@ func (_m *MockFileReader) getPopularity(recipeName string) (int, error) {
 	return r0, r1
 }
 
-// loadPopularityFile provides a mock function with given fields:
-func (_m *MockFileReader) loadPopularityFile() (PopularityFile, error) {
-	ret := _m.Called()
+// loadPopularityFile provides a mock function with given fields: f
+func (_m *MockFileReader) loadPopularityFile(f FileReader) (PopularityFile, error) {
+	ret := _m.Called(f)
 
 	var r0 PopularityFile
-	if rf, ok := ret.Get(0).(func() PopularityFile); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(FileReader) PopularityFile); ok {
+		r0 = rf(f)
 	} else {
 		r0 = ret.Get(0).(PopularityFile)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(FileReader) error); ok {
+		r1 = rf(f)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -69,20 +69,20 @@ func (_m *MockFileReader) loadPopularityFile() (PopularityFile, error) {
 	return r0, r1
 }
 
-// loadRecipeFile provides a mock function with given fields: fileName
-func (_m *MockFileReader) loadRecipeFile(fileName fs.FileInfo) (Recipe, error) {
-	ret := _m.Called(fileName)
+// loadRecipeFile provides a mock function with given fields: f, fileName
+func (_m *MockFileReader) loadRecipeFile(f FileReader, fileName fs.FileInfo) (Recipe, error) {
+	ret := _m.Called(f, fileName)
 
 	var r0 Recipe
-	if rf, ok := ret.Get(0).(func(fs.FileInfo) Recipe); ok {
-		r0 = rf(fileName)
+	if rf, ok := ret.Get(0).(func(FileReader, fs.FileInfo) Recipe); ok {
+		r0 = rf(f, fileName)
 	} else {
 		r0 = ret.Get(0).(Recipe)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(fs.FileInfo) error); ok {
-		r1 = rf(fileName)
+	if rf, ok := ret.Get(1).(func(FileReader, fs.FileInfo) error); ok {
+		r1 = rf(f, fileName)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -215,13 +215,13 @@ func (_m *MockFileReader) writeFile(newFile []byte) error {
 	return r0
 }
 
-// writePopularityFile provides a mock function with given fields: pop
-func (_m *MockFileReader) writePopularityFile(pop PopularityFile) error {
-	ret := _m.Called(pop)
+// writePopularityFile provides a mock function with given fields: f, pop
+func (_m *MockFileReader) writePopularityFile(f FileReader, pop PopularityFile) error {
+	ret := _m.Called(f, pop)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(PopularityFile) error); ok {
-		r0 = rf(pop)
+	if rf, ok := ret.Get(0).(func(FileReader, PopularityFile) error); ok {
+		r0 = rf(f, pop)
 	} else {
 		r0 = ret.Error(0)
 	}
