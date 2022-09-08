@@ -98,12 +98,12 @@ func TestHelperProcess(*testing.T) {
 	helper := os.Getenv("GO_WANT_HELPER_PROCESS")
 	//pass
 	if helper == "1" {
-		os.Exit(exitCodePass)
+		os.Exit(exitCodePass) //nolint
 		return
 	}
 	//fail
 	if helper == "2" {
-		os.Exit(exitCodeFail)
+		os.Exit(exitCodeFail) //nolint
 		return
 	}
 }

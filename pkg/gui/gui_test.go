@@ -33,7 +33,7 @@ func (*guiTest) Test_mockFileInfo() {
 }
 
 func (g *guiTest) Test_buttonPress() {
-	b := createSubmitButton(g.mockScreen, g.mockWorkflow, g.mockFileReader, []string{}, map[string]recipe.Recipe{})
+	b := createSubmitButton(g.mockScreen, g.mockWorkflow, g.mockFileReader, &[]string{}, map[string]recipe.Recipe{})
 	g.mockScreen.On(updateProgessBarString, progressBarEmpty)
 	g.mockScreen.On(updateProgessBarString, progressBarFull)
 	g.mockScreen.On(updateLabelString, recipeFinishLabel)

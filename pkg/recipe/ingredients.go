@@ -2,6 +2,7 @@ package recipe
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 )
 
@@ -32,6 +33,10 @@ func calculateNewSize(uniqueIngredients map[string]Ingredient, combineTypeName, 
 
 // CombineRecipesToIngredients combines the ingredients within mutiple recipes
 func CombineRecipesToIngredients(recipes []Recipe) ([]Ingredient, error) {
+	log.Printf("Combining %d recipes", len(recipes))
+	defer func() {
+		log.Printf("Finished combining %d recipes", len(recipes))
+	}()
 	uniqueIngredients := map[string]Ingredient{}
 	for _, r := range recipes {
 		for _, i := range r.Ings {

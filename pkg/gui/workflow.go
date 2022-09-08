@@ -110,10 +110,12 @@ func addIngredientsToReminders(ings []recipe.Ingredient, s screenInterface, w wo
 	for _, ing := range ings {
 		ing := ing
 		g.Go(func() error {
+			log.Printf("ingredient=%s status=IN PROGRESS", ing.String())
 			if err := w.runReminder(s, ing); err != nil {
 				return err
 			}
 			defer func() {
+				log.Printf("ingredient=%s status=DONE", ing.String())
 				ingAdded = append(ingAdded, ing)
 				progress = float64(len(ingAdded)) / float64(len(ings))
 				s.updateProgessBar(progress)
