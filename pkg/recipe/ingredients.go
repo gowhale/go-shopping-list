@@ -13,6 +13,19 @@ func convertMapToSlice(im map[string]Ingredient) []Ingredient {
 	return ingsToReturn
 }
 
+func calculateNewSize(uniqueIngredients map[string]Ingredient, combineTypeName, currentIngSize string) (string, error) {
+	currentSize, err := strconv.ParseFloat(uniqueIngredients[combineTypeName].UnitSize, 32)
+	if err != nil {
+		return "", err
+	}
+
+	sizeToAdd, err := strconv.ParseFloat(currentIngSize, 32)
+	if err != nil {
+		return "nil", err
+	}
+	return fmt.Sprintf("%.2f", currentSize+sizeToAdd), nil
+}
+
 // CombineRecipesToIngredients combines the ingredients within mutiple recipes
 func CombineRecipesToIngredients(recipes []Recipe) ([]Ingredient, error) {
 	uniqueIngredients := map[string]Ingredient{}
@@ -24,17 +37,11 @@ func CombineRecipesToIngredients(recipes []Recipe) ([]Ingredient, error) {
 			if _, ok := uniqueIngredients[combineTypeName]; !ok {
 				uniqueIngredients[combineTypeName] = i
 			} else {
-				currentSize, err := strconv.ParseFloat(uniqueIngredients[combineTypeName].UnitSize, 32)
-				if err != nil {
-					return nil, err
-				}
-
-				sizeToAdd, err := strconv.ParseFloat(i.UnitSize, 32)
-				if err != nil {
-					return nil, err
-				}
 				oldIng := uniqueIngredients[combineTypeName]
-				newSize := fmt.Sprintf("%.2f", currentSize+sizeToAdd)
+				newSize, err := calculateNewSize(uniqueIngredients, combineTypeName, i.UnitSize)
+				if err != nil {
+					return nil, err
+				}
 				oldIng.UnitSize = newSize
 				uniqueIngredients[combineTypeName] = oldIng
 			}
