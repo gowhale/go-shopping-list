@@ -95,13 +95,13 @@ func submitShoppingList(s screenInterface, wf workflowInterface, fr recipe.FileR
 
 	}
 	ings, err := recipe.CombineRecipesToIngredients(recipesSelected)
-	if err != nil{
+	if err != nil {
 		return err
 	}
 	return wf.addIngredientsToReminders(ings, s, fr, wf)
 }
 
-func addIngredientsToReminders(ings []recipe.Ingredient, s screenInterface, f recipe.FileReader, w workflowInterface) error {
+func addIngredientsToReminders(ings []recipe.Ingredient, s screenInterface, w workflowInterface) error {
 	progress := float64(progressBarEmpty)
 	s.updateProgessBar(progress)
 	ingAdded := []recipe.Ingredient{}
@@ -142,7 +142,7 @@ func (*macWorkflow) submitShoppingList(s screenInterface, wf workflowInterface, 
 }
 
 func (*macWorkflow) addIngredientsToReminders(ings []recipe.Ingredient, s screenInterface, f recipe.FileReader, w workflowInterface) error {
-	return addIngredientsToReminders(ings, s, f, w)
+	return addIngredientsToReminders(ings, s, w)
 }
 
 func (*macWorkflow) runReminder(s screenInterface, currentIng recipe.Ingredient) error {
@@ -163,7 +163,7 @@ func (*TerminalFakeWorkflow) submitShoppingList(s screenInterface, wf workflowIn
 }
 
 func (*TerminalFakeWorkflow) addIngredientsToReminders(ings []recipe.Ingredient, s screenInterface, f recipe.FileReader, w workflowInterface) error {
-	return addIngredientsToReminders(ings, s, f, w)
+	return addIngredientsToReminders(ings, s, w)
 }
 
 func (*TerminalFakeWorkflow) runReminder(_ screenInterface, currentIng recipe.Ingredient) error {

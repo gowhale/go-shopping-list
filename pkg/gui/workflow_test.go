@@ -62,7 +62,7 @@ func (g *workflowTest) Test_AddIngredientsToReminders_Pass() {
 	g.mockWorkflow.On(runReminderString, g.mockScreen, ings[0]).Return(nil)
 	g.mockFileReader.On(incrementPopularityString, "DURIAN").Return(nil)
 
-	err := addIngredientsToReminders(ings, g.mockScreen, g.mockFileReader, g.mockWorkflow)
+	err := addIngredientsToReminders(ings, g.mockScreen, g.mockWorkflow)
 	g.Nil(err)
 
 	t := TerminalFakeWorkflow{}
@@ -87,7 +87,7 @@ func (g *workflowTest) Test_AddIngredientsToReminders_runReminder_Error() {
 	g.mockScreen.On(updateLabelString, recipeFinishLabel)
 	g.mockWorkflow.On(runReminderString, g.mockScreen, ings[0]).Return(fmt.Errorf("reminder error"))
 	g.mockFileReader.On(incrementPopularityString, "APPLE").Return(nil)
-	err := addIngredientsToReminders(ings, g.mockScreen, g.mockFileReader, g.mockWorkflow)
+	err := addIngredientsToReminders(ings, g.mockScreen, g.mockWorkflow)
 	g.EqualError(err, "reminder error")
 }
 
