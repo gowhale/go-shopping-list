@@ -69,7 +69,7 @@ func NewApp(recipes []recipe.Recipe, recipeMap map[string]recipe.Recipe, wf work
 	for _, v := range recipes {
 		recipesAsStrings = append(recipesAsStrings, v.Name)
 	}
-	recipeList := createNewListOfRecipes(s, &recipe.FileInteractionImpl{}, wf, recipesAsStrings)
+	recipeList := createNewListOfRecipes(recipesAsStrings)
 
 	submit := createSubmitButton(s, wf, fr, recipesAsStrings, recipeMap)
 	gridTop := container.New(layout.NewGridWrapLayout(fyne.NewSize(screenWidth, progressBarHeight)), label, p)
@@ -85,7 +85,7 @@ func NewApp(recipes []recipe.Recipe, recipeMap map[string]recipe.Recipe, wf work
 	return myWindow
 }
 
-func createNewListOfRecipes(s screenInterface, f recipe.FileReader, w workflowInterface, recipesStr []string) *widget.CheckGroup {
+func createNewListOfRecipes(recipesStr []string) *widget.CheckGroup {
 	// Recipe list with all recipes
 	return widget.NewCheckGroup(recipesStr, nil)
 }
