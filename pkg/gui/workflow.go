@@ -83,7 +83,7 @@ type workflowInterface interface {
 }
 
 func submitShoppingList(s screenInterface, wf workflowInterface, fr recipe.FileReader, recipes []string, recipeMap map[string]recipe.Recipe) error {
-	fmt.Println("Currently selected Recipes:")
+	log.Println("Currently selected Recipes:")
 	recipesSelected := []recipe.Recipe{}
 	for _, v := range recipes {
 		if r, ok := recipeMap[v]; ok {

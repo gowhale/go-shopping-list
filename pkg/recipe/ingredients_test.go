@@ -6,6 +6,11 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
+const (
+	tsbp = "tsbp"
+	oliveOil = "Olive Oil"
+)
+
 // TODO: Test fyne.io properly()
 type ingredientsTest struct {
 	suite.Suite
@@ -30,8 +35,8 @@ func (i *ingredientsTest) Test_CombineRecipesToIngredients_SameIng_Combine() {
 		Ings: []Ingredient{
 			Ingredient{
 				UnitSize:       "1",
-				UnitType:       "tsbp",
-				IngredientName: "Olive Oil",
+				UnitType:       tsbp,
+				IngredientName: oliveOil,
 			},
 		},
 	}
@@ -39,15 +44,15 @@ func (i *ingredientsTest) Test_CombineRecipesToIngredients_SameIng_Combine() {
 		Ings: []Ingredient{
 			Ingredient{
 				UnitSize:       "3",
-				UnitType:       "tsbp",
-				IngredientName: "Olive Oil",
+				UnitType:       tsbp,
+				IngredientName: oliveOil,
 			},
 		},
 	}
 	expected := []Ingredient{{
 		UnitSize:       "4.00",
-		UnitType:       "tsbp",
-		IngredientName: "Olive Oil",
+		UnitType:       tsbp,
+		IngredientName: oliveOil,
 	}}
 	ings, err := CombineRecipesToIngredients([]Recipe{r1, r2})
 	i.Equal(expected, ings)

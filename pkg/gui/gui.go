@@ -2,6 +2,7 @@ package gui
 
 import (
 	"go-shopping-list/pkg/recipe"
+	"log"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -43,7 +44,10 @@ func (s *screen) updateLabel(msg string) {
 
 func createSubmitButton(s screenInterface, wf workflowInterface, fr recipe.FileReader, recipes []string, recipeMap map[string]recipe.Recipe) *widget.Button {
 	return widget.NewButton("Add To Shopping List", func() {
-		wf.submitShoppingList(s, wf, fr, recipes, recipeMap)
+		err := wf.submitShoppingList(s, wf, fr, recipes, recipeMap)
+		if err != nil {
+			log.Fatalln(err)
+		}
 	})
 }
 
