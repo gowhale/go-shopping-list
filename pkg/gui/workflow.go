@@ -117,11 +117,10 @@ func ingSend(s screenInterface, w workflowInterface, c <-chan recipe.Ingredient,
 		if err := w.runReminder(s, ing); err != nil {
 			return err
 		}
-		log.Printf("ingredient=%s status=DONE", ing.String())
 		*ingAdded++
 		progress := float64(*ingAdded) / float64(totalIngs)
 		s.updateProgessBar(progress)
-		log.Printf("progress=%.2f adding ing='%s'", progress, ing.String())
+		log.Printf("ingredient=%s status=DONE progress=%.2f", ing.String(), progress)
 	}
 	return nil
 }
