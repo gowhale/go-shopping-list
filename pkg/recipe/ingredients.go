@@ -5,6 +5,7 @@ import (
 	"strconv"
 )
 
+// CombineRecipesToIngredients combines the ingredients within mutiple recipes
 func CombineRecipesToIngredients(recipes []Recipe) ([]Ingredient, error) {
 	uniqueIngredients := map[string]Ingredient{}
 	for _, r := range recipes {

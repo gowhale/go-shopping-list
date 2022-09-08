@@ -13,13 +13,13 @@ type mockWorkflowInterface struct {
 	mock.Mock
 }
 
-// addIngredientsToReminders provides a mock function with given fields: ings, s, f, w
-func (_m *mockWorkflowInterface) addIngredientsToReminders(ings []recipe.Ingredient, s screenInterface, f recipe.FileReader, w workflowInterface) error {
-	ret := _m.Called(ings, s, f, w)
+// addIngredientsToReminders provides a mock function with given fields: ings, s, w
+func (_m *mockWorkflowInterface) addIngredientsToReminders(ings []recipe.Ingredient, s screenInterface, w workflowInterface) error {
+	ret := _m.Called(ings, s, w)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func([]recipe.Ingredient, screenInterface, recipe.FileReader, workflowInterface) error); ok {
-		r0 = rf(ings, s, f, w)
+	if rf, ok := ret.Get(0).(func([]recipe.Ingredient, screenInterface, workflowInterface) error); ok {
+		r0 = rf(ings, s, w)
 	} else {
 		r0 = ret.Error(0)
 	}

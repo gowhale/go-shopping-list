@@ -77,7 +77,7 @@ func checkWorkflowExistsImpl(f fileChecker) (bool, error) {
 
 //go:generate go run github.com/vektra/mockery/cmd/mockery -name workflowInterface -inpkg --filename workflow_mock.go
 type workflowInterface interface {
-	addIngredientsToReminders(ings []recipe.Ingredient, s screenInterface, f recipe.FileReader, w workflowInterface) error
+	addIngredientsToReminders(ings []recipe.Ingredient, s screenInterface, w workflowInterface) error
 	runReminder(s screenInterface, currentIng recipe.Ingredient) error
 	submitShoppingList(s screenInterface, wf workflowInterface, fr recipe.FileReader, recipes []string, recipeMap map[string]recipe.Recipe) error
 }
@@ -98,7 +98,7 @@ func submitShoppingList(s screenInterface, wf workflowInterface, fr recipe.FileR
 	if err != nil {
 		return err
 	}
-	return wf.addIngredientsToReminders(ings, s, fr, wf)
+	return wf.addIngredientsToReminders(ings, s, wf)
 }
 
 func addIngredientsToReminders(ings []recipe.Ingredient, s screenInterface, w workflowInterface) error {
@@ -141,7 +141,7 @@ func (*macWorkflow) submitShoppingList(s screenInterface, wf workflowInterface, 
 	return submitShoppingList(s, wf, fr, recipes, recipeMap)
 }
 
-func (*macWorkflow) addIngredientsToReminders(ings []recipe.Ingredient, s screenInterface, f recipe.FileReader, w workflowInterface) error {
+func (*macWorkflow) addIngredientsToReminders(ings []recipe.Ingredient, s screenInterface, w workflowInterface) error {
 	return addIngredientsToReminders(ings, s, w)
 }
 
@@ -162,7 +162,7 @@ func (*TerminalFakeWorkflow) submitShoppingList(s screenInterface, wf workflowIn
 	return submitShoppingList(s, wf, fr, recipes, recipeMap)
 }
 
-func (*TerminalFakeWorkflow) addIngredientsToReminders(ings []recipe.Ingredient, s screenInterface, f recipe.FileReader, w workflowInterface) error {
+func (*TerminalFakeWorkflow) addIngredientsToReminders(ings []recipe.Ingredient, s screenInterface, w workflowInterface) error {
 	return addIngredientsToReminders(ings, s, w)
 }
 

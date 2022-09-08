@@ -17,12 +17,13 @@ const (
 	exitCodeFail         = 1
 	firstArgumentInSlice = 0
 
-	incrementPopularityString = "IncrementPopularity"
-	runReminderString         = "runReminder"
-	updateLabelString         = "updateLabel"
-	updateProgessBarString    = "updateProgessBar"
-	checkWorkflowExistsString = "checkWorkflowExists"
-	statString                = "stat"
+	incrementPopularityString       = "IncrementPopularity"
+	runReminderString               = "runReminder"
+	updateLabelString               = "updateLabel"
+	updateProgessBarString          = "updateProgessBar"
+	checkWorkflowExistsString       = "checkWorkflowExists"
+	statString                      = "stat"
+	addIngredientsToRemindersString = "addIngredientsToReminders"
 )
 
 type workflowTest struct {
@@ -66,11 +67,11 @@ func (g *workflowTest) Test_AddIngredientsToReminders_Pass() {
 	g.Nil(err)
 
 	t := TerminalFakeWorkflow{}
-	err = t.addIngredientsToReminders(ings, g.mockScreen, g.mockFileReader, g.mockWorkflow)
+	err = t.addIngredientsToReminders(ings, g.mockScreen, g.mockWorkflow)
 	g.Nil(err)
 
 	m := macWorkflow{}
-	err = m.addIngredientsToReminders(ings, g.mockScreen, g.mockFileReader, g.mockWorkflow)
+	err = m.addIngredientsToReminders(ings, g.mockScreen, g.mockWorkflow)
 	g.Nil(err)
 }
 
@@ -248,7 +249,7 @@ func (g *workflowTest) Test_submitShoppingList_Pass() {
 	g.mockScreen.On(updateProgessBarString, progressBarFull)
 	g.mockScreen.On(updateLabelString, recipeFinishLabel)
 	g.mockFileReader.On(incrementPopularityString, g.mockFileReader, "MELON").Return(nil)
-	g.mockWorkflow.On("addIngredientsToReminders", []recipe.Ingredient{testRecipe.Ings[0]}, g.mockScreen, g.mockFileReader, g.mockWorkflow).Return(nil)
+	g.mockWorkflow.On(addIngredientsToRemindersString, []recipe.Ingredient{testRecipe.Ings[0]}, g.mockScreen, g.mockWorkflow).Return(nil)
 
 	err := submitShoppingList(g.mockScreen, g.mockWorkflow, g.mockFileReader, recipeString, recipeMap)
 	g.Nil(err)
@@ -282,7 +283,7 @@ func (g *workflowTest) Test_submitShoppingList_Error() {
 	g.mockScreen.On(updateProgessBarString, progressBarFull)
 	g.mockScreen.On(updateLabelString, recipeFinishLabel)
 	g.mockFileReader.On(incrementPopularityString, g.mockFileReader, "MELON").Return(fmt.Errorf("increment pop error"))
-	g.mockWorkflow.On("addIngredientsToReminders", []recipe.Ingredient{testRecipe.Ings[0]}, g.mockScreen, g.mockFileReader, g.mockWorkflow).Return(nil)
+	g.mockWorkflow.On(addIngredientsToRemindersString, []recipe.Ingredient{testRecipe.Ings[0]}, g.mockScreen, g.mockWorkflow).Return(nil)
 	err := submitShoppingList(g.mockScreen, g.mockWorkflow, g.mockFileReader, recipeString, recipeMap)
 	g.EqualError(err, "increment pop error")
 }
