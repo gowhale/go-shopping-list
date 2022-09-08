@@ -7,8 +7,12 @@ import (
 )
 
 const (
-	tsbp = "tsbp"
-	oliveOil = "Olive Oil"
+	tsbp      = "tsbp"
+	tsp       = "tsp"
+	oliveOil  = "Olive Oil"
+	largeType = "large"
+	oneUnit   = "1"
+	onion     = "onion"
 )
 
 // TODO: Test fyne.io properly()
@@ -34,7 +38,7 @@ func (i *ingredientsTest) Test_CombineRecipesToIngredients_SameIng_Combine() {
 	r1 := Recipe{
 		Ings: []Ingredient{
 			Ingredient{
-				UnitSize:       "1",
+				UnitSize:       oneUnit,
 				UnitType:       tsbp,
 				IngredientName: oliveOil,
 			},
@@ -63,9 +67,9 @@ func (i *ingredientsTest) Test_CombineRecipesToIngredients_DiffIng_Combine() {
 	r1 := Recipe{
 		Ings: []Ingredient{
 			Ingredient{
-				UnitSize:       "1",
-				UnitType:       "large",
-				IngredientName: "onion",
+				UnitSize:       oneUnit,
+				UnitType:       largeType,
+				IngredientName: onion,
 			},
 		},
 	}
@@ -73,23 +77,23 @@ func (i *ingredientsTest) Test_CombineRecipesToIngredients_DiffIng_Combine() {
 		Ings: []Ingredient{
 			Ingredient{
 				UnitSize:       "3",
-				UnitType:       "large",
-				IngredientName: "onion",
+				UnitType:       largeType,
+				IngredientName: onion,
 			},
 			Ingredient{
-				UnitSize:       "1",
-				UnitType:       "tsp",
+				UnitSize:       oneUnit,
+				UnitType:       tsp,
 				IngredientName: "oil",
 			},
 		},
 	}
 	expected := []Ingredient{{
 		UnitSize:       "4.00",
-		UnitType:       "large",
-		IngredientName: "onion",
+		UnitType:       largeType,
+		IngredientName: onion,
 	}, {
-		UnitSize:       "1",
-		UnitType:       "tsp",
+		UnitSize:       oneUnit,
+		UnitType:       tsp,
 		IngredientName: "oil",
 	},
 	}
@@ -102,9 +106,9 @@ func (i *ingredientsTest) Test_CombineRecipesToIngredients_DiffIng_Combine_Error
 	r1 := Recipe{
 		Ings: []Ingredient{
 			Ingredient{
-				UnitSize:       "1",
-				UnitType:       "large",
-				IngredientName: "onion",
+				UnitSize:       oneUnit,
+				UnitType:       largeType,
+				IngredientName: onion,
 			},
 		},
 	}
@@ -112,12 +116,12 @@ func (i *ingredientsTest) Test_CombineRecipesToIngredients_DiffIng_Combine_Error
 		Ings: []Ingredient{
 			Ingredient{
 				UnitSize:       "EGG",
-				UnitType:       "large",
-				IngredientName: "onion",
+				UnitType:       largeType,
+				IngredientName: onion,
 			},
 			Ingredient{
 				UnitSize:       "EGG",
-				UnitType:       "tsp",
+				UnitType:       tsp,
 				IngredientName: "oil",
 			},
 		},

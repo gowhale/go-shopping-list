@@ -261,7 +261,6 @@ func (g *workflowTest) Test_submitShoppingList_Pass() {
 	m := macWorkflow{}
 	err = m.submitShoppingList(g.mockScreen, g.mockWorkflow, g.mockFileReader, recipeString, recipeMap)
 	g.Nil(err)
-
 }
 
 func (g *workflowTest) Test_submitShoppingList_Error() {
