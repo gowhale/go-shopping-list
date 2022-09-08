@@ -86,6 +86,7 @@ func submitShoppingList(s screenInterface, wf workflowInterface, fr recipe.FileR
 	log.Println("Currently selected Recipes:")
 	recipesSelected := []recipe.Recipe{}
 	for _, v := range recipes {
+		log.Println(v)
 		if r, ok := recipeMap[v]; ok {
 			recipesSelected = append(recipesSelected, r)
 			if err := fr.IncrementPopularity(fr, r.Name); err != nil {
