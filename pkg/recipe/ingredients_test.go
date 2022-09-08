@@ -6,6 +6,16 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
+const (
+	tsbp      = "tsbp"
+	tsp       = "tsp"
+	oliveOil  = "Olive Oil"
+	largeType = "large"
+	oneUnit   = "1"
+	onion     = "onion"
+	oil       = "oil"
+)
+
 // TODO: Test fyne.io properly()
 type ingredientsTest struct {
 	suite.Suite
@@ -29,9 +39,9 @@ func (i *ingredientsTest) Test_CombineRecipesToIngredients_SameIng_Combine() {
 	r1 := Recipe{
 		Ings: []Ingredient{
 			Ingredient{
-				UnitSize:       "1",
-				UnitType:       "tsbp",
-				IngredientName: "Olive Oil",
+				UnitSize:       oneUnit,
+				UnitType:       tsbp,
+				IngredientName: oliveOil,
 			},
 		},
 	}
@@ -39,15 +49,15 @@ func (i *ingredientsTest) Test_CombineRecipesToIngredients_SameIng_Combine() {
 		Ings: []Ingredient{
 			Ingredient{
 				UnitSize:       "3",
-				UnitType:       "tsbp",
-				IngredientName: "Olive Oil",
+				UnitType:       tsbp,
+				IngredientName: oliveOil,
 			},
 		},
 	}
 	expected := []Ingredient{{
 		UnitSize:       "4.00",
-		UnitType:       "tsbp",
-		IngredientName: "Olive Oil",
+		UnitType:       tsbp,
+		IngredientName: oliveOil,
 	}}
 	ings, err := CombineRecipesToIngredients([]Recipe{r1, r2})
 	i.Equal(expected, ings)
@@ -58,9 +68,9 @@ func (i *ingredientsTest) Test_CombineRecipesToIngredients_DiffIng_Combine() {
 	r1 := Recipe{
 		Ings: []Ingredient{
 			Ingredient{
-				UnitSize:       "1",
-				UnitType:       "large",
-				IngredientName: "onion",
+				UnitSize:       oneUnit,
+				UnitType:       largeType,
+				IngredientName: onion,
 			},
 		},
 	}
@@ -68,24 +78,24 @@ func (i *ingredientsTest) Test_CombineRecipesToIngredients_DiffIng_Combine() {
 		Ings: []Ingredient{
 			Ingredient{
 				UnitSize:       "3",
-				UnitType:       "large",
-				IngredientName: "onion",
+				UnitType:       largeType,
+				IngredientName: onion,
 			},
 			Ingredient{
-				UnitSize:       "1",
-				UnitType:       "tsp",
-				IngredientName: "oil",
+				UnitSize:       oneUnit,
+				UnitType:       tsp,
+				IngredientName: oil,
 			},
 		},
 	}
 	expected := []Ingredient{{
 		UnitSize:       "4.00",
-		UnitType:       "large",
-		IngredientName: "onion",
+		UnitType:       largeType,
+		IngredientName: onion,
 	}, {
-		UnitSize:       "1",
-		UnitType:       "tsp",
-		IngredientName: "oil",
+		UnitSize:       oneUnit,
+		UnitType:       tsp,
+		IngredientName: oil,
 	},
 	}
 	ings, err := CombineRecipesToIngredients([]Recipe{r1, r2})
@@ -97,9 +107,9 @@ func (i *ingredientsTest) Test_CombineRecipesToIngredients_DiffIng_Combine_Error
 	r1 := Recipe{
 		Ings: []Ingredient{
 			Ingredient{
-				UnitSize:       "1",
-				UnitType:       "large",
-				IngredientName: "onion",
+				UnitSize:       oneUnit,
+				UnitType:       largeType,
+				IngredientName: onion,
 			},
 		},
 	}
@@ -107,13 +117,13 @@ func (i *ingredientsTest) Test_CombineRecipesToIngredients_DiffIng_Combine_Error
 		Ings: []Ingredient{
 			Ingredient{
 				UnitSize:       "EGG",
-				UnitType:       "large",
-				IngredientName: "onion",
+				UnitType:       largeType,
+				IngredientName: onion,
 			},
 			Ingredient{
 				UnitSize:       "EGG",
-				UnitType:       "tsp",
-				IngredientName: "oil",
+				UnitType:       tsp,
+				IngredientName: oil,
 			},
 		},
 	}

@@ -17,12 +17,15 @@ const (
 	exitCodeFail         = 1
 	firstArgumentInSlice = 0
 
-	incrementPopularityString = "IncrementPopularity"
-	runReminderString         = "runReminder"
-	updateLabelString         = "updateLabel"
-	updateProgessBarString    = "updateProgessBar"
-	checkWorkflowExistsString = "checkWorkflowExists"
-	statString                = "stat"
+	incrementPopularityString       = "IncrementPopularity"
+	runReminderString               = "runReminder"
+	updateLabelString               = "updateLabel"
+	updateProgessBarString          = "updateProgessBar"
+	checkWorkflowExistsString       = "checkWorkflowExists"
+	statString                      = "stat"
+	addIngredientsToRemindersString = "addIngredientsToReminders"
+	melon                           = "MELON"
+	apple                           = "APPLE"
 )
 
 type workflowTest struct {
@@ -59,18 +62,18 @@ func (g *workflowTest) Test_AddIngredientsToReminders_Pass() {
 	g.mockScreen.On(updateProgessBarString, progressBarEmpty)
 	g.mockScreen.On(updateProgessBarString, progressBarFull)
 	g.mockScreen.On(updateLabelString, recipeFinishLabel)
-	g.mockWorkflow.On(runReminderString, g.mockScreen, ings[0]).Return(nil)
+	g.mockWorkflow.On(runReminderString, g.mockScreen, ings[firstArgumentInSlice]).Return(nil)
 	g.mockFileReader.On(incrementPopularityString, "DURIAN").Return(nil)
 
-	err := addIngredientsToReminders(ings, g.mockScreen, g.mockFileReader, g.mockWorkflow)
+	err := addIngredientsToReminders(ings, g.mockScreen, g.mockWorkflow)
 	g.Nil(err)
 
 	t := TerminalFakeWorkflow{}
-	err = t.addIngredientsToReminders(ings, g.mockScreen, g.mockFileReader, g.mockWorkflow)
+	err = t.addIngredientsToReminders(ings, g.mockScreen, g.mockWorkflow)
 	g.Nil(err)
 
 	m := macWorkflow{}
-	err = m.addIngredientsToReminders(ings, g.mockScreen, g.mockFileReader, g.mockWorkflow)
+	err = m.addIngredientsToReminders(ings, g.mockScreen, g.mockWorkflow)
 	g.Nil(err)
 }
 
@@ -85,9 +88,9 @@ func (g *workflowTest) Test_AddIngredientsToReminders_runReminder_Error() {
 	g.mockScreen.On(updateProgessBarString, progressBarEmpty)
 	g.mockScreen.On(updateProgessBarString, progressBarFull)
 	g.mockScreen.On(updateLabelString, recipeFinishLabel)
-	g.mockWorkflow.On(runReminderString, g.mockScreen, ings[0]).Return(fmt.Errorf("reminder error"))
-	g.mockFileReader.On(incrementPopularityString, "APPLE").Return(nil)
-	err := addIngredientsToReminders(ings, g.mockScreen, g.mockFileReader, g.mockWorkflow)
+	g.mockWorkflow.On(runReminderString, g.mockScreen, ings[firstArgumentInSlice]).Return(fmt.Errorf("reminder error"))
+	g.mockFileReader.On(incrementPopularityString, apple).Return(nil)
+	err := addIngredientsToReminders(ings, g.mockScreen, g.mockWorkflow)
 	g.EqualError(err, "reminder error")
 }
 
@@ -95,12 +98,12 @@ func TestHelperProcess(*testing.T) {
 	helper := os.Getenv("GO_WANT_HELPER_PROCESS")
 	//pass
 	if helper == "1" {
-		os.Exit(exitCodePass)
+		os.Exit(exitCodePass) //nolint
 		return
 	}
 	//fail
 	if helper == "2" {
-		os.Exit(exitCodeFail)
+		os.Exit(exitCodeFail) //nolint
 		return
 	}
 }
@@ -231,12 +234,12 @@ func (g *workflowTest) Test_checkWorkflowExistsImpl_NotPresent_Pass() {
 
 func (g *workflowTest) Test_submitShoppingList_Pass() {
 	testRecipe := recipe.Recipe{
-		Name: "MELON",
+		Name: melon,
 		Ings: []recipe.Ingredient{
 			recipe.Ingredient{
 				IngredientName: "PEACH",
 				UnitSize:       "1",
-				UnitType:       "APPLE",
+				UnitType:       apple,
 			},
 		},
 	}
@@ -247,8 +250,8 @@ func (g *workflowTest) Test_submitShoppingList_Pass() {
 	g.mockScreen.On(updateProgessBarString, progressBarEmpty)
 	g.mockScreen.On(updateProgessBarString, progressBarFull)
 	g.mockScreen.On(updateLabelString, recipeFinishLabel)
-	g.mockFileReader.On(incrementPopularityString, g.mockFileReader, "MELON").Return(nil)
-	g.mockWorkflow.On("addIngredientsToReminders", []recipe.Ingredient{testRecipe.Ings[0]}, g.mockScreen, g.mockFileReader, g.mockWorkflow).Return(nil)
+	g.mockFileReader.On(incrementPopularityString, g.mockFileReader, melon).Return(nil)
+	g.mockWorkflow.On(addIngredientsToRemindersString, []recipe.Ingredient{testRecipe.Ings[firstArgumentInSlice]}, g.mockScreen, g.mockWorkflow).Return(nil)
 
 	err := submitShoppingList(g.mockScreen, g.mockWorkflow, g.mockFileReader, recipeString, recipeMap)
 	g.Nil(err)
@@ -260,17 +263,16 @@ func (g *workflowTest) Test_submitShoppingList_Pass() {
 	m := macWorkflow{}
 	err = m.submitShoppingList(g.mockScreen, g.mockWorkflow, g.mockFileReader, recipeString, recipeMap)
 	g.Nil(err)
-
 }
 
 func (g *workflowTest) Test_submitShoppingList_Error() {
 	testRecipe := recipe.Recipe{
-		Name: "MELON",
+		Name: melon,
 		Ings: []recipe.Ingredient{
 			recipe.Ingredient{
 				IngredientName: "PEACH",
-				UnitSize:       "1",
-				UnitType:       "APPLE",
+				UnitSize:       "5",
+				UnitType:       apple,
 			},
 		},
 	}
@@ -281,8 +283,8 @@ func (g *workflowTest) Test_submitShoppingList_Error() {
 	g.mockScreen.On(updateProgessBarString, progressBarEmpty)
 	g.mockScreen.On(updateProgessBarString, progressBarFull)
 	g.mockScreen.On(updateLabelString, recipeFinishLabel)
-	g.mockFileReader.On(incrementPopularityString, g.mockFileReader, "MELON").Return(fmt.Errorf("increment pop error"))
-	g.mockWorkflow.On("addIngredientsToReminders", []recipe.Ingredient{testRecipe.Ings[0]}, g.mockScreen, g.mockFileReader, g.mockWorkflow).Return(nil)
+	g.mockFileReader.On(incrementPopularityString, g.mockFileReader, melon).Return(fmt.Errorf("increment pop error"))
+	g.mockWorkflow.On(addIngredientsToRemindersString, []recipe.Ingredient{testRecipe.Ings[firstArgumentInSlice]}, g.mockScreen, g.mockWorkflow).Return(nil)
 	err := submitShoppingList(g.mockScreen, g.mockWorkflow, g.mockFileReader, recipeString, recipeMap)
 	g.EqualError(err, "increment pop error")
 }

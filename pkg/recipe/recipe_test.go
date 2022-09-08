@@ -18,10 +18,15 @@ const (
 	readRecipeDirectoryString = "readRecipeDirectory"
 	loadPopularityFileString  = "loadPopularityFile"
 	readFileString            = "readFile"
+	writePopularityFileString = "writePopularityFile"
+	getPopularityString       = "getPopularity"
 
-	readFileError       = "read file error"
-	testCount           = 5
-	countAfterIncrement = 6
+	readFileError           = "read file error"
+	testCount               = 5
+	countAfterIncrement     = 6
+	countAfterTwoIncrements = 7
+
+	jackfruit = "JACKFRUIT"
 )
 
 type recipeTest struct {
@@ -131,20 +136,20 @@ func (r *recipeTest) Test_IncrementPopularity_Pass() {
 	}
 
 	r.mockFileReader.On(loadPopularityFileString, r.mockFileReader).Return().Return(mockPopBefore, nil)
-	r.mockFileReader.On("writePopularityFile", r.mockFileReader, mockPopAfter).Return(nil)
+	r.mockFileReader.On(writePopularityFileString, r.mockFileReader, mockPopAfter).Return(nil)
 
 	err := incrementPopularityImpl(r.mockFileReader, testFruit)
 	r.Nil(err)
 
 	rp3 := []Popularity{{
 		Name:  testFruit,
-		Count: 7,
+		Count: countAfterTwoIncrements,
 	}}
 
 	mockPopAfter2 := PopularityFile{
 		Pop: rp3,
 	}
-	r.mockFileReader.On("writePopularityFile", r.mockFileReader, mockPopAfter2).Return(nil)
+	r.mockFileReader.On(writePopularityFileString, r.mockFileReader, mockPopAfter2).Return(nil)
 
 	err = r.fileImpl.IncrementPopularity(r.mockFileReader, testFruit)
 	r.Nil(err)
@@ -158,7 +163,7 @@ func (r *recipeTest) Test_IncrementPopularity_Error() {
 
 func (r *recipeTest) Test_GetPopularityImpl_Present_Pass() {
 	rp := []Popularity{{
-		Name:  "JACKFRUIT",
+		Name:  jackfruit,
 		Count: testCount,
 	}}
 	mockPop := PopularityFile{
@@ -167,11 +172,11 @@ func (r *recipeTest) Test_GetPopularityImpl_Present_Pass() {
 
 	r.mockFileReader.On(loadPopularityFileString, r.mockFileReader).Return().Return(mockPop, nil)
 
-	pop, err := getPopularityImpl(r.mockFileReader, "JACKFRUIT")
+	pop, err := getPopularityImpl(r.mockFileReader, jackfruit)
 	r.Equal(pop, testCount)
 	r.Nil(err)
 
-	pop, err = r.fileImpl.getPopularity(r.mockFileReader, "JACKFRUIT")
+	pop, err = r.fileImpl.getPopularity(r.mockFileReader, jackfruit)
 	r.Equal(pop, testCount)
 	r.Nil(err)
 }
@@ -202,7 +207,7 @@ func (r *recipeTest) Test_GetPopularityImpl_NotPresent_Pass() {
 	writePopularity := append(rp, Popularity{Name: "LIME", Count: defaultCount})
 
 	r.mockFileReader.On(loadPopularityFileString, r.mockFileReader).Return(mockPop, nil)
-	r.mockFileReader.On("writePopularityFile", r.mockFileReader, PopularityFile{
+	r.mockFileReader.On(writePopularityFileString, r.mockFileReader, PopularityFile{
 		Pop: writePopularity,
 	}).Return(nil)
 	pop, err := getPopularityImpl(r.mockFileReader, "LIME")
@@ -268,8 +273,8 @@ func (r *recipeTest) Test_ProcessIngredients_Pass() {
 	r.mockFileReader.On(readRecipeDirectoryString).Return(filesReturned, nil)
 	r.mockFileReader.On(loadRecipeFileString, r.mockFileReader, &mockFileInfo{}).Return(r1, nil).Once()
 	r.mockFileReader.On(loadRecipeFileString, r.mockFileReader, &mockFileInfo{}).Return(r2, nil).Once()
-	r.mockFileReader.On("getPopularity", r.mockFileReader, r1.Name).Return(testCount, nil)
-	r.mockFileReader.On("getPopularity", r.mockFileReader, r2.Name).Return(testCount, nil)
+	r.mockFileReader.On(getPopularityString, r.mockFileReader, r1.Name).Return(testCount, nil)
+	r.mockFileReader.On(getPopularityString, r.mockFileReader, r2.Name).Return(testCount, nil)
 	recipes, _, err := ProcessRecipes(r.mockFileReader)
 	r.Nil(err)
 	r.Equal(expectedResult, recipes)
@@ -283,7 +288,7 @@ func (r *recipeTest) Test_ProcessIngredients_GetPopularity_Error() {
 	filesReturned := []fs.FileInfo{&mockFileInfo{}, &mockFileInfo{}}
 	r.mockFileReader.On(readRecipeDirectoryString).Return(filesReturned, nil)
 	r.mockFileReader.On(loadRecipeFileString, r.mockFileReader, &mockFileInfo{}).Return(expectedRecipe, nil)
-	r.mockFileReader.On("getPopularity", r.mockFileReader, expectedRecipe.Name).Return(errorIntReturn, fmt.Errorf("pop error"))
+	r.mockFileReader.On(getPopularityString, r.mockFileReader, expectedRecipe.Name).Return(errorIntReturn, fmt.Errorf("pop error"))
 	recipes, _, err := ProcessRecipes(r.mockFileReader)
 	r.Nil(recipes)
 	r.EqualError(err, "pop error")

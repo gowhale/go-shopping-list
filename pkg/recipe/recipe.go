@@ -21,6 +21,7 @@ const (
 )
 
 // FileReader deals with interactions with files
+//
 //go:generate go run github.com/vektra/mockery/cmd/mockery -name FileReader -inpkg --filename file_reader_mock.go
 type FileReader interface {
 	getPopularity(f FileReader, recipeName string) (int, error)
@@ -148,6 +149,24 @@ func writePopularityFileImpl(f FileReader, pop PopularityFile) error {
 	return f.writeFile(newFile)
 }
 
+func validateRecipe(f FileReader, uniqueRecipeNames map[string]Recipe, fileName fs.FileInfo) (Recipe, error) {
+	recipe, err := f.loadRecipeFile(f, fileName)
+	if err != nil {
+		return Recipe{}, err
+	}
+
+	// Check if duplicate recipe name
+	if _, ok := uniqueRecipeNames[recipe.Name]; ok {
+		return Recipe{}, fmt.Errorf("duplicate recipe name detected. name=%s", recipe.Name)
+	}
+
+	recipe.Count, err = f.getPopularity(f, recipe.Name)
+	if err != nil {
+		return Recipe{}, err
+	}
+	return recipe, nil
+}
+
 // ProcessRecipes processes recipe JSON files from the recipe folder
 func ProcessRecipes(f FileReader) ([]Recipe, map[string]Recipe, error) {
 	files, err := f.readRecipeDirectory()
@@ -161,17 +180,7 @@ func ProcessRecipes(f FileReader) ([]Recipe, map[string]Recipe, error) {
 	allRecipes := []Recipe{}
 	for _, fileName := range files {
 		if !fileName.IsDir() {
-			recipe, err := f.loadRecipeFile(f, fileName)
-			if err != nil {
-				return nil, nil, err
-			}
-
-			// Check if duplicate recipe name
-			if _, ok := uniqueRecipeNames[recipe.Name]; ok {
-				return nil, nil, fmt.Errorf("duplicate recipe name detected. name=%s", recipe.Name)
-			}
-
-			recipe.Count, err = f.getPopularity(f, recipe.Name)
+			recipe, err := validateRecipe(f, uniqueRecipeNames, fileName)
 			if err != nil {
 				return nil, nil, err
 			}
