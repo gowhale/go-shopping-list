@@ -5,6 +5,14 @@ import (
 	"strconv"
 )
 
+func convertMapToSlice(im map[string]Ingredient) []Ingredient {
+	ingsToReturn := []Ingredient{}
+	for _, ing := range im {
+		ingsToReturn = append(ingsToReturn, ing)
+	}
+	return ingsToReturn
+}
+
 // CombineRecipesToIngredients combines the ingredients within mutiple recipes
 func CombineRecipesToIngredients(recipes []Recipe) ([]Ingredient, error) {
 	uniqueIngredients := map[string]Ingredient{}
@@ -33,10 +41,5 @@ func CombineRecipesToIngredients(recipes []Recipe) ([]Ingredient, error) {
 		}
 	}
 
-	ingsToReturn := []Ingredient{}
-	for _, ing := range uniqueIngredients {
-		ingsToReturn = append(ingsToReturn, ing)
-	}
-
-	return ingsToReturn, nil
+	return convertMapToSlice(uniqueIngredients), nil
 }
