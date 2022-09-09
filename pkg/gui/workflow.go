@@ -19,6 +19,9 @@ const (
 
 	minMilliseconds = 100
 	maxMilliseconds = 500
+
+	numOfGoRoutines       = 10
+	ingredientsCountStart = 0
 )
 
 // NewWorkflow will return a mac workflow if workflow file present and running on mac
@@ -101,29 +104,41 @@ func submitShoppingList(s screenInterface, wf workflowInterface, fr recipe.FileR
 	return wf.addIngredientsToReminders(ings, s, wf)
 }
 
+func ingQueue(ings []recipe.Ingredient, c chan<- recipe.Ingredient) {
+	defer close(c)
+	for _, ing := range ings {
+		c <- ing
+	}
+}
+
+func ingSend(s screenInterface, w workflowInterface, c <-chan recipe.Ingredient, ingAdded *int, totalIngs int) error {
+	for ing := range c {
+		log.Printf("ingredient=%s status=IN PROGRESS", ing.String())
+		if err := w.runReminder(s, ing); err != nil {
+			return err
+		}
+		*ingAdded++
+		progress := float64(*ingAdded) / float64(totalIngs)
+		s.updateProgessBar(progress)
+		log.Printf("ingredient=%s status=DONE progress=%.2f", ing.String(), progress)
+	}
+	return nil
+}
+
 func addIngredientsToReminders(ings []recipe.Ingredient, s screenInterface, w workflowInterface) error {
 	progress := float64(progressBarEmpty)
 	s.updateProgessBar(progress)
-	ingAdded := []recipe.Ingredient{}
 
+	ingAdded := ingredientsCountStart
+	ingWaitingList := make(chan recipe.Ingredient, numOfGoRoutines)
 	g := new(errgroup.Group)
-	for _, ing := range ings {
-		ing := ing
+	for i := ingredientsCountStart; i < numOfGoRoutines; i++ {
 		g.Go(func() error {
-			log.Printf("ingredient=%s status=IN PROGRESS", ing.String())
-			if err := w.runReminder(s, ing); err != nil {
-				return err
-			}
-			defer func() {
-				log.Printf("ingredient=%s status=DONE", ing.String())
-				ingAdded = append(ingAdded, ing)
-				progress = float64(len(ingAdded)) / float64(len(ings))
-				s.updateProgessBar(progress)
-				log.Printf("progress=%.2f adding ing='%s'", progress, ing.String())
-			}()
-			return nil
+			return ingSend(s, w, ingWaitingList, &ingAdded, len(ings))
 		})
 	}
+
+	ingQueue(ings, ingWaitingList)
 	if err := g.Wait(); err != nil {
 		return err
 	}
