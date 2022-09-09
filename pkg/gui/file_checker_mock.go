@@ -13,20 +13,20 @@ type mockFileChecker struct {
 	mock.Mock
 }
 
-// checkWorkflowExists provides a mock function with given fields:
-func (_m *mockFileChecker) checkWorkflowExists() (bool, error) {
-	ret := _m.Called()
+// checkWorkflowExists provides a mock function with given fields: f
+func (_m *mockFileChecker) checkWorkflowExists(f fileChecker) (bool, error) {
+	ret := _m.Called(f)
 
 	var r0 bool
-	if rf, ok := ret.Get(0).(func() bool); ok {
-		r0 = rf()
+	if rf, ok := ret.Get(0).(func(fileChecker) bool); ok {
+		r0 = rf(f)
 	} else {
 		r0 = ret.Get(0).(bool)
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func() error); ok {
-		r1 = rf()
+	if rf, ok := ret.Get(1).(func(fileChecker) error); ok {
+		r1 = rf(f)
 	} else {
 		r1 = ret.Error(1)
 	}
