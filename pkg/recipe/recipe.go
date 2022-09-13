@@ -114,7 +114,6 @@ func getPopularityImpl(f FileReader, recipeName string) (int, error) {
 
 	mapOfPops := map[string]int{}
 	for _, p := range pop.Pop {
-		log.Printf("name=%s count=%d", p.Name, p.Count)
 		mapOfPops[p.Name] = p.Count
 	}
 
@@ -158,6 +157,16 @@ func validateRecipe(f FileReader, uniqueRecipeNames map[string]Recipe, fileName 
 	// Check if duplicate recipe name
 	if _, ok := uniqueRecipeNames[recipe.Name]; ok {
 		return Recipe{}, fmt.Errorf("duplicate recipe name detected. name=%s", recipe.Name)
+	}
+
+	if len(recipe.Ings) < 1 {
+		return Recipe{}, fmt.Errorf("recipe=%s has 0 ingredients", recipe.Name)
+	}
+
+	for _, ing := range recipe.Ings {
+		if ing.IngredientName == "" {
+			return Recipe{}, fmt.Errorf("recipe=%s ing=%s with nil name", recipe.Name, ing)
+		}
 	}
 
 	recipe.Count, err = f.getPopularity(f, recipe.Name)
