@@ -280,10 +280,103 @@ func (r *recipeTest) Test_ProcessIngredients_Pass() {
 	r.Equal(expectedResult, recipes)
 }
 
+func (r *recipeTest) Test_ProcessIngredients_EmptyIngName_Error() {
+	r1 := Recipe{
+		Name:  "APPLE",
+		Count: testCount,
+		Ings: []Ingredient{
+			Ingredient{
+				UnitSize:       "1",
+				UnitType:       "g",
+				IngredientName: "",
+			},
+		},
+	}
+
+	filesReturned := []fs.FileInfo{&mockFileInfo{}, &mockFileInfo{}}
+	r.mockFileReader.On(readRecipeDirectoryString).Return(filesReturned, nil)
+	r.mockFileReader.On(loadRecipeFileString, r.mockFileReader, &mockFileInfo{}).Return(r1, nil).Once()
+	r.mockFileReader.On(getPopularityString, r.mockFileReader, r1.Name).Return(testCount, nil)
+	recipes, _, err := ProcessRecipes(r.mockFileReader)
+	r.EqualError(err, "file-name=DURIAN ing={1 g } with nil name")
+	r.Nil(recipes)
+}
+
+func (r *recipeTest) Test_ProcessIngredients_EmptyIngs_Error() {
+	r1 := Recipe{
+		Name:  "APPLE",
+		Count: testCount,
+		Ings:  []Ingredient{},
+	}
+
+	filesReturned := []fs.FileInfo{&mockFileInfo{}, &mockFileInfo{}}
+	r.mockFileReader.On(readRecipeDirectoryString).Return(filesReturned, nil)
+	r.mockFileReader.On(loadRecipeFileString, r.mockFileReader, &mockFileInfo{}).Return(r1, nil).Once()
+	r.mockFileReader.On(getPopularityString, r.mockFileReader, r1.Name).Return(testCount, nil)
+	recipes, _, err := ProcessRecipes(r.mockFileReader)
+	r.EqualError(err, "file-name=DURIAN has 0 ingredients")
+	r.Nil(recipes)
+}
+
+func (r *recipeTest) Test_ProcessIngredients_DuplicateName_Error() {
+	r1 := Recipe{
+		Name:  "APPLE",
+		Count: testCount,
+		Ings: []Ingredient{
+			Ingredient{
+				UnitSize:       "1",
+				UnitType:       "g",
+				IngredientName: "salt",
+			},
+		},
+	}
+	r2 := Recipe{
+		Name:  "APPLE",
+		Count: testCount,
+		Ings: []Ingredient{
+			Ingredient{
+				UnitSize:       "1",
+				UnitType:       "g",
+				IngredientName: "salt",
+			},
+		},
+	}
+
+	filesReturned := []fs.FileInfo{&mockFileInfo{}, &mockFileInfo{}}
+	r.mockFileReader.On(readRecipeDirectoryString).Return(filesReturned, nil)
+	r.mockFileReader.On(loadRecipeFileString, r.mockFileReader, &mockFileInfo{}).Return(r1, nil).Once()
+	r.mockFileReader.On(loadRecipeFileString, r.mockFileReader, &mockFileInfo{}).Return(r2, nil).Once()
+	r.mockFileReader.On(getPopularityString, r.mockFileReader, r1.Name).Return(testCount, nil)
+	r.mockFileReader.On(getPopularityString, r.mockFileReader, r2.Name).Return(testCount, nil)
+	recipes, _, err := ProcessRecipes(r.mockFileReader)
+	r.EqualError(err, "duplicate recipe name detected. file-name=DURIAN")
+	r.Nil(recipes)
+}
+
+func (r *recipeTest) Test_ProcessIngredients_EmptyName_Error() {
+	r1 := Recipe{
+		Name: "",
+	}
+	filesReturned := []fs.FileInfo{&mockFileInfo{}}
+	r.mockFileReader.On(readRecipeDirectoryString).Return(filesReturned, nil)
+	r.mockFileReader.On(loadRecipeFileString, r.mockFileReader, &mockFileInfo{}).Return(r1, nil).Once()
+	r.mockFileReader.On(getPopularityString, r.mockFileReader, r1.Name).Return(testCount, nil)
+	recipes, _, err := ProcessRecipes(r.mockFileReader)
+	r.EqualError(err, "file-name=DURIAN is missing a recipe name")
+	r.Nil(recipes)
+}
+
 func (r *recipeTest) Test_ProcessIngredients_GetPopularity_Error() {
 	expectedRecipe := Recipe{
 		Name:  "DURIAN",
 		Count: testCount,
+		Ings: []Ingredient{
+			Ingredient{
+				UnitSize:       "1",
+				UnitType:       "g",
+				IngredientName: "salt",
+			},
+		},
 	}
 	filesReturned := []fs.FileInfo{&mockFileInfo{}, &mockFileInfo{}}
 	r.mockFileReader.On(readRecipeDirectoryString).Return(filesReturned, nil)
