@@ -1,11 +1,7 @@
 {
     "recipe_name": "TEST",
     "ingredients": [
-        {
-            "unit_size": "100",
-            "unit_type": "g",
-            "ingredient_name": ""
-        }
+
     ],
     "method":[
         "Mix all the spices and dried herbs together in a small bowl",
