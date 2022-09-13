@@ -1,105 +1,10 @@
 {
-    "recipe_name": "Chicken and Chorizo with olives",
+    "recipe_name": "TEST",
     "ingredients": [
-        {
-            "unit_size": "4",
-            "unit_type": "tbsp",
-            "ingredient_name": "olive oil"
-        },
         {
             "unit_size": "100",
             "unit_type": "g",
-            "ingredient_name": "chorizo"
-        },
-        {
-            "unit_size": "8",
-            "unit_type": "",
-            "ingredient_name": "chicken thighs"
-        },
-        {
-            "unit_size": "1",
-            "unit_type": "",
-            "ingredient_name": "large onion"
-        },
-        {
-            "unit_size": "2",
-            "unit_type": "",
-            "ingredient_name": "garlic cloves"
-        },
-        {
-            "unit_size": "1",
-            "unit_type": "",
-            "ingredient_name": "splash sherry"
-        },
-        {
-            "unit_size": "1",
-            "unit_type": "tsp",
-            "ingredient_name": "dried thyme"
-        },
-        {
-            "unit_size": "1",
-            "unit_type": "tsp",
-            "ingredient_name": "dried oregano"
-        },
-        {
-            "unit_size": "1",
-            "unit_type": "tsp",
-            "ingredient_name": "onion granules"
-        },
-        {
-            "unit_size": "1",
-            "unit_type": "tsp",
-            "ingredient_name": "sweet paprika"
-        },
-        {
-            "unit_size": "0.5",
-            "unit_type": "tsp",
-            "ingredient_name": "ground cumin"
-        },
-        {
-            "unit_size": "0.25",
-            "unit_type": "tsp",
-            "ingredient_name": "chilli powder"
-        },
-        {
-            "unit_size": "400",
-            "unit_type": "g",
-            "ingredient_name": "chickpeas"
-        },
-        {
-            "unit_size": "400",
-            "unit_type": "g",
-            "ingredient_name": "chopped tomatoes"
-        },
-        {
-            "unit_size": "1",
-            "unit_type": "",
-            "ingredient_name": "chicken stock cube"
-        },
-        {
-            "unit_size": "2",
-            "unit_type": "tbsp",
-            "ingredient_name": "honey"
-        },
-        {
-            "unit_size": "20",
-            "unit_type": "",
-            "ingredient_name": "green pitted olives"
-        },
-        {
-            "unit_size": "0",
-            "unit_type": "",
-            "ingredient_name": "salt and pepper"
-        },
-        {
-            "unit_size": "0.25",
-            "unit_type": "tsp",
-            "ingredient_name": "dried chilli flakes"
-        },
-        {
-            "unit_size": "0",
-            "unit_type": "",
-            "ingredient_name": "fresh thyme"
+            "ingredient_name": ""
         }
     ],
     "method":[

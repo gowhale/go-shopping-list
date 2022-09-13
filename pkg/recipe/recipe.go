@@ -159,6 +159,16 @@ func validateRecipe(f FileReader, uniqueRecipeNames map[string]Recipe, fileName 
 		return Recipe{}, fmt.Errorf("duplicate recipe name detected. name=%s", recipe.Name)
 	}
 
+	if len(recipe.Ings) < 1 {
+		return Recipe{}, fmt.Errorf("recipe=%s has 0 ingredients", recipe.Name)
+	}
+
+	for _, ing := range recipe.Ings {
+		if ing.IngredientName == "" {
+			return Recipe{}, fmt.Errorf("recipe=%s ing=%s with nil name", recipe.Name, ing)
+		}
+	}
+
 	recipe.Count, err = f.getPopularity(f, recipe.Name)
 	if err != nil {
 		return Recipe{}, err
