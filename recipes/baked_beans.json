@@ -1,8 +1,8 @@
 {
     "recipe_name": "Baked Beans",
     "serves": "2",
-    "prep_time": "2 mins",
-    "cooking_time": "2 mins",
+    "prep_time": "1 min",
+    "cooking_time": "3 mins",
     "ingredients": [
         {
             "unit_size": "2",
