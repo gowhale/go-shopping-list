@@ -2,8 +2,9 @@ on: [pull_request]
 name: Go Test
 jobs:
   go-test:
-   strategy:
+    strategy:
       matrix:
+        go-version: [1.19.x]
         os: [windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:
