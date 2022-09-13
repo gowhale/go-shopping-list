@@ -2,7 +2,10 @@ on: [pull_request]
 name: Go Test
 jobs:
   go-test:
-    runs-on: windows-latest
+   strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
     - uses: actions/setup-go@v3
       with:
