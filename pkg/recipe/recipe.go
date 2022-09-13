@@ -114,7 +114,6 @@ func getPopularityImpl(f FileReader, recipeName string) (int, error) {
 
 	mapOfPops := map[string]int{}
 	for _, p := range pop.Pop {
-		log.Printf("name=%s count=%d", p.Name, p.Count)
 		mapOfPops[p.Name] = p.Count
 	}
 
