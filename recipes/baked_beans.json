@@ -1,11 +1,11 @@
 {
     "recipe_name": "Baked Beans",
-    "serves": "1",
+    "serves": "2",
     "prep_time": "2 mins",
     "cooking_time": "2 mins",
     "ingredients": [
         {
-            "unit_size": "1",
+            "unit_size": "2",
             "unit_type": "tin",
             "ingredient_name": "heinz baked beans"
         }
