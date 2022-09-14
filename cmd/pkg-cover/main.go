@@ -9,7 +9,9 @@ import (
 )
 
 func main() {
-	log.Println(pkgCover())
+	if err := pkgCover(); err != nil {
+		log.Fatalln(err)
+	}
 }
 
 var execCommand = exec.Command
