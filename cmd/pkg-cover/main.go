@@ -52,19 +52,21 @@ func covertOutputToCoverage(termOutput string) ([]testLine, error) {
 	testStruct := []testLine{}
 	lines := strings.Split(termOutput, "\n")
 	for _, line := range lines[:len(lines)-1] {
-		pkgName := strings.Fields(line)[1]
-		if _, ok := excludedPkgs[pkgName]; !ok {
-			coverageIndex := strings.Index(line, "coverage: ")
-			if coverageIndex != -1 {
-				lineFields := strings.Fields(line[coverageIndex:])
-				pkgPercentStr := lineFields[1][:len(lineFields[1])-1]
-				pkgPercentFloat, err := strconv.ParseFloat(pkgPercentStr, 64)
-				if err != nil {
-					return nil, err
+		if !strings.Contains(line, "go: downloading") {
+			pkgName := strings.Fields(line)[1]
+			if _, ok := excludedPkgs[pkgName]; !ok {
+				coverageIndex := strings.Index(line, "coverage: ")
+				if coverageIndex != -1 {
+					lineFields := strings.Fields(line[coverageIndex:])
+					pkgPercentStr := lineFields[1][:len(lineFields[1])-1]
+					pkgPercentFloat, err := strconv.ParseFloat(pkgPercentStr, 64)
+					if err != nil {
+						return nil, err
+					}
+					testStruct = append(testStruct, testLine{pkgName: pkgName, coverage: pkgPercentFloat})
+				} else {
+					testStruct = append(testStruct, testLine{pkgName: pkgName, coverage: -1})
 				}
-				testStruct = append(testStruct, testLine{pkgName: pkgName, coverage: pkgPercentFloat})
-			} else {
-				testStruct = append(testStruct, testLine{pkgName: pkgName, coverage: -1})
 			}
 		}
 	}
