@@ -25,7 +25,7 @@ func (*ingredientsTest) SetupTest() {
 
 }
 
-func TestGuiTest(t *testing.T) {
+func TestRecipe(t *testing.T) {
 	suite.Run(t, new(ingredientsTest))
 }
 
