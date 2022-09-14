@@ -8,12 +8,6 @@ import (
 	"strings"
 )
 
-func main() {
-	if err := pkgCover(); err != nil {
-		log.Fatalln(err)
-	}
-}
-
 var execCommand = exec.Command
 var excludedPkgs = map[string]bool{
 	"go-shopping-list":                  true,
@@ -21,17 +15,78 @@ var excludedPkgs = map[string]bool{
 	"go-shopping-list/cmd/authenticate": true,
 }
 
-type testLine struct {
+func main() {
+	output, err := runGoTest()
+	if err != nil {
+		log.Println(output)
+		log.Fatalln(err)
+	}
+
+	tl, err := covertOutputToCoverage(output)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	if err := validateTestOutput(tl); err != nil {
+		log.Fatalln(err)
+	}
 }
 
-func pkgCover() error {
+func runGoTest() (string, error) {
 	cmd := execCommand("go", "test", "./...", "--cover")
 	output, err := cmd.CombinedOutput()
 	termOutput := string(output)
-	if err != nil {
-		log.Println(termOutput)
-		return err
+	return termOutput, err
+}
+
+type testLine struct {
+	pkgName  string
+	coverage float64
+}
+
+func covertOutputToCoverage(termOutput string) ([]testLine, error) {
+	testStruct := []testLine{}
+	lines := strings.Split(termOutput, "\n")
+	for _, line := range lines[:len(lines)-1] {
+		pkgName := strings.Fields(line)[1]
+		if _, ok := excludedPkgs[pkgName]; !ok {
+			coverageLine := strings.Index(line, "coverage: ")
+			if coverageLine != -1 {
+				words := strings.Fields(line[coverageLine:])
+				percentageOfPkgCovered := words[1][:len(words[1])-1]
+				s, err := strconv.ParseFloat(percentageOfPkgCovered, 64)
+				if err != nil {
+					return nil, err
+				}
+				testStruct = append(testStruct, testLine{pkgName: pkgName, coverage: s})
+			} else {
+				testStruct = append(testStruct, testLine{pkgName: pkgName, coverage: -1})
+			}
+		}
 	}
+	return testStruct, nil
+}
+
+func validateTestOutput(tl []testLine) error {
+	invalidOutputs := []string{}
+	for _, test := range tl {
+		switch {
+		case test.coverage == -1:
+			invalidOutputs = append(invalidOutputs, fmt.Sprintf("pkg=%s is missing tests", test.pkgName))
+		case test.coverage < 80:
+			invalidOutputs = append(invalidOutputs, fmt.Sprintf("pkg=%s cov=%f under the %f%% minimum line coverage", test.pkgName, test.coverage, 80.0))
+		}
+	}
+	for _, invalid := range invalidOutputs {
+		log.Println(invalid)
+	}
+	if len(invalidOutputs) == 0 {
+		return nil
+	}
+	return fmt.Errorf("the following pkgs are not valid: %+v", invalidOutputs)
+}
+
+func pkgCover(termOutput string) error {
 	lines := strings.Split(termOutput, "\n")
 	for _, line := range lines[:len(lines)-1] {
 		pkgName := strings.Fields(line)[1]
