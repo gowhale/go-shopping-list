@@ -16,20 +16,24 @@ var excludedPkgs = map[string]bool{
 }
 
 func main() {
+	if err := execute(); err != nil {
+		log.Fatalln(err)
+	}
+}
+
+func execute() error {
 	output, err := runGoTest()
 	if err != nil {
 		log.Println(output)
-		log.Fatalln(err)
+		return err
 	}
 
 	tl, err := covertOutputToCoverage(output)
 	if err != nil {
-		log.Fatalln(err)
+		return err
 	}
 
-	if err := validateTestOutput(tl); err != nil {
-		log.Fatalln(err)
-	}
+	return validateTestOutput(tl)
 }
 
 func runGoTest() (string, error) {
@@ -50,15 +54,15 @@ func covertOutputToCoverage(termOutput string) ([]testLine, error) {
 	for _, line := range lines[:len(lines)-1] {
 		pkgName := strings.Fields(line)[1]
 		if _, ok := excludedPkgs[pkgName]; !ok {
-			coverageLine := strings.Index(line, "coverage: ")
-			if coverageLine != -1 {
-				words := strings.Fields(line[coverageLine:])
-				percentageOfPkgCovered := words[1][:len(words[1])-1]
-				s, err := strconv.ParseFloat(percentageOfPkgCovered, 64)
+			coverageIndex := strings.Index(line, "coverage: ")
+			if coverageIndex != -1 {
+				lineFields := strings.Fields(line[coverageIndex:])
+				pkgPercentStr := lineFields[1][:len(lineFields[1])-1]
+				pkgPercentFloat, err := strconv.ParseFloat(pkgPercentStr, 64)
 				if err != nil {
 					return nil, err
 				}
-				testStruct = append(testStruct, testLine{pkgName: pkgName, coverage: s})
+				testStruct = append(testStruct, testLine{pkgName: pkgName, coverage: pkgPercentFloat})
 			} else {
 				testStruct = append(testStruct, testLine{pkgName: pkgName, coverage: -1})
 			}
@@ -69,12 +73,12 @@ func covertOutputToCoverage(termOutput string) ([]testLine, error) {
 
 func validateTestOutput(tl []testLine) error {
 	invalidOutputs := []string{}
-	for _, test := range tl {
+	for _, line := range tl {
 		switch {
-		case test.coverage == -1:
-			invalidOutputs = append(invalidOutputs, fmt.Sprintf("pkg=%s is missing tests", test.pkgName))
-		case test.coverage < 80:
-			invalidOutputs = append(invalidOutputs, fmt.Sprintf("pkg=%s cov=%f under the %f%% minimum line coverage", test.pkgName, test.coverage, 80.0))
+		case line.coverage == -1:
+			invalidOutputs = append(invalidOutputs, fmt.Sprintf("pkg=%s is missing tests", line.pkgName))
+		case line.coverage < 80:
+			invalidOutputs = append(invalidOutputs, fmt.Sprintf("pkg=%s cov=%f under the %f%% minimum line coverage", line.pkgName, line.coverage, 80.0))
 		}
 	}
 	for _, invalid := range invalidOutputs {
@@ -84,29 +88,4 @@ func validateTestOutput(tl []testLine) error {
 		return nil
 	}
 	return fmt.Errorf("the following pkgs are not valid: %+v", invalidOutputs)
-}
-
-func pkgCover(termOutput string) error {
-	lines := strings.Split(termOutput, "\n")
-	for _, line := range lines[:len(lines)-1] {
-		pkgName := strings.Fields(line)[1]
-		if _, ok := excludedPkgs[pkgName]; !ok {
-			coverageLine := strings.Index(line, "coverage: ")
-			if coverageLine != -1 {
-				words := strings.Fields(line[coverageLine:])
-				percentageOfPkgCovered := words[1][:len(words[1])-1]
-				s, err := strconv.ParseFloat(percentageOfPkgCovered, 64)
-				if err != nil {
-					return err
-				}
-				log.Printf("pkg=%s cov=%f", pkgName, s)
-				if s < 80 {
-					return fmt.Errorf("pkg=%s cov=%f does not meet %f pkg coverage", pkgName, s, 80.0)
-				}
-			} else {
-				return fmt.Errorf("pkg=%s missing test files", pkgName)
-			}
-		}
-	}
-	return nil
 }
