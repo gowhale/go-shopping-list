@@ -33,7 +33,7 @@ func execute() error {
 		return err
 	}
 
-	return validateTestOutput(tl)
+	return validateTestOutput(tl, output)
 }
 
 func runGoTest() (string, error) {
@@ -71,7 +71,7 @@ func covertOutputToCoverage(termOutput string) ([]testLine, error) {
 	return testStruct, nil
 }
 
-func validateTestOutput(tl []testLine) error {
+func validateTestOutput(tl []testLine, o string) error {
 	invalidOutputs := []string{}
 	for _, line := range tl {
 		switch {
@@ -87,5 +87,6 @@ func validateTestOutput(tl []testLine) error {
 	if len(invalidOutputs) == 0 {
 		return nil
 	}
+	log.Println(o)
 	return fmt.Errorf("the following pkgs are not valid: %+v", invalidOutputs)
 }
