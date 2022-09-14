@@ -230,6 +230,7 @@ func (g *workflowTest) Test_checkWorkflowExistsImpl_NotPresent_Pass() {
 	present, err := checkWorkflowExistsImpl(g.mockFileChecker)
 	g.Nil(err)
 	g.Equal(false, present)
+	g.Equal(false, true)
 }
 
 func (g *workflowTest) Test_submitShoppingList_Pass() {

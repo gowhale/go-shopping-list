@@ -27,10 +27,11 @@ type testLine struct {
 func pkgCover() error {
 	cmd := execCommand("go", "test", "./...", "--cover")
 	output, err := cmd.CombinedOutput()
+	termOutput := string(output)
 	if err != nil {
+		log.Println(termOutput)
 		return err
 	}
-	termOutput := string(output)
 	lines := strings.Split(termOutput, "\n")
 	for _, line := range lines[:len(lines)-1] {
 		pkgName := strings.Fields(line)[1]
