@@ -3,6 +3,7 @@ package workflow
 import (
 	"fmt"
 	"go-shopping-list/pkg/common"
+	"go-shopping-list/pkg/fruit"
 	"go-shopping-list/pkg/recipe"
 	fs "io/fs"
 	"os"
@@ -131,11 +132,11 @@ func (g *workflowTest) Test_macWorkflow_RunReminder_Pass() {
 	}()
 	m := macWorkflow{}
 	ing := recipe.Ingredient{
-		UnitSize:       "WATERMELON",
+		UnitSize:       fruit.Watermelon,
 		UnitType:       "CHERRY",
 		IngredientName: "PITAYA",
 	}
-	g.mockScreen.On(UpdateLabelString, "Added Ingredient: WATERMELON CHERRY PITAYA")
+	g.mockScreen.On(UpdateLabelString, "Added Ingredient: Watermelon CHERRY PITAYA")
 	err := m.RunReminder(g.mockScreen, ing)
 	g.Nil(err)
 }
@@ -159,7 +160,7 @@ func (g *workflowTest) Test_macWorkflow_RunReminder_Error() {
 func (g *workflowTest) Test_terminal_RunReminder_Pass() {
 	m := TerminalFakeWorkflow{}
 	ing := recipe.Ingredient{
-		UnitSize:       "WATERMELON",
+		UnitSize:       fruit.Watermelon,
 		UnitType:       "CHERRY",
 		IngredientName: "PITAYA",
 	}

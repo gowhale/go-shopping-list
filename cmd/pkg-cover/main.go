@@ -11,7 +11,7 @@ import (
 const (
 	minPercentCov          = 80.0
 	coverageStringNotFound = -1
-	firstItemIndex             = 1
+	firstItemIndex         = 1
 )
 
 var execCommand = exec.Command
@@ -20,6 +20,7 @@ var excludedPkgs = map[string]bool{
 	"go-shopping-list/cmd/pkg-cover":    true,
 	"go-shopping-list/cmd/authenticate": true,
 	"go-shopping-list/pkg/common":       true,
+	"go-shopping-list/pkg/fruit":        true,
 }
 
 func main() {

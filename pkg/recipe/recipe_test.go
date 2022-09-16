@@ -5,6 +5,7 @@ package recipe
 import (
 	"encoding/json"
 	"fmt"
+	"go-shopping-list/pkg/fruit"
 	"io/fs"
 
 	"testing"
@@ -27,7 +28,6 @@ const (
 	countAfterTwoIncrements = 7
 
 	jackfruit  = "JACKFRUIT"
-	apple      = "APPLE"
 	grams      = "g"
 	salt       = "salt"
 	singleUnit = "1"
@@ -52,10 +52,10 @@ func TestRecipeTest(r *testing.T) {
 func (r *recipeTest) Test_String() {
 	i := Ingredient{
 		UnitSize:       "PEACH",
-		UnitType:       "WATERMELON",
+		UnitType:       fruit.Watermelon,
 		IngredientName: "PEAR",
 	}
-	r.Equal("PEACH WATERMELON PEAR", i.String())
+	r.Equal("PEACH Watermelon PEAR", i.String())
 }
 
 func (r *recipeTest) Test_loadPopularityFileImpl_Pass() {
@@ -100,7 +100,7 @@ func (r *recipeTest) Test_loadPopularityFileImpl_Error() {
 func (r *recipeTest) Test_loadRecipeFileImpl_Pass() {
 	testByte := []byte{}
 	expectedRecipe := Recipe{
-		Name: apple,
+		Name: fruit.Apple,
 	}
 	r.mockFileReader.On(readFileString, "recipes/DURIAN").Return(testByte, nil)
 	r.mockFileReader.On("unmarshallJSONToRecipe", testByte).Return(expectedRecipe, nil)
@@ -202,7 +202,7 @@ func (r *recipeTest) Test_GetPopularityImpl_Error() {
 
 func (r *recipeTest) Test_GetPopularityImpl_NotPresent_Pass() {
 	rp := []Popularity{{
-		Name:  apple,
+		Name:  fruit.Apple,
 		Count: testCount,
 	}}
 	mockPop := PopularityFile{
@@ -251,7 +251,7 @@ func (r *recipeTest) Test_WritePopularityFileImpl_MarshallJSON_Error() {
 
 func (r *recipeTest) Test_ProcessIngredients_Pass() {
 	r1 := Recipe{
-		Name:  apple,
+		Name:  fruit.Apple,
 		Count: testCount,
 		Ings: []Ingredient{
 			Ingredient{
@@ -286,7 +286,7 @@ func (r *recipeTest) Test_ProcessIngredients_Pass() {
 
 func (r *recipeTest) Test_ProcessIngredients_EmptyIngName_Error() {
 	r1 := Recipe{
-		Name:  apple,
+		Name:  fruit.Apple,
 		Count: testCount,
 		Ings: []Ingredient{
 			Ingredient{
@@ -308,7 +308,7 @@ func (r *recipeTest) Test_ProcessIngredients_EmptyIngName_Error() {
 
 func (r *recipeTest) Test_ProcessIngredients_EmptyIngs_Error() {
 	r1 := Recipe{
-		Name:  apple,
+		Name:  fruit.Apple,
 		Count: testCount,
 		Ings:  []Ingredient{},
 	}
@@ -324,7 +324,7 @@ func (r *recipeTest) Test_ProcessIngredients_EmptyIngs_Error() {
 
 func (r *recipeTest) Test_ProcessIngredients_DuplicateName_Error() {
 	r1 := Recipe{
-		Name:  apple,
+		Name:  fruit.Apple,
 		Count: testCount,
 		Ings: []Ingredient{
 			Ingredient{
@@ -335,7 +335,7 @@ func (r *recipeTest) Test_ProcessIngredients_DuplicateName_Error() {
 		},
 	}
 	r2 := Recipe{
-		Name:  apple,
+		Name:  fruit.Apple,
 		Count: testCount,
 		Ings: []Ingredient{
 			Ingredient{
@@ -424,7 +424,7 @@ func (r *recipeTest) Test_UnmarshallJSONToRecipe_Pass() {
 func (r *recipeTest) Test_UnmarshallJSONToPopularity_Pass() {
 	mf := FileInteractionImpl{}
 	rp := []Popularity{{
-		Name:  apple,
+		Name:  fruit.Apple,
 		Count: testCount,
 	}}
 	mockPop := PopularityFile{

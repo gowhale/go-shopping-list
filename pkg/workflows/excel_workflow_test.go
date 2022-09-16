@@ -3,6 +3,7 @@ package workflow
 import (
 	"fmt"
 	"go-shopping-list/pkg/common"
+	"go-shopping-list/pkg/fruit"
 	"go-shopping-list/pkg/recipe"
 	"log"
 	"testing"
@@ -35,7 +36,7 @@ func (g *excelTest) SetupTest() {
 	g.mockFileChecker = new(mockFileChecker)
 	g.mockExcel = new(mockExcel)
 	g.ing = recipe.Ingredient{
-		UnitSize:       "WATERMELON",
+		UnitSize:       fruit.Watermelon,
 		UnitType:       "CHERRY",
 		IngredientName: "PITAYA",
 	}
