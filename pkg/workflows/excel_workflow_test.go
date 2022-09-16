@@ -37,7 +37,7 @@ func (g *excelTest) SetupTest() {
 	g.mockExcel = new(mockExcel)
 	g.ing = recipe.Ingredient{
 		UnitSize:       fruit.Watermelon,
-		UnitType:       "CHERRY",
+		UnitType:       fruit.Cherry,
 		IngredientName: "PITAYA",
 	}
 }
