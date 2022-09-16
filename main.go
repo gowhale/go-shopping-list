@@ -22,6 +22,7 @@ func main() {
 	}
 
 	// wf = &gui.TerminalFakeWorkflow{} // Uncomment me if you want to just print to terminal!
+	wf = &gui.ExcelWorkflow{} // Uncomment me if you want to just print to terminal!
 
 	// Show Window
 	myWindow := gui.NewApp(allRecipes, recipeMap, wf)
