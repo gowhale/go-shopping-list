@@ -13,6 +13,7 @@ var excludedPkgs = map[string]bool{
 	"go-shopping-list":                  true,
 	"go-shopping-list/cmd/pkg-cover":    true,
 	"go-shopping-list/cmd/authenticate": true,
+	"go-shopping-list/pkg/common":       true,
 }
 
 func main() {
@@ -83,12 +84,15 @@ func validateTestOutput(tl []testLine, o string) error {
 			invalidOutputs = append(invalidOutputs, fmt.Sprintf("pkg=%s cov=%f under the %f%% minimum line coverage", line.pkgName, line.coverage, 80.0))
 		}
 	}
-	for _, invalid := range invalidOutputs {
-		log.Println(invalid)
-	}
 	if len(invalidOutputs) == 0 {
 		return nil
 	}
 	log.Println(o)
+	log.Println("###############################")
+	log.Println("###############################")
+	log.Println("invalid pkg's:")
+	for i, invalid := range invalidOutputs {
+		log.Printf("id=%d problem=%s", i, invalid)
+	}
 	return fmt.Errorf("the following pkgs are not valid: %+v", invalidOutputs)
 }

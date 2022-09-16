@@ -1,6 +1,7 @@
 package gui
 
 import (
+	"go-shopping-list/pkg/common"
 	"go-shopping-list/pkg/recipe"
 	"log"
 
@@ -18,7 +19,6 @@ const (
 	progressBarHeight = 50
 	progressBarEmpty  = 0.0
 	progressBarFull   = 1.0
-	recipeFinishLabel = "Finished. Select another recipe to add more."
 )
 
 type screen struct {
@@ -26,33 +26,27 @@ type screen struct {
 	l *widget.Label
 }
 
-//go:generate go run github.com/vektra/mockery/cmd/mockery -name screenInterface -inpkg --filename screen_mock.go
-type screenInterface interface {
-	updateProgessBar(float64)
-	updateLabel(string)
-}
-
-func (s *screen) updateProgessBar(percent float64) {
+func (s *screen) UpdateProgessBar(percent float64) {
 	s.p.SetValue(percent)
 	s.p.Refresh()
 }
 
-func (s *screen) updateLabel(msg string) {
+func (s *screen) UpdateLabel(msg string) {
 	s.l.SetText(msg)
 	s.l.Refresh()
 }
 
-func createSubmitButton(s screenInterface, wf workflowInterface, fr recipe.FileReader, recipes *[]string, recipeMap map[string]recipe.Recipe) *widget.Button {
+func createSubmitButton(s common.ScreenInterface, wf common.WorkflowInterface, fr recipe.FileReader, recipes *[]string, recipeMap map[string]recipe.Recipe) *widget.Button {
 	return widget.NewButton("Add To Shopping List", func() {
-		err := wf.submitShoppingList(s, wf, fr, *recipes, recipeMap)
+		err := wf.SubmitShoppingList(s, wf, fr, *recipes, recipeMap)
 		if err != nil {
-			log.Fatalln(err)
+			log.Println(err)
 		}
 	})
 }
 
 // NewApp returns a fyne.Window
-func NewApp(recipes []recipe.Recipe, recipeMap map[string]recipe.Recipe, wf workflowInterface) fyne.Window {
+func NewApp(recipes []recipe.Recipe, recipeMap map[string]recipe.Recipe, wf common.WorkflowInterface) fyne.Window {
 	myApp := app.New()
 	myWindow := myApp.NewWindow("List Widget")
 
