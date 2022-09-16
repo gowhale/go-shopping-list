@@ -1,14 +1,10 @@
 package gui
 
 import (
-	"fmt"
 	"go-shopping-list/pkg/recipe"
 	"io/fs"
 	"log"
-	"math/rand"
 	"os"
-	"os/exec"
-	"time"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -147,47 +143,5 @@ func addIngredientsToReminders(ings []recipe.Ingredient, s screenInterface, w wo
 	log.Printf("progress=%.2f", progress)
 	s.updateProgessBar(progress)
 	s.updateLabel(recipeFinishLabel)
-	return nil
-}
-
-var execCommand = exec.Command
-
-type macWorkflow struct{}
-
-func (*macWorkflow) submitShoppingList(s screenInterface, wf workflowInterface, fr recipe.FileReader, recipes []string, recipeMap map[string]recipe.Recipe) error {
-	return submitShoppingList(s, wf, fr, recipes, recipeMap)
-}
-
-func (*macWorkflow) addIngredientsToReminders(ings []recipe.Ingredient, s screenInterface, w workflowInterface) error {
-	return addIngredientsToReminders(ings, s, w)
-}
-
-func (*macWorkflow) runReminder(s screenInterface, currentIng recipe.Ingredient) error {
-	cmd := execCommand("automator", "-i", fmt.Sprintf(`"%s"`, currentIng.String()), "shopping.workflow")
-	_, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("error adding the following ingredient=%s err=%w", currentIng.String(), err)
-	}
-	s.updateLabel(fmt.Sprintf("Added Ingredient: %s", currentIng.String()))
-	return nil
-}
-
-// TerminalFakeWorkflow can be used to just print to termnial
-type TerminalFakeWorkflow struct{}
-
-func (*TerminalFakeWorkflow) submitShoppingList(s screenInterface, wf workflowInterface, fr recipe.FileReader, recipes []string, recipeMap map[string]recipe.Recipe) error {
-	return submitShoppingList(s, wf, fr, recipes, recipeMap)
-}
-
-func (*TerminalFakeWorkflow) addIngredientsToReminders(ings []recipe.Ingredient, s screenInterface, w workflowInterface) error {
-	return addIngredientsToReminders(ings, s, w)
-}
-
-func (*TerminalFakeWorkflow) runReminder(_ screenInterface, currentIng recipe.Ingredient) error {
-	log.Printf("PRETENDING TO ADD INGREDIENT=%s", currentIng.String())
-	millisecondsToWait := rand.Intn(maxMilliseconds-minMilliseconds) + minMilliseconds
-	time.Sleep(time.Millisecond * time.Duration(millisecondsToWait))
-	// The below line creates a bug. I think because race conditions. Maybe I should implement mutex?
-	// s.updateLabel(fmt.Sprintf("Added Ingredient: %s", currentIng.String()))
 	return nil
 }
