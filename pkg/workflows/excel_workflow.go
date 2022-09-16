@@ -12,6 +12,7 @@ import (
 
 const (
 	titleColRow  = "B2"
+	titleVal     = "INGREDIENTS TO BUY"
 	dateColRow   = "B3"
 	ingsRowStart = 5
 	ingsColStart = "B"
@@ -29,11 +30,44 @@ func (*ExcelWorkflow) SubmitShoppingList(s common.ScreenInterface, wf common.Wor
 func (*ExcelWorkflow) AddIngredientsToReminders(ings []recipe.Ingredient, s common.ScreenInterface, w common.WorkflowInterface) error {
 	year, month, day := time.Now().Date()
 	dateString := fmt.Sprintf("%d-%d-%d", year, month, day)
+	return createExcelSheet(s, &excelImpl{}, ings, dateString)
+}
 
-	f := excelize.NewFile()
+func (*ExcelWorkflow) RunReminder(_ common.ScreenInterface, currentIng recipe.Ingredient) error {
+	return nil
+}
 
-	f.SetCellValue(sheetName, titleColRow, "INGREDIENTS TO BUY")
-	f.SetCellValue(sheetName, dateColRow, dateString)
+//go:generate go run github.com/vektra/mockery/cmd/mockery -name excel -inpkg --filename excel_mock.go
+type excel interface {
+	NewFile() *excelize.File
+	SetCellValue(f *excelize.File, sheet string, axis string, value interface{}) error
+	SaveAs(f *excelize.File, name string, opt ...excelize.Options) error
+}
+
+type excelImpl struct{}
+
+func (*excelImpl) NewFile() *excelize.File {
+	return excelize.NewFile()
+}
+
+func (*excelImpl) SetCellValue(f *excelize.File, sheet string, axis string, value interface{}) error {
+	return f.SetCellValue(sheet, axis, value)
+}
+
+func (*excelImpl) SaveAs(f *excelize.File, name string, opt ...excelize.Options) error {
+	return f.SaveAs(name, opt...)
+}
+
+func createExcelSheet(s common.ScreenInterface, e excel, ings []recipe.Ingredient, dateString string) error {
+
+	f := e.NewFile()
+
+	if err := e.SetCellValue(f, sheetName, titleColRow, titleVal); err != nil {
+		return err
+	}
+	if err := e.SetCellValue(f, sheetName, dateColRow, dateString); err != nil {
+		return err
+	}
 
 	ingAdded := 0
 	row := ingsRowStart
@@ -42,7 +76,9 @@ func (*ExcelWorkflow) AddIngredientsToReminders(ings []recipe.Ingredient, s comm
 		cellLocation := fmt.Sprintf("%s%d", ingsColStart, row)
 		cellValue := ing.String()
 		log.Printf("loc=%s val=%s", cellLocation, cellValue)
-		f.SetCellValue(sheetName, cellLocation, cellValue)
+		if err := e.SetCellValue(f, sheetName, cellLocation, cellValue); err != nil {
+			return err
+		}
 		row++
 		ingAdded++
 		progress := float64(ingAdded) / float64(len(ings))
@@ -50,9 +86,5 @@ func (*ExcelWorkflow) AddIngredientsToReminders(ings []recipe.Ingredient, s comm
 		log.Printf("ingredient=%s status=DONE progress=%.2f", ing.String(), progress)
 	}
 	listName := fmt.Sprintf("%s/%s.xlsx", listFolder, dateString)
-	return f.SaveAs(listName)
-}
-
-func (*ExcelWorkflow) RunReminder(_ common.ScreenInterface, currentIng recipe.Ingredient) error {
-	return nil
+	return e.SaveAs(f, listName)
 }
