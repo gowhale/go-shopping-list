@@ -1,6 +1,7 @@
 package workflow
 
 import (
+	"go-shopping-list/pkg/common"
 	"go-shopping-list/pkg/recipe"
 	"log"
 	"math/rand"
@@ -10,19 +11,19 @@ import (
 // TerminalFakeWorkflow can be used to just print to termnial
 type TerminalFakeWorkflow struct{}
 
-func (*TerminalFakeWorkflow) submitShoppingList(s screenInterface, wf WorkflowInterface, fr recipe.FileReader, recipes []string, recipeMap map[string]recipe.Recipe) error {
-	return submitShoppingList(s, wf, fr, recipes, recipeMap)
+func (*TerminalFakeWorkflow) SubmitShoppingList(s common.ScreenInterface, wf common.WorkflowInterface, fr recipe.FileReader, recipes []string, recipeMap map[string]recipe.Recipe) error {
+	return SubmitShoppingList(s, wf, fr, recipes, recipeMap)
 }
 
-func (*TerminalFakeWorkflow) addIngredientsToReminders(ings []recipe.Ingredient, s screenInterface, w WorkflowInterface) error {
-	return addIngredientsToReminders(ings, s, w)
+func (*TerminalFakeWorkflow) AddIngredientsToReminders(ings []recipe.Ingredient, s common.ScreenInterface, w common.WorkflowInterface) error {
+	return AddIngredientsToReminders(ings, s, w)
 }
 
-func (*TerminalFakeWorkflow) runReminder(_ screenInterface, currentIng recipe.Ingredient) error {
+func (*TerminalFakeWorkflow) RunReminder(_ common.ScreenInterface, currentIng recipe.Ingredient) error {
 	log.Printf("PRETENDING TO ADD INGREDIENT=%s", currentIng.String())
 	millisecondsToWait := rand.Intn(maxMilliseconds-minMilliseconds) + minMilliseconds
 	time.Sleep(time.Millisecond * time.Duration(millisecondsToWait))
 	// The below line creates a bug. I think because race conditions. Maybe I should implement mutex?
-	// s.updateLabel(fmt.Sprintf("Added Ingredient: %s", currentIng.String()))
+	// s.UpdateLabel(fmt.Sprintf("Added Ingredient: %s", currentIng.String()))
 	return nil
 }

@@ -1,6 +1,7 @@
 package workflow
 
 import (
+	"go-shopping-list/pkg/common"
 	"go-shopping-list/pkg/recipe"
 	"io/fs"
 	"log"
@@ -19,14 +20,14 @@ const (
 	numOfGoRoutines       = 10
 	ingredientsCountStart = 0
 
-	progressBarEmpty = 0.0
-	progressBarFull  = 1.0
+	progressBarEmpty  = 0.0
+	progressBarFull   = 1.0
 	recipeFinishLabel = "Finished. Select another recipe to add more."
 )
 
 // NewWorkflow will return a mac workflow if workflow file present and running on mac
 // Else will return terminal workflow which prints to terminal
-func NewWorkflow(f fileChecker, osString string) (WorkflowInterface, error) {
+func NewWorkflow(f fileChecker, osString string) (common.WorkflowInterface, error) {
 	workflowPresent, err := f.checkWorkflowExists(f)
 	if err != nil {
 		return nil, err
@@ -78,19 +79,7 @@ func checkWorkflowExistsImpl(f fileChecker) (bool, error) {
 	return false, err
 }
 
-type screenInterface interface {
-	updateProgessBar(float64)
-	updateLabel(string)
-}
-
-//go:generate go run github.com/vektra/mockery/cmd/mockery -name workflowInterface -inpkg --filename workflow_mock.go
-type WorkflowInterface interface {
-	addIngredientsToReminders(ings []recipe.Ingredient, s screenInterface, w WorkflowInterface) error
-	runReminder(s screenInterface, currentIng recipe.Ingredient) error
-	submitShoppingList(s screenInterface, wf WorkflowInterface, fr recipe.FileReader, recipes []string, recipeMap map[string]recipe.Recipe) error
-}
-
-func submitShoppingList(s screenInterface, wf WorkflowInterface, fr recipe.FileReader, recipes []string, recipeMap map[string]recipe.Recipe) error {
+func SubmitShoppingList(s common.ScreenInterface, wf common.WorkflowInterface, fr recipe.FileReader, recipes []string, recipeMap map[string]recipe.Recipe) error {
 	log.Println("Currently selected Recipes:")
 	recipesSelected := []recipe.Recipe{}
 	for _, v := range recipes {
@@ -106,7 +95,7 @@ func submitShoppingList(s screenInterface, wf WorkflowInterface, fr recipe.FileR
 	if err != nil {
 		return err
 	}
-	return wf.addIngredientsToReminders(ings, s, wf)
+	return wf.AddIngredientsToReminders(ings, s, wf)
 }
 
 func ingQueue(ings []recipe.Ingredient, c chan<- recipe.Ingredient) {
@@ -116,23 +105,23 @@ func ingQueue(ings []recipe.Ingredient, c chan<- recipe.Ingredient) {
 	}
 }
 
-func ingSend(s screenInterface, w WorkflowInterface, c <-chan recipe.Ingredient, ingAdded *int, totalIngs int) error {
+func ingSend(s common.ScreenInterface, w common.WorkflowInterface, c <-chan recipe.Ingredient, ingAdded *int, totalIngs int) error {
 	for ing := range c {
 		log.Printf("ingredient=%s status=IN PROGRESS", ing.String())
-		if err := w.runReminder(s, ing); err != nil {
+		if err := w.RunReminder(s, ing); err != nil {
 			return err
 		}
 		*ingAdded++
 		progress := float64(*ingAdded) / float64(totalIngs)
-		s.updateProgessBar(progress)
+		s.UpdateProgessBar(progress)
 		log.Printf("ingredient=%s status=DONE progress=%.2f", ing.String(), progress)
 	}
 	return nil
 }
 
-func addIngredientsToReminders(ings []recipe.Ingredient, s screenInterface, w WorkflowInterface) error {
+func AddIngredientsToReminders(ings []recipe.Ingredient, s common.ScreenInterface, w common.WorkflowInterface) error {
 	progress := float64(progressBarEmpty)
-	s.updateProgessBar(progress)
+	s.UpdateProgessBar(progress)
 
 	ingAdded := ingredientsCountStart
 	ingWaitingList := make(chan recipe.Ingredient, numOfGoRoutines)
@@ -150,7 +139,7 @@ func addIngredientsToReminders(ings []recipe.Ingredient, s screenInterface, w Wo
 
 	progress = progressBarFull
 	log.Printf("progress=%.2f", progress)
-	s.updateProgessBar(progress)
-	s.updateLabel(recipeFinishLabel)
+	s.UpdateProgessBar(progress)
+	s.UpdateLabel(recipeFinishLabel)
 	return nil
 }

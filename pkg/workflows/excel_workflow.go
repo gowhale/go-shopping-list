@@ -2,6 +2,7 @@ package workflow
 
 import (
 	"fmt"
+	"go-shopping-list/pkg/common"
 	"go-shopping-list/pkg/recipe"
 	"log"
 	"time"
@@ -21,11 +22,11 @@ const (
 // ExcelWorkflow will create an excel sheet with ingredients
 type ExcelWorkflow struct{}
 
-func (*ExcelWorkflow) submitShoppingList(s screenInterface, wf WorkflowInterface, fr recipe.FileReader, recipes []string, recipeMap map[string]recipe.Recipe) error {
-	return submitShoppingList(s, wf, fr, recipes, recipeMap)
+func (*ExcelWorkflow) SubmitShoppingList(s common.ScreenInterface, wf common.WorkflowInterface, fr recipe.FileReader, recipes []string, recipeMap map[string]recipe.Recipe) error {
+	return SubmitShoppingList(s, wf, fr, recipes, recipeMap)
 }
 
-func (*ExcelWorkflow) addIngredientsToReminders(ings []recipe.Ingredient, s screenInterface, w WorkflowInterface) error {
+func (*ExcelWorkflow) AddIngredientsToReminders(ings []recipe.Ingredient, s common.ScreenInterface, w common.WorkflowInterface) error {
 	year, month, day := time.Now().Date()
 	dateString := fmt.Sprintf("%d-%d-%d", year, month, day)
 
@@ -45,13 +46,13 @@ func (*ExcelWorkflow) addIngredientsToReminders(ings []recipe.Ingredient, s scre
 		row++
 		ingAdded++
 		progress := float64(ingAdded) / float64(len(ings))
-		s.updateProgessBar(progress)
+		s.UpdateProgessBar(progress)
 		log.Printf("ingredient=%s status=DONE progress=%.2f", ing.String(), progress)
 	}
 	listName := fmt.Sprintf("%s/%s.xlsx", listFolder, dateString)
 	return f.SaveAs(listName)
 }
 
-func (*ExcelWorkflow) runReminder(_ screenInterface, currentIng recipe.Ingredient) error {
+func (*ExcelWorkflow) RunReminder(_ common.ScreenInterface, currentIng recipe.Ingredient) error {
 	return nil
 }

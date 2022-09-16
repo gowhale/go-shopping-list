@@ -2,9 +2,15 @@ package common
 
 import "go-shopping-list/pkg/recipe"
 
-//go:generate go run github.com/vektra/mockery/cmd/mockery -name workflowInterface -inpkg --filename workflow_mock.go
+//go:generate go run github.com/vektra/mockery/cmd/mockery -name WorkflowInterface -inpkg --filename workflow_mock.go
 type WorkflowInterface interface {
-	addIngredientsToReminders(ings []recipe.Ingredient, s WorkflowInterface, w WorkflowInterface) error
-	runReminder(s WorkflowInterface, currentIng recipe.Ingredient) error
-	submitShoppingList(s WorkflowInterface, wf WorkflowInterface, fr recipe.FileReader, recipes []string, recipeMap map[string]recipe.Recipe) error
+	AddIngredientsToReminders(ings []recipe.Ingredient, s ScreenInterface, w WorkflowInterface) error
+	RunReminder(s ScreenInterface, currentIng recipe.Ingredient) error
+	SubmitShoppingList(s ScreenInterface, wf WorkflowInterface, fr recipe.FileReader, recipes []string, recipeMap map[string]recipe.Recipe) error
+}
+
+//go:generate go run github.com/vektra/mockery/cmd/mockery -name ScreenInterface -inpkg --filename screen_mock.go
+type ScreenInterface interface {
+	UpdateProgessBar(float64)
+	UpdateLabel(string)
 }

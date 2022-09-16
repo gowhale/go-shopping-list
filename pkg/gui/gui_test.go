@@ -2,6 +2,7 @@
 package gui
 
 import (
+	"go-shopping-list/pkg/common"
 	"go-shopping-list/pkg/recipe"
 	"testing"
 
@@ -10,21 +11,22 @@ import (
 )
 
 const (
-	updateProgessBarString = "updateProgessBar"
-	updateLabelString      = "updateLabel"
+	UpdateProgessBarString = "UpdateProgessBar"
+	UpdateLabelString      = "UpdateLabel"
+	recipeFinishLabel      = "Finished. Select another recipe to add more."
 )
 
 // TODO: Test fyne.io properly()
 type guiTest struct {
 	suite.Suite
-	mockScreen     *mockScreenInterface
-	mockWorkflow   *MockTest
+	mockScreen     *common.MockScreenInterface
+	mockWorkflow   *common.MockWorkflowInterface
 	mockFileReader *recipe.MockFileReader
 }
 
 func (g *guiTest) SetupTest() {
-	g.mockScreen = new(mockScreenInterface)
-	g.mockWorkflow = new(MockTest)
+	g.mockScreen = new(common.MockScreenInterface)
+	g.mockWorkflow = new(common.MockWorkflowInterface)
 	g.mockFileReader = new(recipe.MockFileReader)
 }
 
@@ -39,9 +41,9 @@ func TestGuiTest(t *testing.T) {
 
 func (g *guiTest) Test_buttonPress() {
 	b := createSubmitButton(g.mockScreen, g.mockWorkflow, g.mockFileReader, &[]string{}, map[string]recipe.Recipe{})
-	g.mockScreen.On(updateProgessBarString, progressBarEmpty)
-	g.mockScreen.On(updateProgessBarString, progressBarFull)
-	g.mockScreen.On(updateLabelString, recipeFinishLabel)
-	g.mockWorkflow.On("submitShoppingList", g.mockScreen, g.mockWorkflow, g.mockFileReader, []string{}, map[string]recipe.Recipe{}).Return(nil)
+	g.mockScreen.On(UpdateProgessBarString, progressBarEmpty)
+	g.mockScreen.On(UpdateProgessBarString, progressBarFull)
+	g.mockScreen.On(UpdateLabelString, recipeFinishLabel)
+	g.mockWorkflow.On("SubmitShoppingList", g.mockScreen, g.mockWorkflow, g.mockFileReader, []string{}, map[string]recipe.Recipe{}).Return(nil)
 	test.Tap(b)
 }

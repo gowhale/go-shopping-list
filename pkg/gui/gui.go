@@ -1,6 +1,7 @@
 package gui
 
 import (
+	"go-shopping-list/pkg/common"
 	"go-shopping-list/pkg/recipe"
 	"log"
 
@@ -27,30 +28,23 @@ type screen struct {
 
 //go:generate go run github.com/vektra/mockery/cmd/mockery -name screenInterface -inpkg --filename screen_mock.go
 type screenInterface interface {
-	updateProgessBar(float64)
-	updateLabel(string)
+	UpdateProgessBar(float64)
+	UpdateLabel(string)
 }
 
-func (s *screen) updateProgessBar(percent float64) {
+func (s *screen) UpdateProgessBar(percent float64) {
 	s.p.SetValue(percent)
 	s.p.Refresh()
 }
 
-func (s *screen) updateLabel(msg string) {
+func (s *screen) UpdateLabel(msg string) {
 	s.l.SetText(msg)
 	s.l.Refresh()
 }
 
-//go:generate go run github.com/vektra/mockery/cmd/mockery -name Test -inpkg --filename test_mock.go
-type Test interface {
-	addIngredientsToReminders(ings []recipe.Ingredient, s screenInterface, w Test) error
-	runReminder(s screenInterface, currentIng recipe.Ingredient) error
-	submitShoppingList(s screenInterface, wf Test, fr recipe.FileReader, recipes []string, recipeMap map[string]recipe.Recipe) error
-}
-
-func createSubmitButton(s screenInterface, wf Test, fr recipe.FileReader, recipes *[]string, recipeMap map[string]recipe.Recipe) *widget.Button {
+func createSubmitButton(s screenInterface, wf common.WorkflowInterface, fr recipe.FileReader, recipes *[]string, recipeMap map[string]recipe.Recipe) *widget.Button {
 	return widget.NewButton("Add To Shopping List", func() {
-		err := wf.submitShoppingList(s, wf, fr, *recipes, recipeMap)
+		err := wf.SubmitShoppingList(s, wf, fr, *recipes, recipeMap)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -58,7 +52,7 @@ func createSubmitButton(s screenInterface, wf Test, fr recipe.FileReader, recipe
 }
 
 // NewApp returns a fyne.Window
-func NewApp(recipes []recipe.Recipe, recipeMap map[string]recipe.Recipe, wf Test) fyne.Window {
+func NewApp(recipes []recipe.Recipe, recipeMap map[string]recipe.Recipe, wf common.WorkflowInterface) fyne.Window {
 	myApp := app.New()
 	myWindow := myApp.NewWindow("List Widget")
 
