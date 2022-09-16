@@ -26,12 +26,6 @@ type screen struct {
 	l *widget.Label
 }
 
-//go:generate go run github.com/vektra/mockery/cmd/mockery -name screenInterface -inpkg --filename screen_mock.go
-type screenInterface interface {
-	UpdateProgessBar(float64)
-	UpdateLabel(string)
-}
-
 func (s *screen) UpdateProgessBar(percent float64) {
 	s.p.SetValue(percent)
 	s.p.Refresh()
@@ -42,11 +36,11 @@ func (s *screen) UpdateLabel(msg string) {
 	s.l.Refresh()
 }
 
-func createSubmitButton(s screenInterface, wf common.WorkflowInterface, fr recipe.FileReader, recipes *[]string, recipeMap map[string]recipe.Recipe) *widget.Button {
+func createSubmitButton(s common.ScreenInterface, wf common.WorkflowInterface, fr recipe.FileReader, recipes *[]string, recipeMap map[string]recipe.Recipe) *widget.Button {
 	return widget.NewButton("Add To Shopping List", func() {
 		err := wf.SubmitShoppingList(s, wf, fr, *recipes, recipeMap)
 		if err != nil {
-			log.Fatalln(err)
+			log.Println(err)
 		}
 	})
 }
