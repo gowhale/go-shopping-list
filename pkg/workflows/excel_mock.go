@@ -12,8 +12,8 @@ type mockExcel struct {
 	mock.Mock
 }
 
-// NewFile provides a mock function with given fields:
-func (_m *mockExcel) NewFile() *excelize.File {
+// newFile provides a mock function with given fields:
+func (_m *mockExcel) newFile() *excelize.File {
 	ret := _m.Called()
 
 	var r0 *excelize.File
@@ -28,8 +28,8 @@ func (_m *mockExcel) NewFile() *excelize.File {
 	return r0
 }
 
-// SaveAs provides a mock function with given fields: f, name, opt
-func (_m *mockExcel) SaveAs(f *excelize.File, name string, opt ...excelize.Options) error {
+// saveAs provides a mock function with given fields: f, name, opt
+func (_m *mockExcel) saveAs(f *excelize.File, name string, opt ...excelize.Options) error {
 	_va := make([]interface{}, len(opt))
 	for _i := range opt {
 		_va[_i] = opt[_i]
@@ -49,8 +49,8 @@ func (_m *mockExcel) SaveAs(f *excelize.File, name string, opt ...excelize.Optio
 	return r0
 }
 
-// SetCellValue provides a mock function with given fields: f, sheet, axis, value
-func (_m *mockExcel) SetCellValue(f *excelize.File, sheet string, axis string, value interface{}) error {
+// setCellValue provides a mock function with given fields: f, sheet, axis, value
+func (_m *mockExcel) setCellValue(f *excelize.File, sheet string, axis string, value interface{}) error {
 	ret := _m.Called(f, sheet, axis, value)
 
 	var r0 error

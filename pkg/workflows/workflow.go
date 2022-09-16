@@ -1,3 +1,4 @@
+// Package workflow is used by all workflow files
 package workflow
 
 import (
