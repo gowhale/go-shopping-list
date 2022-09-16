@@ -1,11 +1,12 @@
 module go-shopping-list
 
-go 1.19
+go 1.17
 
 require (
 	fyne.io/fyne/v2 v2.2.3
 	github.com/bradfitz/slice v0.0.0-20180809154707-2b758aa73013
 	github.com/stretchr/testify v1.7.2
+	github.com/xuri/excelize/v2 v2.6.1
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 )
 
@@ -32,7 +33,6 @@ require (
 	github.com/stretchr/objx v0.1.1 // indirect
 	github.com/tevino/abool v1.2.0 // indirect
 	github.com/xuri/efp v0.0.0-20220603152613-6918739fd470 // indirect
-	github.com/xuri/excelize/v2 v2.6.1 // indirect
 	github.com/xuri/nfp v0.0.0-20220409054826-5e722a1d9e22 // indirect
 	github.com/yuin/goldmark v1.4.0 // indirect
 	go4.org v0.0.0-20201209231011-d4a079459e60 // indirect

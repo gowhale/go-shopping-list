@@ -18,7 +18,6 @@ const (
 	progressBarHeight = 50
 	progressBarEmpty  = 0.0
 	progressBarFull   = 1.0
-	recipeFinishLabel = "Finished. Select another recipe to add more."
 )
 
 type screen struct {
@@ -42,7 +41,14 @@ func (s *screen) updateLabel(msg string) {
 	s.l.Refresh()
 }
 
-func createSubmitButton(s screenInterface, wf workflowInterface, fr recipe.FileReader, recipes *[]string, recipeMap map[string]recipe.Recipe) *widget.Button {
+//go:generate go run github.com/vektra/mockery/cmd/mockery -name Test -inpkg --filename test_mock.go
+type Test interface {
+	addIngredientsToReminders(ings []recipe.Ingredient, s screenInterface, w Test) error
+	runReminder(s screenInterface, currentIng recipe.Ingredient) error
+	submitShoppingList(s screenInterface, wf Test, fr recipe.FileReader, recipes []string, recipeMap map[string]recipe.Recipe) error
+}
+
+func createSubmitButton(s screenInterface, wf Test, fr recipe.FileReader, recipes *[]string, recipeMap map[string]recipe.Recipe) *widget.Button {
 	return widget.NewButton("Add To Shopping List", func() {
 		err := wf.submitShoppingList(s, wf, fr, *recipes, recipeMap)
 		if err != nil {
@@ -52,7 +58,7 @@ func createSubmitButton(s screenInterface, wf workflowInterface, fr recipe.FileR
 }
 
 // NewApp returns a fyne.Window
-func NewApp(recipes []recipe.Recipe, recipeMap map[string]recipe.Recipe, wf workflowInterface) fyne.Window {
+func NewApp(recipes []recipe.Recipe, recipeMap map[string]recipe.Recipe, wf Test) fyne.Window {
 	myApp := app.New()
 	myWindow := myApp.NewWindow("List Widget")
 

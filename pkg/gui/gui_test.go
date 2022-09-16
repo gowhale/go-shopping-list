@@ -9,17 +9,22 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
+const (
+	updateProgessBarString = "updateProgessBar"
+	updateLabelString      = "updateLabel"
+)
+
 // TODO: Test fyne.io properly()
 type guiTest struct {
 	suite.Suite
 	mockScreen     *mockScreenInterface
-	mockWorkflow   *mockWorkflowInterface
+	mockWorkflow   *MockTest
 	mockFileReader *recipe.MockFileReader
 }
 
 func (g *guiTest) SetupTest() {
 	g.mockScreen = new(mockScreenInterface)
-	g.mockWorkflow = new(mockWorkflowInterface)
+	g.mockWorkflow = new(MockTest)
 	g.mockFileReader = new(recipe.MockFileReader)
 }
 
@@ -27,10 +32,10 @@ func TestGuiTest(t *testing.T) {
 	suite.Run(t, new(guiTest))
 }
 
-func (*guiTest) Test_mockFileInfo() {
-	testRecipe := []recipe.Recipe{}
-	_ = NewApp(testRecipe, nil, &TerminalFakeWorkflow{})
-}
+// func (*guiTest) Test_mockFileInfo() {
+// 	testRecipe := []recipe.Recipe{}
+// 	_ = NewApp(testRecipe, nil, &workflow.TerminalFakeWorkflow{})
+// }
 
 func (g *guiTest) Test_buttonPress() {
 	b := createSubmitButton(g.mockScreen, g.mockWorkflow, g.mockFileReader, &[]string{}, map[string]recipe.Recipe{})
@@ -40,4 +45,3 @@ func (g *guiTest) Test_buttonPress() {
 	g.mockWorkflow.On("submitShoppingList", g.mockScreen, g.mockWorkflow, g.mockFileReader, []string{}, map[string]recipe.Recipe{}).Return(nil)
 	test.Tap(b)
 }
-
