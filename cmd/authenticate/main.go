@@ -1,3 +1,4 @@
+// Package main authenticates that the recipes are in the correct format with valid data
 package main
 
 import (

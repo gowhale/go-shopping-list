@@ -26,7 +26,11 @@ const (
 	countAfterIncrement     = 6
 	countAfterTwoIncrements = 7
 
-	jackfruit = "JACKFRUIT"
+	jackfruit  = "JACKFRUIT"
+	apple      = "APPLE"
+	grams      = "g"
+	salt       = "salt"
+	singleUnit = "1"
 )
 
 type recipeTest struct {
@@ -96,7 +100,7 @@ func (r *recipeTest) Test_loadPopularityFileImpl_Error() {
 func (r *recipeTest) Test_loadRecipeFileImpl_Pass() {
 	testByte := []byte{}
 	expectedRecipe := Recipe{
-		Name: "APPLE",
+		Name: apple,
 	}
 	r.mockFileReader.On(readFileString, "recipes/DURIAN").Return(testByte, nil)
 	r.mockFileReader.On("unmarshallJSONToRecipe", testByte).Return(expectedRecipe, nil)
@@ -198,7 +202,7 @@ func (r *recipeTest) Test_GetPopularityImpl_Error() {
 
 func (r *recipeTest) Test_GetPopularityImpl_NotPresent_Pass() {
 	rp := []Popularity{{
-		Name:  "Apple",
+		Name:  apple,
 		Count: testCount,
 	}}
 	mockPop := PopularityFile{
@@ -247,13 +251,13 @@ func (r *recipeTest) Test_WritePopularityFileImpl_MarshallJSON_Error() {
 
 func (r *recipeTest) Test_ProcessIngredients_Pass() {
 	r1 := Recipe{
-		Name:  "APPLE",
+		Name:  apple,
 		Count: testCount,
 		Ings: []Ingredient{
 			Ingredient{
-				UnitSize:       "1",
-				UnitType:       "g",
-				IngredientName: "salt",
+				UnitSize:       singleUnit,
+				UnitType:       grams,
+				IngredientName: salt,
 			},
 		},
 	}
@@ -262,9 +266,9 @@ func (r *recipeTest) Test_ProcessIngredients_Pass() {
 		Count: testCount,
 		Ings: []Ingredient{
 			Ingredient{
-				UnitSize:       "1",
-				UnitType:       "g",
-				IngredientName: "salt",
+				UnitSize:       singleUnit,
+				UnitType:       grams,
+				IngredientName: salt,
 			},
 		},
 	}
@@ -282,12 +286,12 @@ func (r *recipeTest) Test_ProcessIngredients_Pass() {
 
 func (r *recipeTest) Test_ProcessIngredients_EmptyIngName_Error() {
 	r1 := Recipe{
-		Name:  "APPLE",
+		Name:  apple,
 		Count: testCount,
 		Ings: []Ingredient{
 			Ingredient{
-				UnitSize:       "1",
-				UnitType:       "g",
+				UnitSize:       singleUnit,
+				UnitType:       grams,
 				IngredientName: "",
 			},
 		},
@@ -304,7 +308,7 @@ func (r *recipeTest) Test_ProcessIngredients_EmptyIngName_Error() {
 
 func (r *recipeTest) Test_ProcessIngredients_EmptyIngs_Error() {
 	r1 := Recipe{
-		Name:  "APPLE",
+		Name:  apple,
 		Count: testCount,
 		Ings:  []Ingredient{},
 	}
@@ -320,24 +324,24 @@ func (r *recipeTest) Test_ProcessIngredients_EmptyIngs_Error() {
 
 func (r *recipeTest) Test_ProcessIngredients_DuplicateName_Error() {
 	r1 := Recipe{
-		Name:  "APPLE",
+		Name:  apple,
 		Count: testCount,
 		Ings: []Ingredient{
 			Ingredient{
-				UnitSize:       "1",
-				UnitType:       "g",
-				IngredientName: "salt",
+				UnitSize:       singleUnit,
+				UnitType:       grams,
+				IngredientName: salt,
 			},
 		},
 	}
 	r2 := Recipe{
-		Name:  "APPLE",
+		Name:  apple,
 		Count: testCount,
 		Ings: []Ingredient{
 			Ingredient{
-				UnitSize:       "1",
-				UnitType:       "g",
-				IngredientName: "salt",
+				UnitSize:       singleUnit,
+				UnitType:       grams,
+				IngredientName: salt,
 			},
 		},
 	}
@@ -372,9 +376,9 @@ func (r *recipeTest) Test_ProcessIngredients_GetPopularity_Error() {
 		Count: testCount,
 		Ings: []Ingredient{
 			Ingredient{
-				UnitSize:       "1",
-				UnitType:       "g",
-				IngredientName: "salt",
+				UnitSize:       singleUnit,
+				UnitType:       grams,
+				IngredientName: salt,
 			},
 		},
 	}
@@ -420,7 +424,7 @@ func (r *recipeTest) Test_UnmarshallJSONToRecipe_Pass() {
 func (r *recipeTest) Test_UnmarshallJSONToPopularity_Pass() {
 	mf := FileInteractionImpl{}
 	rp := []Popularity{{
-		Name:  "Apple",
+		Name:  apple,
 		Count: testCount,
 	}}
 	mockPop := PopularityFile{

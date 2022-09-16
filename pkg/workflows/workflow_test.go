@@ -207,7 +207,7 @@ func (g *workflowTest) Test_checkWorkflowExistsImpl_Present_Pass() {
 	g.Nil(err)
 	g.Equal(true, present)
 
-	w := WorkflowChecker{}
+	w := CheckWorkflow{}
 	present, err = w.checkWorkflowExists(g.mockFileChecker)
 	g.Nil(err)
 	g.Equal(true, present)

@@ -14,8 +14,10 @@ const (
 	popularityFileName = "popularity.json"
 	recipeFolder       = "recipes/"
 
-	errorIntReturn = -1
-	defaultCount   = 0
+	errorIntReturn     = -1
+	defaultCount       = 0
+	minimumSliceLength = 1
+	emptyString        = ""
 
 	writePermissionCode = 0644
 )
@@ -76,7 +78,7 @@ func (*FileInteractionImpl) unmarshallJSONToRecipe(file []byte) (Recipe, error) 
 }
 
 func (*FileInteractionImpl) marshallJSON(pop PopularityFile) ([]byte, error) {
-	return json.MarshalIndent(pop, "", " ")
+	return json.MarshalIndent(pop, emptyString, " ")
 }
 
 func (*FileInteractionImpl) writeFile(newFile []byte) error {
@@ -154,7 +156,7 @@ func validateRecipe(f FileReader, uniqueRecipeNames map[string]Recipe, fileName 
 		return Recipe{}, err
 	}
 
-	if recipe.Name == "" {
+	if recipe.Name == emptyString {
 		return Recipe{}, fmt.Errorf("file-name=%s is missing a recipe name", fileName.Name())
 	}
 
@@ -163,22 +165,22 @@ func validateRecipe(f FileReader, uniqueRecipeNames map[string]Recipe, fileName 
 		return Recipe{}, fmt.Errorf("duplicate recipe name detected. file-name=%s", fileName.Name())
 	}
 
-	if len(recipe.Ings) < 1 {
+	if len(recipe.Ings) < minimumSliceLength {
 		return Recipe{}, fmt.Errorf("file-name=%s has 0 ingredients", fileName.Name())
 	}
 
 	for _, ing := range recipe.Ings {
-		if ing.IngredientName == "" {
+		if ing.IngredientName == emptyString {
 			return Recipe{}, fmt.Errorf("file-name=%s ing=%s with nil name", fileName.Name(), ing)
 		}
 	}
 
-	if len(recipe.Ings) < 1 {
+	if len(recipe.Ings) < minimumSliceLength {
 		return Recipe{}, fmt.Errorf("recipe=%s has 0 ingredients", recipe.Name)
 	}
 
 	for _, ing := range recipe.Ings {
-		if ing.IngredientName == "" {
+		if ing.IngredientName == emptyString {
 			return Recipe{}, fmt.Errorf("recipe=%s ing=%s with nil name", recipe.Name, ing)
 		}
 	}

@@ -1,4 +1,4 @@
-// excel workflow contains code which generates an excel spreadsheet with list of ingredients
+// Package workflow contains file excel workflow contains code which generates an excel spreadsheet with list of ingredients
 package workflow
 
 import (
@@ -12,13 +12,14 @@ import (
 )
 
 const (
-	titleColRow  = "B2"
-	titleVal     = "INGREDIENTS TO BUY"
-	dateColRow   = "B3"
-	ingsRowStart = 5
-	ingsColStart = "B"
-	listFolder   = "excel-lists"
-	sheetName    = "Sheet1"
+	titleColRow        = "B2"
+	titleVal           = "INGREDIENTS TO BUY"
+	dateColRow         = "B3"
+	ingsRowStart       = 5
+	ingsColStart       = "B"
+	listFolder         = "excel-lists"
+	sheetName          = "Sheet1"
+	ingAddedStartIndex = 0
 )
 
 // ExcelWorkflow will create an excel sheet with ingredients
@@ -63,7 +64,6 @@ func (*excelImpl) saveAs(f *excelize.File, name string, opt ...excelize.Options)
 }
 
 func createExcelSheet(s common.ScreenInterface, e excel, ings []recipe.Ingredient, dateString string) error {
-
 	f := e.newFile()
 
 	if err := e.setCellValue(f, sheetName, titleColRow, titleVal); err != nil {
@@ -73,7 +73,7 @@ func createExcelSheet(s common.ScreenInterface, e excel, ings []recipe.Ingredien
 		return err
 	}
 
-	ingAdded := 0
+	ingAdded := ingAddedStartIndex
 	row := ingsRowStart
 	for _, ing := range ings {
 		log.Printf("ingredient=%s status=IN PROGRESS", ing.String())

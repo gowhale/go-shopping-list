@@ -17,7 +17,7 @@ func main() {
 	}
 
 	//Calculate Workflow Struct
-	wf, err := workflow.NewWorkflow(&workflow.WorkflowChecker{}, runtime.GOOS)
+	wf, err := workflow.NewWorkflow(&workflow.CheckWorkflow{}, runtime.GOOS)
 	if err != nil {
 		log.Fatalf("error calculating workflow to use err=%e", err)
 	}
