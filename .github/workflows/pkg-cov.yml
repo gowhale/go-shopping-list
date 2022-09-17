@@ -1,4 +1,11 @@
-on: [pull_request]
+on:
+  push:
+    tags:
+      - v*
+    branches:
+      - master
+      - main
+  pull_request:
 name: Tests And Coverage
 jobs:
   test-and-coverage:

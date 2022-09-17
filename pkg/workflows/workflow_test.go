@@ -102,7 +102,7 @@ func TestHelperProcess(*testing.T) {
 	}
 	//fail
 	if helper == "2" {
-		os.Exit(exitCodeFail) //nolint:all
+		os.Exit(exitCodeFail)
 		return
 	}
 }
