@@ -5,7 +5,7 @@ import (
 	"log"
 	"strconv"
 
-	"github.com/bradfitz/slice"
+	"github.com/bradfitz/slice" //nolint:all
 )
 
 const (
