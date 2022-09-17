@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"strconv"
+
+	"github.com/bradfitz/slice"
 )
 
 const (
@@ -15,6 +17,9 @@ func convertMapToSlice(im map[string]Ingredient) []Ingredient {
 	for _, ing := range im {
 		ingsToReturn = append(ingsToReturn, ing)
 	}
+	slice.Sort(ingsToReturn[:], func(i, j int) bool { //nolint:all
+		return ingsToReturn[i].UnitSize > ingsToReturn[j].UnitSize
+	})
 	return ingsToReturn
 }
 
