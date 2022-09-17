@@ -4,11 +4,23 @@
 
 Do you find making shopping lists BORING? Because I sure do... This repo is to automate the creation of shopping lists and to practice my Golang skills! 
 
-## Demo
+## Excel Demo
+
+If no shopping workflow has been specified the code will create an excel sheet which users can print off to take shopping!
+
+https://user-images.githubusercontent.com/32711718/190857227-7b52b057-c60a-4650-a868-770b92e90f28.mov
+
+## Reminders Demo
 
 When you are running on mac and have the shopping.workflow file present this is how the code operates:
 
 https://user-images.githubusercontent.com/32711718/189308917-77185ca7-6811-4a2f-b3c4-a85158703dde.mov
+
+## Terminal Demo
+
+If you are not running on a macbook and don't have the shopping.workflow present then the system will just print that it is pretending to add the ingredients so you can still use the system. See the terminal demo below:
+
+https://user-images.githubusercontent.com/32711718/189309910-072d7b0d-bffa-4661-ad5a-01fb5aaff30e.mov
 
 ## How does it work? 
 
@@ -26,9 +38,5 @@ To ensure my code is professional and extendable I followed these rules when mak
 2. Use `golangci-lint run` and the revive linter with all rules enabled: https://github.com/mgechev/revive 
 3. Using Interfaces to mock results using the following module: https://github.com/vektra/mockery 
 
-## What happens if I'm not running on a Mac?
 
-If you are not running on a macbook and don't have the shopping.workflow present then the system will just print that it is pretending to add the ingredients so you can still use the system. See the terminal demo below:
-
-https://user-images.githubusercontent.com/32711718/189309910-072d7b0d-bffa-4661-ad5a-01fb5aaff30e.mov
 

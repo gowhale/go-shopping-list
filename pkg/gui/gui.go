@@ -14,8 +14,8 @@ import (
 
 const (
 	screenWidth       = 600
-	screenHeight      = 700
-	recipeListHeight  = 650
+	screenHeight      = 750
+	recipeListHeight  = 700
 	progressBarHeight = 50
 	progressBarEmpty  = 0.0
 	progressBarFull   = 1.0

@@ -42,7 +42,7 @@ func NewWorkflow(f fileChecker, osString string) (common.WorkflowInterface, erro
 	} else {
 		log.Println("No workflow found!")
 	}
-	log.Println("Printing to terminal to simulate adding of ingredients!")
+	log.Println("Using excel workflow")
 	return &excelWorkflow{}, nil
 }
 
