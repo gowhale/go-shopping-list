@@ -42,7 +42,7 @@ func (*guiTest) Test_mockFileInfo() {
 }
 
 func (g *guiTest) Test_buttonPress_Pass() {
-	b := createSubmitButton(g.mockScreen, g.mockWorkflow, g.mockFileReader, &[]string{}, map[string]recipe.Recipe{})
+	b := createSubmitButton(g.mockScreen, g.mockWorkflow, g.mockFileReader, map[string]bool{}, map[string]recipe.Recipe{})
 	g.mockScreen.On(UpdateProgessBarString, progressBarEmpty)
 	g.mockScreen.On(UpdateProgessBarString, progressBarFull)
 	g.mockScreen.On(UpdateLabelString, recipeFinishLabel)
@@ -51,7 +51,7 @@ func (g *guiTest) Test_buttonPress_Pass() {
 }
 
 func (g *guiTest) Test_buttonPress_Error() {
-	b := createSubmitButton(g.mockScreen, g.mockWorkflow, g.mockFileReader, &[]string{}, map[string]recipe.Recipe{})
+	b := createSubmitButton(g.mockScreen, g.mockWorkflow, g.mockFileReader, map[string]bool{}, map[string]recipe.Recipe{})
 	g.mockScreen.On(UpdateProgessBarString, progressBarEmpty)
 	g.mockScreen.On(UpdateProgessBarString, progressBarFull)
 	g.mockScreen.On(UpdateLabelString, recipeFinishLabel)
