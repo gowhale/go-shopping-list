@@ -6,6 +6,10 @@ Do you find making shopping lists BORING? Because I sure do... This repo is to a
 
 ## Excel Demo
 
+If no shopping workflow has been specified the code will create an excel sheet which users can print off to take shopping!
+
+https://user-images.githubusercontent.com/32711718/190857227-7b52b057-c60a-4650-a868-770b92e90f28.mov
+
 ## Reminders Demo
 
 When you are running on mac and have the shopping.workflow file present this is how the code operates:
