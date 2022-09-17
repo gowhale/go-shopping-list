@@ -190,7 +190,7 @@ func (g *workflowTest) Test_NewWorkflow_termWorkflow_Pass() {
 
 	wf, err := NewWorkflow(g.mockFileChecker, macOSName)
 	g.Nil(err)
-	g.Equal(&TerminalFakeWorkflow{}, wf)
+	g.Equal(&excelWorkflow{}, wf)
 }
 
 func (g *workflowTest) Test_NewWorkflow_termWorkflow_workflowPresent_Pass() {
@@ -198,7 +198,7 @@ func (g *workflowTest) Test_NewWorkflow_termWorkflow_workflowPresent_Pass() {
 
 	wf, err := NewWorkflow(g.mockFileChecker, "windows")
 	g.Nil(err)
-	g.Equal(&TerminalFakeWorkflow{}, wf)
+	g.Equal(&excelWorkflow{}, wf)
 }
 
 func (g *workflowTest) Test_checkWorkflowExistsImpl_Present_Pass() {
