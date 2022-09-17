@@ -6,6 +6,7 @@ import (
 	"go-shopping-list/pkg/common"
 	"go-shopping-list/pkg/recipe"
 	"log"
+	"os"
 	"time"
 
 	excelize "github.com/xuri/excelize/v2"
@@ -60,6 +61,10 @@ func (*excelImpl) setCellValue(f *excelize.File, sheet string, axis string, valu
 }
 
 func (*excelImpl) saveAs(f *excelize.File, name string, opt ...excelize.Options) error {
+	err := os.MkdirAll(listFolder, os.ModePerm)
+	if err != nil {
+		return err
+	}
 	return f.SaveAs(name, opt...)
 }
 
