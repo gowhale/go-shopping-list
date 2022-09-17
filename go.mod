@@ -1,6 +1,6 @@
 module go-shopping-list
 
-go 1.17
+go 1.18
 
 require (
 	fyne.io/fyne/v2 v2.2.3
