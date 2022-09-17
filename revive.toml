@@ -22,6 +22,8 @@ enableAllRules = true
 [rule.line-length-limit]
     disabled=true
 
+[rule.deep-exit]
+    disabled=true
 
 [rule.banned-characters]
     disabled=true
