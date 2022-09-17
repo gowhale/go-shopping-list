@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/fs"
-	"io/ioutil"
+	"io/ioutil" //nolint:all
 	"log"
 
 	"github.com/bradfitz/slice" //nolint:all

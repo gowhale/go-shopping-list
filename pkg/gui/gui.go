@@ -35,12 +35,12 @@ type screen struct {
 
 func (s *screen) UpdateProgessBar(percent float64) {
 	s.p.SetValue(percent)
-	// s.p.Refresh()
+	s.p.Refresh()
 }
 
 func (s *screen) UpdateLabel(msg string) {
 	s.l.SetText(msg)
-	// s.l.Refresh()
+	s.l.Refresh()
 }
 
 func createSubmitButton(s common.ScreenInterface, wf common.WorkflowInterface, fr recipe.FileReader, recipes map[string]bool, recipeMap map[string]recipe.Recipe) *widget.Button {
@@ -114,17 +114,17 @@ func createNewListOfRecipes(selectedRecipe map[string]bool, recipesStr []string)
 			return hbox
 		},
 		func(li widget.ListItemID, o fyne.CanvasObject) {
-			box := o.(*fyne.Container)
-			box1 := box.Objects[listBoxIndex].(*fyne.Container)
-			check1 := box1.Objects[checkIndex].(*widget.Check)
-			check1.Checked = selectedRecipe[recipesStr[li]]
-			check1.Refresh()
-			check1.OnChanged = func(b bool) {
+			// Update Checkbox
+			listContainer := o.(*fyne.Container).Objects[listBoxIndex].(*fyne.Container)
+			recipeCheckBox := listContainer.Objects[checkIndex].(*widget.Check)
+			recipeCheckBox.Checked = selectedRecipe[recipesStr[li]]
+			recipeCheckBox.OnChanged = func(b bool) {
 				selectedRecipe[recipesStr[li]] = b
-				log.Printf("recipe=%s val=%t\n %+v", recipesStr[li], b, selectedRecipe)
 			}
-			lb1 := box1.Objects[labelIndex].(*widget.Label)
-			lb1.SetText(recipesStr[li])
+			recipeCheckBox.Refresh()
+
+			// Update label
+			listContainer.Objects[labelIndex].(*widget.Label).SetText(recipesStr[li])
 		})
 	return l, selectedRecipe
 }
