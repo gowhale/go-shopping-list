@@ -1,4 +1,4 @@
-name: golangci-lint
+name: Lint golangci
 on:
   push:
     tags:
@@ -12,7 +12,7 @@ permissions:
   # Optional: allow read access to pull request. Use with `only-new-issues` option.
   # pull-requests: read
 jobs:
-  lint-revive:
+  lint-golangci:
     strategy:
       matrix:
         go: [1.17]
@@ -20,6 +20,8 @@ jobs:
     name: lint
     runs-on: ${{ matrix.os }}
     steps:
+      - name: Show linters
+        uses: golangci-lint linters
       - uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go }}
