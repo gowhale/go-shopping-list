@@ -85,5 +85,6 @@ func NewApp(recipes []recipe.Recipe, recipeMap map[string]recipe.Recipe, wf comm
 
 func createNewListOfRecipes(recipesStr []string) *widget.CheckGroup {
 	// Recipe list with all recipes
+	// TODO: Update this
 	return widget.NewCheckGroup(recipesStr, nil)
 }
