@@ -38,7 +38,7 @@ func (g *excelTest) SetupTest() {
 	g.ing = recipe.Ingredient{
 		UnitSize:       fruit.Watermelon,
 		UnitType:       fruit.Cherry,
-		IngredientName: "PITAYA",
+		IngredientName: fruit.Pomegranate,
 	}
 }
 
