@@ -1,19 +1,16 @@
 name: Lint Revive
 on:
   push:
+    paths:
+    - '**.go'
+    - 'revive.toml'
+    - '.github/workflows/lint.yaml'
     tags:
       - v*
     branches:
       - master
       - main
   pull_request:
-# on:
-#   pull_request:
-#   push:
-#     paths:
-#       - '**.go'
-#       - 'revive.toml'
-#       - '.github/workflows/lint.yaml'
 
 jobs:
   lint-revive:
