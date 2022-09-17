@@ -1,12 +1,3 @@
-# # Options for analysis running.
-# run:
-#   # See the dedicated "run" documentation section.
-#   option: value
-# # output configuration options
-# output:
-#   # See the dedicated "output" documentation section.
-#   option: value
-# # All available settings of specific linters.
 linters-settings:
   # See the dedicated "linters-settings" documentation section.
   revive:
@@ -90,7 +81,6 @@ linters-settings:
         - name: datarace
   
 linters:
-  disable-all: true
   # Enable specific linter
   # https://golangci-lint.run/usage/linters/#enabled-by-default
   enable:
