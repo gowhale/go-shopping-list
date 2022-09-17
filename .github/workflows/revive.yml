@@ -31,6 +31,4 @@ jobs:
       uses: docker://morphy/revive-action:v2
       with:
         config: revive.toml
-    
-    - name: Print output
-      - run: echo steps.run_tests.outputs
+
