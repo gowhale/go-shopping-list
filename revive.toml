@@ -1,4 +1,5 @@
 severity = "error"
+errorCode = 1
 enableAllRules = true
 
 [rule.max-public-structs]
