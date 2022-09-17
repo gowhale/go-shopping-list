@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 
-	"github.com/bradfitz/slice" 
+	"github.com/bradfitz/slice" //nolint:all
 )
 
 const (
@@ -214,7 +214,7 @@ func ProcessRecipes(f FileReader) ([]Recipe, map[string]Recipe, error) {
 		}
 	}
 
-	slice.Sort(allRecipes[:], func(i, j int) bool { 
+	slice.Sort(allRecipes[:], func(i, j int) bool { //nolint:all
 		return allRecipes[i].Count > allRecipes[j].Count
 	})
 
