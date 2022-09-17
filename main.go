@@ -4,6 +4,7 @@ package main
 import (
 	"go-shopping-list/pkg/gui"
 	"go-shopping-list/pkg/recipe"
+	workflow "go-shopping-list/pkg/workflows"
 	"log"
 	"runtime"
 )
@@ -16,12 +17,10 @@ func main() {
 	}
 
 	//Calculate Workflow Struct
-	wf, err := gui.NewWorkflow(&gui.WorkflowChecker{}, runtime.GOOS)
+	wf, err := workflow.NewWorkflow(&workflow.CheckWorkflow{}, runtime.GOOS)
 	if err != nil {
 		log.Fatalf("error calculating workflow to use err=%e", err)
 	}
-
-	// wf = &gui.TerminalFakeWorkflow{} // Uncomment me if you want to just print to terminal!
 
 	// Show Window
 	myWindow := gui.NewApp(allRecipes, recipeMap, wf)

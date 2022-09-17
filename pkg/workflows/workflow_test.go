@@ -1,8 +1,9 @@
-// Package gui is responsible for code relating to user interaction
-package gui
+package workflow
 
 import (
 	"fmt"
+	"go-shopping-list/pkg/common"
+	"go-shopping-list/pkg/fruit"
 	"go-shopping-list/pkg/recipe"
 	fs "io/fs"
 	"os"
@@ -18,28 +19,26 @@ const (
 	firstArgumentInSlice = 0
 
 	incrementPopularityString       = "IncrementPopularity"
-	runReminderString               = "runReminder"
-	updateLabelString               = "updateLabel"
-	updateProgessBarString          = "updateProgessBar"
+	RunReminderString               = "RunReminder"
+	UpdateLabelString               = "UpdateLabel"
+	UpdateProgessBarString          = "UpdateProgessBar"
 	checkWorkflowExistsString       = "checkWorkflowExists"
 	statString                      = "stat"
-	addIngredientsToRemindersString = "addIngredientsToReminders"
-	melon                           = "MELON"
-	apple                           = "APPLE"
+	AddIngredientsToRemindersString = "AddIngredientsToReminders"
 )
 
 type workflowTest struct {
 	suite.Suite
-	mockScreen      *mockScreenInterface
+	mockScreen      *common.MockScreenInterface
 	mockFileReader  *recipe.MockFileReader
-	mockWorkflow    *mockWorkflowInterface
+	mockWorkflow    *common.MockWorkflowInterface
 	mockFileChecker *mockFileChecker
 }
 
 func (g *workflowTest) SetupTest() {
-	g.mockScreen = new(mockScreenInterface)
+	g.mockScreen = new(common.MockScreenInterface)
 	g.mockFileReader = new(recipe.MockFileReader)
-	g.mockWorkflow = new(mockWorkflowInterface)
+	g.mockWorkflow = new(common.MockWorkflowInterface)
 	g.mockFileChecker = new(mockFileChecker)
 }
 
@@ -47,10 +46,10 @@ func Test_workflowTest(t *testing.T) {
 	suite.Run(t, new(workflowTest))
 }
 
-func (*workflowTest) Test_mockFileInfo() {
-	testRecipe := []recipe.Recipe{}
-	_ = NewApp(testRecipe, nil, &TerminalFakeWorkflow{})
-}
+// func (*workflowTest) Test_mockFileInfo() {
+// 	testRecipe := []recipe.Recipe{}
+// 	_ = NewApp(testRecipe, nil, &TerminalFakeWorkflow{})
+// }
 
 func (g *workflowTest) Test_AddIngredientsToReminders_Pass() {
 	ings := []recipe.Ingredient{{
@@ -58,39 +57,39 @@ func (g *workflowTest) Test_AddIngredientsToReminders_Pass() {
 		UnitType:       "BANANA",
 		IngredientName: "LYCHE",
 	}}
-	g.mockScreen.On(updateLabelString, "Starting to add ingredients for Recipe: DURIAN")
-	g.mockScreen.On(updateProgessBarString, progressBarEmpty)
-	g.mockScreen.On(updateProgessBarString, progressBarFull)
-	g.mockScreen.On(updateLabelString, recipeFinishLabel)
-	g.mockWorkflow.On(runReminderString, g.mockScreen, ings[firstArgumentInSlice]).Return(nil)
+	g.mockScreen.On(UpdateLabelString, "Starting to add ingredients for Recipe: DURIAN")
+	g.mockScreen.On(UpdateProgessBarString, progressBarEmpty)
+	g.mockScreen.On(UpdateProgessBarString, progressBarFull)
+	g.mockScreen.On(UpdateLabelString, recipeFinishLabel)
+	g.mockWorkflow.On(RunReminderString, g.mockScreen, ings[firstArgumentInSlice]).Return(nil)
 	g.mockFileReader.On(incrementPopularityString, "DURIAN").Return(nil)
 
-	err := addIngredientsToReminders(ings, g.mockScreen, g.mockWorkflow)
+	err := AddIngredientsToReminders(ings, g.mockScreen, g.mockWorkflow)
 	g.Nil(err)
 
 	t := TerminalFakeWorkflow{}
-	err = t.addIngredientsToReminders(ings, g.mockScreen, g.mockWorkflow)
+	err = t.AddIngredientsToReminders(ings, g.mockScreen, g.mockWorkflow)
 	g.Nil(err)
 
 	m := macWorkflow{}
-	err = m.addIngredientsToReminders(ings, g.mockScreen, g.mockWorkflow)
+	err = m.AddIngredientsToReminders(ings, g.mockScreen, g.mockWorkflow)
 	g.Nil(err)
 }
 
-func (g *workflowTest) Test_AddIngredientsToReminders_runReminder_Error() {
+func (g *workflowTest) Test_AddIngredientsToReminders_RunReminder_Error() {
 	ings := []recipe.Ingredient{{
 		UnitSize:       "ORANGE",
 		UnitType:       "BANANA",
 		IngredientName: "RASPBERRY",
 	}}
 
-	g.mockScreen.On(updateLabelString, "Starting to add ingredients for Recipe: APPLE")
-	g.mockScreen.On(updateProgessBarString, progressBarEmpty)
-	g.mockScreen.On(updateProgessBarString, progressBarFull)
-	g.mockScreen.On(updateLabelString, recipeFinishLabel)
-	g.mockWorkflow.On(runReminderString, g.mockScreen, ings[firstArgumentInSlice]).Return(fmt.Errorf("reminder error"))
-	g.mockFileReader.On(incrementPopularityString, apple).Return(nil)
-	err := addIngredientsToReminders(ings, g.mockScreen, g.mockWorkflow)
+	g.mockScreen.On(UpdateLabelString, "Starting to add ingredients for Recipe: APPLE")
+	g.mockScreen.On(UpdateProgessBarString, progressBarEmpty)
+	g.mockScreen.On(UpdateProgessBarString, progressBarFull)
+	g.mockScreen.On(UpdateLabelString, recipeFinishLabel)
+	g.mockWorkflow.On(RunReminderString, g.mockScreen, ings[firstArgumentInSlice]).Return(fmt.Errorf("reminder error"))
+	g.mockFileReader.On(incrementPopularityString, fruit.Apple).Return(nil)
+	err := AddIngredientsToReminders(ings, g.mockScreen, g.mockWorkflow)
 	g.EqualError(err, "reminder error")
 }
 
@@ -98,12 +97,12 @@ func TestHelperProcess(*testing.T) {
 	helper := os.Getenv("GO_WANT_HELPER_PROCESS")
 	//pass
 	if helper == "1" {
-		os.Exit(exitCodePass) //nolint
+		os.Exit(exitCodePass)
 		return
 	}
 	//fail
 	if helper == "2" {
-		os.Exit(exitCodeFail) //nolint
+		os.Exit(exitCodeFail)
 		return
 	}
 }
@@ -124,23 +123,23 @@ func fakeExecCommandFail(command string, args ...string) *exec.Cmd {
 	return cmd
 }
 
-func (g *workflowTest) Test_macWorkflow_runReminder_Pass() {
+func (g *workflowTest) Test_macWorkflow_RunReminder_Pass() {
 	execCommand = fakeExecCommandPass
 	defer func() {
 		execCommand = exec.Command
 	}()
 	m := macWorkflow{}
 	ing := recipe.Ingredient{
-		UnitSize:       "WATERMELON",
+		UnitSize:       fruit.Watermelon,
 		UnitType:       "CHERRY",
 		IngredientName: "PITAYA",
 	}
-	g.mockScreen.On(updateLabelString, "Added Ingredient: WATERMELON CHERRY PITAYA")
-	err := m.runReminder(g.mockScreen, ing)
+	g.mockScreen.On(UpdateLabelString, "Added Ingredient: Watermelon CHERRY PITAYA")
+	err := m.RunReminder(g.mockScreen, ing)
 	g.Nil(err)
 }
 
-func (g *workflowTest) Test_macWorkflow_runReminder_Error() {
+func (g *workflowTest) Test_macWorkflow_RunReminder_Error() {
 	execCommand = fakeExecCommandFail
 	defer func() {
 		execCommand = exec.Command
@@ -151,20 +150,20 @@ func (g *workflowTest) Test_macWorkflow_runReminder_Error() {
 		UnitType:       "FIG",
 		IngredientName: "AVOCADO",
 	}
-	g.mockScreen.On(updateLabelString, "Added Ingredient: PEAR FIG AVOCADO")
-	err := m.runReminder(g.mockScreen, ing)
+	g.mockScreen.On(UpdateLabelString, "Added Ingredient: PEAR FIG AVOCADO")
+	err := m.RunReminder(g.mockScreen, ing)
 	g.EqualError(err, "error adding the following ingredient=PEAR FIG AVOCADO err=exit status 1")
 }
 
-func (g *workflowTest) Test_terminal_runReminder_Pass() {
+func (g *workflowTest) Test_terminal_RunReminder_Pass() {
 	m := TerminalFakeWorkflow{}
 	ing := recipe.Ingredient{
-		UnitSize:       "WATERMELON",
+		UnitSize:       fruit.Watermelon,
 		UnitType:       "CHERRY",
 		IngredientName: "PITAYA",
 	}
-	g.mockScreen.On(updateLabelString, "Added Ingredient: WATERMELON CHERRY PITAYA")
-	err := m.runReminder(g.mockScreen, ing)
+	g.mockScreen.On(UpdateLabelString, "Added Ingredient: WATERMELON CHERRY PITAYA")
+	err := m.RunReminder(g.mockScreen, ing)
 	g.Nil(err)
 }
 
@@ -189,7 +188,7 @@ func (g *workflowTest) Test_NewWorkflow_termWorkflow_Pass() {
 
 	wf, err := NewWorkflow(g.mockFileChecker, macOSName)
 	g.Nil(err)
-	g.Equal(&TerminalFakeWorkflow{}, wf)
+	g.Equal(&excelWorkflow{}, wf)
 }
 
 func (g *workflowTest) Test_NewWorkflow_termWorkflow_workflowPresent_Pass() {
@@ -197,7 +196,7 @@ func (g *workflowTest) Test_NewWorkflow_termWorkflow_workflowPresent_Pass() {
 
 	wf, err := NewWorkflow(g.mockFileChecker, "windows")
 	g.Nil(err)
-	g.Equal(&TerminalFakeWorkflow{}, wf)
+	g.Equal(&excelWorkflow{}, wf)
 }
 
 func (g *workflowTest) Test_checkWorkflowExistsImpl_Present_Pass() {
@@ -207,7 +206,7 @@ func (g *workflowTest) Test_checkWorkflowExistsImpl_Present_Pass() {
 	g.Nil(err)
 	g.Equal(true, present)
 
-	w := WorkflowChecker{}
+	w := CheckWorkflow{}
 	present, err = w.checkWorkflowExists(g.mockFileChecker)
 	g.Nil(err)
 	g.Equal(true, present)
@@ -232,14 +231,14 @@ func (g *workflowTest) Test_checkWorkflowExistsImpl_NotPresent_Pass() {
 	g.Equal(false, present)
 }
 
-func (g *workflowTest) Test_submitShoppingList_Pass() {
+func (g *workflowTest) Test_SubmitShoppingList_Pass() {
 	testRecipe := recipe.Recipe{
-		Name: melon,
+		Name: fruit.Melon,
 		Ings: []recipe.Ingredient{
 			recipe.Ingredient{
-				IngredientName: "PEACH",
+				IngredientName: fruit.Peach,
 				UnitSize:       "1",
-				UnitType:       apple,
+				UnitType:       fruit.Apple,
 			},
 		},
 	}
@@ -247,32 +246,36 @@ func (g *workflowTest) Test_submitShoppingList_Pass() {
 		testRecipe.Name: testRecipe,
 	}
 	recipeString := []string{testRecipe.Name}
-	g.mockScreen.On(updateProgessBarString, progressBarEmpty)
-	g.mockScreen.On(updateProgessBarString, progressBarFull)
-	g.mockScreen.On(updateLabelString, recipeFinishLabel)
-	g.mockFileReader.On(incrementPopularityString, g.mockFileReader, melon).Return(nil)
-	g.mockWorkflow.On(addIngredientsToRemindersString, []recipe.Ingredient{testRecipe.Ings[firstArgumentInSlice]}, g.mockScreen, g.mockWorkflow).Return(nil)
+	g.mockScreen.On(UpdateProgessBarString, progressBarEmpty)
+	g.mockScreen.On(UpdateProgessBarString, progressBarFull)
+	g.mockScreen.On(UpdateLabelString, recipeFinishLabel)
+	g.mockFileReader.On(incrementPopularityString, g.mockFileReader, fruit.Melon).Return(nil)
+	g.mockWorkflow.On(AddIngredientsToRemindersString, []recipe.Ingredient{testRecipe.Ings[firstArgumentInSlice]}, g.mockScreen, g.mockWorkflow).Return(nil)
 
-	err := submitShoppingList(g.mockScreen, g.mockWorkflow, g.mockFileReader, recipeString, recipeMap)
+	err := SubmitShoppingList(g.mockScreen, g.mockWorkflow, g.mockFileReader, recipeString, recipeMap)
 	g.Nil(err)
 
 	t := TerminalFakeWorkflow{}
-	err = t.submitShoppingList(g.mockScreen, g.mockWorkflow, g.mockFileReader, recipeString, recipeMap)
+	err = t.SubmitShoppingList(g.mockScreen, g.mockWorkflow, g.mockFileReader, recipeString, recipeMap)
 	g.Nil(err)
 
 	m := macWorkflow{}
-	err = m.submitShoppingList(g.mockScreen, g.mockWorkflow, g.mockFileReader, recipeString, recipeMap)
+	err = m.SubmitShoppingList(g.mockScreen, g.mockWorkflow, g.mockFileReader, recipeString, recipeMap)
+	g.Nil(err)
+
+	e := excelWorkflow{}
+	err = e.SubmitShoppingList(g.mockScreen, g.mockWorkflow, g.mockFileReader, recipeString, recipeMap)
 	g.Nil(err)
 }
 
-func (g *workflowTest) Test_submitShoppingList_Error() {
+func (g *workflowTest) Test_SubmitShoppingList_Error() {
 	testRecipe := recipe.Recipe{
-		Name: melon,
+		Name: fruit.Melon,
 		Ings: []recipe.Ingredient{
 			recipe.Ingredient{
-				IngredientName: "PEACH",
+				IngredientName: fruit.Peach,
 				UnitSize:       "5",
-				UnitType:       apple,
+				UnitType:       fruit.Apple,
 			},
 		},
 	}
@@ -280,11 +283,11 @@ func (g *workflowTest) Test_submitShoppingList_Error() {
 		testRecipe.Name: testRecipe,
 	}
 	recipeString := []string{testRecipe.Name}
-	g.mockScreen.On(updateProgessBarString, progressBarEmpty)
-	g.mockScreen.On(updateProgessBarString, progressBarFull)
-	g.mockScreen.On(updateLabelString, recipeFinishLabel)
-	g.mockFileReader.On(incrementPopularityString, g.mockFileReader, melon).Return(fmt.Errorf("increment pop error"))
-	g.mockWorkflow.On(addIngredientsToRemindersString, []recipe.Ingredient{testRecipe.Ings[firstArgumentInSlice]}, g.mockScreen, g.mockWorkflow).Return(nil)
-	err := submitShoppingList(g.mockScreen, g.mockWorkflow, g.mockFileReader, recipeString, recipeMap)
+	g.mockScreen.On(UpdateProgessBarString, progressBarEmpty)
+	g.mockScreen.On(UpdateProgessBarString, progressBarFull)
+	g.mockScreen.On(UpdateLabelString, recipeFinishLabel)
+	g.mockFileReader.On(incrementPopularityString, g.mockFileReader, fruit.Melon).Return(fmt.Errorf("increment pop error"))
+	g.mockWorkflow.On(AddIngredientsToRemindersString, []recipe.Ingredient{testRecipe.Ings[firstArgumentInSlice]}, g.mockScreen, g.mockWorkflow).Return(nil)
+	err := SubmitShoppingList(g.mockScreen, g.mockWorkflow, g.mockFileReader, recipeString, recipeMap)
 	g.EqualError(err, "increment pop error")
 }
