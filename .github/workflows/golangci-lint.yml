@@ -12,6 +12,10 @@ permissions:
   # Optional: allow read access to pull request. Use with `only-new-issues` option.
   # pull-requests: read
 jobs:
+  show-linters:
+      - name: Show linters
+        uses: actions/setup-go@v3
+        run: golangci-lint linters
   lint-golangci:
     strategy:
       matrix:
@@ -20,8 +24,6 @@ jobs:
     name: lint
     runs-on: ${{ matrix.os }}
     steps:
-      - name: Show linters
-        uses: golangci-lint linters
       - uses: actions/setup-go@v3
         with:
           go-version: ${{ matrix.go }}
