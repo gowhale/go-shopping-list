@@ -23,7 +23,7 @@ enableAllRules = true
     disabled=true
 
 [rule.deep-exit]
-    disabled=true
+    disabled=false
 
 [rule.banned-characters]
     disabled=true
