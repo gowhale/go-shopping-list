@@ -265,7 +265,7 @@ func (g *workflowTest) Test_SubmitShoppingList_Pass() {
 	err = m.SubmitShoppingList(g.mockScreen, g.mockWorkflow, g.mockFileReader, recipeString, recipeMap)
 	g.Nil(err)
 
-	e := ExcelWorkflow{}
+	e := excelWorkflow{}
 	err = e.SubmitShoppingList(g.mockScreen, g.mockWorkflow, g.mockFileReader, recipeString, recipeMap)
 	g.Nil(err)
 }

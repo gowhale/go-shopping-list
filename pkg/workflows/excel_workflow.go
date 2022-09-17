@@ -22,23 +22,23 @@ const (
 	ingAddedStartIndex = 0
 )
 
-// ExcelWorkflow will create an excel sheet with ingredients
-type ExcelWorkflow struct{}
+// excelWorkflow will create an excel sheet with ingredients
+type excelWorkflow struct{}
 
 // SubmitShoppingList combines recipes together and submits a shopping list
-func (*ExcelWorkflow) SubmitShoppingList(s common.ScreenInterface, wf common.WorkflowInterface, fr recipe.FileReader, recipes []string, recipeMap map[string]recipe.Recipe) error {
+func (*excelWorkflow) SubmitShoppingList(s common.ScreenInterface, wf common.WorkflowInterface, fr recipe.FileReader, recipes []string, recipeMap map[string]recipe.Recipe) error {
 	return SubmitShoppingList(s, wf, fr, recipes, recipeMap)
 }
 
 // AddIngredientsToReminders adds ingredients to the list
-func (*ExcelWorkflow) AddIngredientsToReminders(ings []recipe.Ingredient, s common.ScreenInterface, _ common.WorkflowInterface) error {
+func (*excelWorkflow) AddIngredientsToReminders(ings []recipe.Ingredient, s common.ScreenInterface, _ common.WorkflowInterface) error {
 	year, month, day := time.Now().Date()
 	dateString := fmt.Sprintf("%d-%d-%d", year, month, day)
 	return createExcelSheet(s, &excelImpl{}, ings, dateString)
 }
 
 // RunReminder not used
-func (*ExcelWorkflow) RunReminder(_ common.ScreenInterface, _ recipe.Ingredient) error {
+func (*excelWorkflow) RunReminder(_ common.ScreenInterface, _ recipe.Ingredient) error {
 	return nil
 }
 

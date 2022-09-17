@@ -54,7 +54,7 @@ func Test_exceTest(t *testing.T) {
 }
 
 func (g *excelTest) Test_terminal_RunReminder_Pass() {
-	m := ExcelWorkflow{}
+	m := excelWorkflow{}
 	log.Println("excel test")
 
 	err := m.RunReminder(g.mockScreen, g.ing)

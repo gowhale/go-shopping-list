@@ -43,7 +43,7 @@ func NewWorkflow(f fileChecker, osString string) (common.WorkflowInterface, erro
 		log.Println("No workflow found!")
 	}
 	log.Println("Printing to terminal to simulate adding of ingredients!")
-	return &TerminalFakeWorkflow{}, nil
+	return &excelWorkflow{}, nil
 }
 
 // CheckWorkflow is struct used to check if the shopping.workflow file exists

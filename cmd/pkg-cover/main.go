@@ -20,7 +20,6 @@ const (
 	indexOfEmptyLine       = 1
 )
 
-var execCommand = exec.Command
 var excludedPkgs = map[string]bool{
 	"go-shopping-list":                  true,
 	"go-shopping-list/cmd/pkg-cover":    true,
@@ -51,6 +50,8 @@ func execute() error {
 	return validateTestOutput(tl, output)
 }
 
+var execCommand = exec.Command
+
 func runGoTest() (string, error) {
 	cmd := execCommand("go", "test", "./...", "--cover")
 	output, err := cmd.CombinedOutput()
@@ -58,12 +59,7 @@ func runGoTest() (string, error) {
 	return termOutput, err
 }
 
-type testLine struct {
-	pkgName  string
-	coverage float64
-}
-
-func checkLine(pkgName, line string) (bool, float64, error) {
+func getCoverage(pkgName, line string) (bool, float64, error) {
 	if _, ok := excludedPkgs[pkgName]; !ok {
 		coverageIndex := strings.Index(line, "coverage: ")
 		if coverageIndex != coverageStringNotFound {
@@ -80,13 +76,18 @@ func checkLine(pkgName, line string) (bool, float64, error) {
 	return false, coverageStringNotFound, nil
 }
 
+type testLine struct {
+	pkgName  string
+	coverage float64
+}
+
 func covertOutputToCoverage(termOutput string) ([]testLine, error) {
 	testStruct := []testLine{}
 	lines := strings.Split(termOutput, "\n")
 	for _, line := range lines[:len(lines)-indexOfEmptyLine] {
 		if !strings.Contains(line, "go: downloading") {
 			pkgName := strings.Fields(line)[firstItemIndex]
-			covLine, covVal, err := checkLine(pkgName, line)
+			covLine, covVal, err := getCoverage(pkgName, line)
 			if err != nil {
 				return nil, err
 			}
