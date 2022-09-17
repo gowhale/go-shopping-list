@@ -1,5 +1,7 @@
+// Package fruit contains fruit names for use in testing
 package fruit
 
+// Fruit names to use for testing
 const (
 	Apple       = "Apple"
 	Watermelon  = "Watermelon"
