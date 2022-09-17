@@ -38,18 +38,19 @@ func (s *screen) UpdateLabel(msg string) {
 	// s.l.Refresh()
 }
 
-func createSubmitButton(s common.ScreenInterface, wf common.WorkflowInterface, fr recipe.FileReader, recipes binding.StringList, recipesAsStrings []string, recipeMap map[string]recipe.Recipe) *widget.Button {
+func createSubmitButton(s common.ScreenInterface, wf common.WorkflowInterface, fr recipe.FileReader, recipes map[string]bool, recipesAsStrings []string, recipeMap map[string]recipe.Recipe) *widget.Button {
+
 	b := widget.NewButtonWithIcon("Add To Shopping List", fyne.NewMenuItemSeparator().Icon, func() {
-		// err := wf.SubmitShoppingList(s, wf, fr, *recipes, recipeMap)
-		// if err != nil {
-		// 	log.Println(err)
-		// }
-		for i, r := range recipesAsStrings {
-			v, err := recipes.GetValue(i)
-			if err != nil {
-				log.Fatalln(err)
+		log.Println("recipes")
+		selectedRecipes := []string{}
+		for k, v := range recipes {
+			if v {
+				selectedRecipes = append(selectedRecipes, k)
 			}
-			log.Printf("recipe=%s val=%s", r, v)
+		}
+		err := wf.SubmitShoppingList(s, wf, fr, selectedRecipes, recipeMap)
+		if err != nil {
+			log.Println(err)
 		}
 	})
 	b.Importance = widget.HighImportance
@@ -78,10 +79,11 @@ func NewApp(recipes []recipe.Recipe, recipeMap map[string]recipe.Recipe, wf comm
 	for _, v := range recipes {
 		recipesAsStrings = append(recipesAsStrings, v.Name)
 	}
-	recipeList := createNewListOfRecipes(recipesAsStrings)
+	selectedRecipe := map[string]bool{}
+	recipeList, selectedRecipe := createNewListOfRecipes(selectedRecipe, recipesAsStrings)
 
 	// log.Fatalln(recipeList.Length())
-	submit := createSubmitButton(s, wf, fr, nil, recipesAsStrings, recipeMap)
+	submit := createSubmitButton(s, wf, fr, selectedRecipe, recipesAsStrings, recipeMap)
 	gridTop := container.New(layout.NewGridWrapLayout(fyne.NewSize(screenWidth, progressBarHeight)), label, p)
 	grid := container.New(layout.NewGridWrapLayout(fyne.NewSize(screenWidth, recipeListHeight)), recipeList)
 	gridBottum := container.New(layout.NewGridWrapLayout(fyne.NewSize(screenWidth, submitBarHeight)), submit)
@@ -95,9 +97,7 @@ func NewApp(recipes []recipe.Recipe, recipeMap map[string]recipe.Recipe, wf comm
 	return myWindow
 }
 
-func createNewListOfRecipes(recipesStr []string) *widget.List {
-
-	selectedRecipe := map[string]bool{}
+func createNewListOfRecipes(selectedRecipe map[string]bool, recipesStr []string) (*widget.List, map[string]bool) {
 	for _, r := range recipesStr {
 		selectedRecipe[r] = false
 	}
@@ -148,30 +148,9 @@ func createNewListOfRecipes(recipesStr []string) *widget.List {
 				selectedRecipe[recipesStr[li]] = b
 				log.Printf("recipe=%s val=%t\n %+v", recipesStr[li], b, selectedRecipe)
 			}
-			// bnd, _ := checkBoxs.
-			// check1.Bind(bnd)
 			lb1 := box1.Objects[1].(*widget.Label)
-			// lb1 := box1.Objects[1].(*widget.Button)
 			lb1.SetText(recipesStr[li])
-			// 		lb2 := box1.Objects[1].(*widget.Button)
-			// 		lb2.SetText("Delete")
-
-			// 	} else {
-			// 		lb1 := box.Objects[i].(*widget.Label)
-			// 		lb1.SetText(recipesStr[i])
-			// }
-
-			// o.(widget.Check).Text = recipesStr[i]
-
-			// log.Println("making check for", recipesStr[i])
-			// _, _ = i.(binding.Bool).Get()
-			// o.(*widget.Label).Text = "i.AddListener()"
-			// o.(*widget.Check).Text = "apple"
-			// log.Println(i.(binding.String).Get())
-			// o.(*widget.Label).SetText(recipesStr[0])
-			// o.(*widget.Check).Bind(txt)
-			// o.(*widget.Check).Text = recipesStr[0]
 		})
 	// checkBoxs.GetItem()
-	return l
+	return l, selectedRecipe
 }
