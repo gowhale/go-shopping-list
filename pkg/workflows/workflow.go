@@ -1,3 +1,4 @@
+// Package workflow is used by all workflow files
 package workflow
 
 import (
@@ -42,11 +43,11 @@ func NewWorkflow(f fileChecker, osString string) (common.WorkflowInterface, erro
 		log.Println("No workflow found!")
 	}
 	log.Println("Printing to terminal to simulate adding of ingredients!")
-	return &TerminalFakeWorkflow{}, nil
+	return &excelWorkflow{}, nil
 }
 
-// WorkflowChecker is struct used to check if the shopping.workflow file exists
-type WorkflowChecker struct{}
+// CheckWorkflow is struct used to check if the shopping.workflow file exists
+type CheckWorkflow struct{}
 
 //go:generate go run github.com/vektra/mockery/cmd/mockery -name fileChecker -inpkg --filename file_checker_mock.go
 type fileChecker interface {
@@ -56,15 +57,15 @@ type fileChecker interface {
 }
 
 // checkWorkflowExists tests to see if the mac workflow exists
-func (*WorkflowChecker) checkWorkflowExists(f fileChecker) (bool, error) {
+func (*CheckWorkflow) checkWorkflowExists(f fileChecker) (bool, error) {
 	return checkWorkflowExistsImpl(f)
 }
 
-func (*WorkflowChecker) stat(name string) (fs.FileInfo, error) {
+func (*CheckWorkflow) stat(name string) (fs.FileInfo, error) {
 	return os.Stat(name)
 }
 
-func (*WorkflowChecker) isNotExist(err error) bool {
+func (*CheckWorkflow) isNotExist(err error) bool {
 	return os.IsNotExist(err)
 }
 
@@ -79,6 +80,7 @@ func checkWorkflowExistsImpl(f fileChecker) (bool, error) {
 	return false, err
 }
 
+// SubmitShoppingList combines recipes and then creates shopping list
 func SubmitShoppingList(s common.ScreenInterface, wf common.WorkflowInterface, fr recipe.FileReader, recipes []string, recipeMap map[string]recipe.Recipe) error {
 	log.Println("Currently selected Recipes:")
 	recipesSelected := []recipe.Recipe{}
@@ -119,6 +121,7 @@ func ingSend(s common.ScreenInterface, w common.WorkflowInterface, c <-chan reci
 	return nil
 }
 
+// AddIngredientsToReminders adds ingredients to reminders app
 func AddIngredientsToReminders(ings []recipe.Ingredient, s common.ScreenInterface, w common.WorkflowInterface) error {
 	progress := float64(progressBarEmpty)
 	s.UpdateProgessBar(progress)
