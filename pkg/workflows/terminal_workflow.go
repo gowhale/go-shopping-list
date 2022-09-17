@@ -1,3 +1,4 @@
+// Package workflow contains file excel workflow contains code which generates an excel spreadsheet with list of ingredients
 package workflow
 
 import (
