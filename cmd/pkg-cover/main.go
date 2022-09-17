@@ -1,3 +1,4 @@
+// Package main contains code to do with ensuring coverage is over 80%
 package main
 
 import (
@@ -9,9 +10,14 @@ import (
 )
 
 const (
-	minPercentCov          = 80.0
+	minPercentCov = 80.0
+
 	coverageStringNotFound = -1
 	firstItemIndex         = 1
+	floatByteSize          = 64
+	emptySliceLen          = 0
+	lenOfPercentChar       = 1
+	indexOfEmptyLine       = 1
 )
 
 var execCommand = exec.Command
@@ -56,25 +62,35 @@ type testLine struct {
 	coverage float64
 }
 
+func checkLine(pkgName, line string) (bool, float64, error) {
+	if _, ok := excludedPkgs[pkgName]; !ok {
+		coverageIndex := strings.Index(line, "coverage: ")
+		if coverageIndex != coverageStringNotFound {
+			lineFields := strings.Fields(line[coverageIndex:])
+			pkgPercentStr := lineFields[firstItemIndex][:len(lineFields[firstItemIndex])-lenOfPercentChar]
+			pkgPercentFloat, err := strconv.ParseFloat(pkgPercentStr, floatByteSize)
+			if err != nil {
+				return false, coverageStringNotFound, err
+			}
+			return true, pkgPercentFloat, nil
+		}
+		return true, coverageStringNotFound, nil
+	}
+	return false, coverageStringNotFound, nil
+}
+
 func covertOutputToCoverage(termOutput string) ([]testLine, error) {
 	testStruct := []testLine{}
 	lines := strings.Split(termOutput, "\n")
-	for _, line := range lines[:len(lines)-1] {
+	for _, line := range lines[:len(lines)-indexOfEmptyLine] {
 		if !strings.Contains(line, "go: downloading") {
 			pkgName := strings.Fields(line)[firstItemIndex]
-			if _, ok := excludedPkgs[pkgName]; !ok {
-				coverageIndex := strings.Index(line, "coverage: ")
-				if coverageIndex != coverageStringNotFound {
-					lineFields := strings.Fields(line[coverageIndex:])
-					pkgPercentStr := lineFields[firstItemIndex][:len(lineFields[firstItemIndex])-1]
-					pkgPercentFloat, err := strconv.ParseFloat(pkgPercentStr, 64)
-					if err != nil {
-						return nil, err
-					}
-					testStruct = append(testStruct, testLine{pkgName: pkgName, coverage: pkgPercentFloat})
-				} else {
-					testStruct = append(testStruct, testLine{pkgName: pkgName, coverage: coverageStringNotFound})
-				}
+			covLine, covVal, err := checkLine(pkgName, line)
+			if err != nil {
+				return nil, err
+			}
+			if covLine {
+				testStruct = append(testStruct, testLine{pkgName: pkgName, coverage: covVal})
 			}
 		}
 	}
@@ -91,7 +107,7 @@ func validateTestOutput(tl []testLine, o string) error {
 			invalidOutputs = append(invalidOutputs, fmt.Sprintf("pkg=%s cov=%f under the %f%% minimum line coverage", line.pkgName, line.coverage, minPercentCov))
 		}
 	}
-	if len(invalidOutputs) == 0 {
+	if len(invalidOutputs) == emptySliceLen {
 		return nil
 	}
 	log.Println(o)
