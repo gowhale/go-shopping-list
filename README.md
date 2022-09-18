@@ -20,12 +20,8 @@ Do you find making shopping lists BORING? Because I sure do... This repo is to a
     + [Linters](#linters)
     + [Content Checking](#content-checking)
     + [Project Management](#project-management)
-  * [Releases](#releases)
-  * [Test Coverage Website](#test-coverage-website)
 
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
-
-
 
 ## Demos
 
