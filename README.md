@@ -51,37 +51,47 @@ https://user-images.githubusercontent.com/32711718/189309910-072d7b0d-bffa-4661-
 
 1. The codebase works by firstly reading all the JSON files in the recipes folder. 
 2. Once the JSON's have been processed they are passed to the GUI and displayed in a list
-3. When one of the list items is clicked it will run automation scripts which add a reminder to my reminders app
-4. The reminders app is an app available on mac and iphone.
-5. The iCloud then syncs the items in my list to my phone so I can go to the shops and get the stuff I need.
+3. Once multiple recipes are selected and the submit button the workflow is ran.
+4. There are currently 3 workflows as demoed above.
 
 ## Maintaining Professional Standards
 
-To ensure my code is professional and extendable I followed these rules when making changes:
+To ensure code is professional and extendable the following rules should be followed:
 
 1. Apply unit testing wherever possible and aim for 80% coverage in packages
 2. Use `golangci-lint run` and the revive linter with all rules enabled: https://github.com/mgechev/revive 
 3. Using Interfaces to mock results using the following module: https://github.com/vektra/mockery 
 
+See the PR Template fo more checks to follow.
+
 ## GitHub Actions
 
 ### Testing
+
+The pkg-cov workflow runs all go tests and ensures pkg coverage is above 80%.
 ![example event parameter](https://github.com/gowhale/go-shopping-list/actions/workflows/pkg-cov.yml/badge.svg?event=push)
+
+The pages workflow publishes a test coverage website everytime there is a push to the main branch. The website can be found here: https://gowhale.github.io/go-shopping-list/#file0
 ![example event parameter](https://github.com/gowhale/go-shopping-list/actions/workflows/pages.yml/badge.svg?event=push)
 
 ### Linters
+
+The revive workflow is executed to statically analsye go files: https://github.com/mgechev/revive
 ![example event parameter](https://github.com/gowhale/go-shopping-list/actions/workflows/revive.yml/badge.svg?event=push)
+
+The golangci-lint workflow runs the golangci-lint linter: https://github.com/golangci/golangci-lint
 ![example event parameter](https://github.com/gowhale/go-shopping-list/actions/workflows/golangci-lint.yml/badge.svg?event=push)
 
 ### Content Checking
+The authenticate workflow checks that the recipe .json files are in the correct format.
 ![example event parameter](https://github.com/gowhale/go-shopping-list/actions/workflows/authenitcate.yml/badge.svg?event=push)
 
 ### Project Management
+
+The issue workflow adds a new issue to the projects Kanban board: https://github.com/users/gowhale/projects/1
 ![example event parameter](https://github.com/gowhale/go-shopping-list/actions/workflows/issue.yml/badge.svg?event=push)
+
+The cut release workflow creates a binary executable everytime a release is published. The binary file is attached to the release.
 ![example event parameter](https://github.com/gowhale/go-shopping-list/actions/workflows/cut-release.yml/badge.svg?event=push)
 
-## Releases
 
-## Test Coverage Website
-
-Everytime there is a push to main the code coverage website is updated: https://gowhale.github.io/go-shopping-list/#file0
