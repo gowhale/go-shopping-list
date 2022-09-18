@@ -59,3 +59,4 @@ To ensure my code is professional and extendable I followed these rules when mak
 
 ## Test Coverage Website
 
+Everytime there is a push to main the code coverage website is updated: https://gowhale.github.io/go-shopping-list/#file0
