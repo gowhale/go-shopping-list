@@ -38,5 +38,9 @@ To ensure my code is professional and extendable I followed these rules when mak
 2. Use `golangci-lint run` and the revive linter with all rules enabled: https://github.com/mgechev/revive 
 3. Using Interfaces to mock results using the following module: https://github.com/vektra/mockery 
 
+## GitHub Actions
 
+## Releases
+
+## Test Coverage Website
 
