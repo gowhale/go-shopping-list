@@ -13,7 +13,7 @@ Do you find making shopping lists BORING? Because I sure do... This repo is to a
     + [Excel](#excel)
     + [Reminders](#reminders)
     + [Terminal](#terminal)
-  * [How does it work?](#how-does-it-work-)
+  * [How does it work?](#how-does-it-work)
   * [Maintaining Professional Standards](#maintaining-professional-standards)
   * [GitHub Actions](#github-actions)
     + [Testing](#testing)
