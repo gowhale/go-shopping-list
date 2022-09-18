@@ -90,6 +90,20 @@ func (_m *MockFileReader) loadRecipeFile(f FileReader, fileName fs.FileInfo) (Re
 	return r0, r1
 }
 
+// makeDir provides a mock function with given fields:
+func (_m *MockFileReader) makeDir() error {
+	ret := _m.Called()
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func() error); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // marshallJSON provides a mock function with given fields: pop
 func (_m *MockFileReader) marshallJSON(pop PopularityFile) ([]byte, error) {
 	ret := _m.Called(pop)
