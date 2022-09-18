@@ -40,6 +40,21 @@ To ensure my code is professional and extendable I followed these rules when mak
 
 ## GitHub Actions
 
+### Testing
+![example event parameter](https://github.com/gowhale/go-shopping-list/actions/workflows/pkg-cov.yml/badge.svg?event=push)
+![example event parameter](https://github.com/gowhale/go-shopping-list/actions/workflows/pages.yml/badge.svg?event=push)
+
+### Linters
+![example event parameter](https://github.com/gowhale/go-shopping-list/actions/workflows/revive.yml/badge.svg?event=push)
+![example event parameter](https://github.com/gowhale/go-shopping-list/actions/workflows/golangci-lint.yml/badge.svg?event=push)
+
+### Content Checking
+![example event parameter](https://github.com/gowhale/go-shopping-list/actions/workflows/authenitcate.yml/badge.svg?event=push)
+
+### Project Management
+![example event parameter](https://github.com/gowhale/go-shopping-list/actions/workflows/issue.yml/badge.svg?event=push)
+![example event parameter](https://github.com/gowhale/go-shopping-list/actions/workflows/cut-release.yml/badge.svg?event=push)
+
 ## Releases
 
 ## Test Coverage Website
