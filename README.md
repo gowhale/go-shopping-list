@@ -4,6 +4,26 @@
 
 Do you find making shopping lists BORING? Because I sure do... This repo is to automate the creation of shopping lists and to practice my Golang skills! 
 
+## Table Of Contents
+
+- [go-shopping-list](#go-shopping-list)
+  * [Summary](#summary)
+  * [Excel Demo](#excel-demo)
+  * [Reminders Demo](#reminders-demo)
+  * [Terminal Demo](#terminal-demo)
+  * [How does it work?](#how-does-it-work)
+  * [Maintaining Professional Standards](#maintaining-professional-standards)
+  * [GitHub Actions](#github-actions)
+    + [Testing](#testing)
+    + [Linters](#linters)
+    + [Content Checking](#content-checking)
+    + [Project Management](#project-management)
+  * [Releases](#releases)
+  * [Test Coverage Website](#test-coverage-website)
+
+<small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
+
+
 ## Excel Demo
 
 If no shopping workflow has been specified the code will create an excel sheet which users can print off to take shopping!
