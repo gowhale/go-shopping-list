@@ -24,19 +24,21 @@ Do you find making shopping lists BORING? Because I sure do... This repo is to a
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
 
 
-## Excel Demo
+## Demos
+
+### Excel 
 
 If no shopping workflow has been specified the code will create an excel sheet which users can print off to take shopping!
 
 https://user-images.githubusercontent.com/32711718/190857227-7b52b057-c60a-4650-a868-770b92e90f28.mov
 
-## Reminders Demo
+### Reminders
 
 When you are running on mac and have the shopping.workflow file present this is how the code operates:
 
 https://user-images.githubusercontent.com/32711718/189308917-77185ca7-6811-4a2f-b3c4-a85158703dde.mov
 
-## Terminal Demo
+### Terminal 
 
 If you are not running on a macbook and don't have the shopping.workflow present then the system will just print that it is pretending to add the ingredients so you can still use the system. See the terminal demo below:
 
