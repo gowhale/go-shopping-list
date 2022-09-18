@@ -8,10 +8,12 @@ Do you find making shopping lists BORING? Because I sure do... This repo is to a
 
 - [go-shopping-list](#go-shopping-list)
   * [Summary](#summary)
-  * [Excel Demo](#excel-demo)
-  * [Reminders Demo](#reminders-demo)
-  * [Terminal Demo](#terminal-demo)
-  * [How does it work?](#how-does-it-work)
+  * [Table Of Contents](#table-of-contents)
+  * [Demos](#demos)
+    + [Excel](#excel)
+    + [Reminders](#reminders)
+    + [Terminal](#terminal)
+  * [How does it work?](#how-does-it-work-)
   * [Maintaining Professional Standards](#maintaining-professional-standards)
   * [GitHub Actions](#github-actions)
     + [Testing](#testing)
@@ -22,6 +24,7 @@ Do you find making shopping lists BORING? Because I sure do... This repo is to a
   * [Test Coverage Website](#test-coverage-website)
 
 <small><i><a href='http://ecotrust-canada.github.io/markdown-toc/'>Table of contents generated with markdown-toc</a></i></small>
+
 
 
 ## Demos
