@@ -3,9 +3,10 @@ package recipe
 import (
 	"encoding/json"
 	"fmt"
-	"io/fs"
+	"io/fs"     //nolint:all
 	"io/ioutil" //nolint:all
 	"log"
+	"os"
 
 	"github.com/bradfitz/slice" //nolint:all
 )
@@ -37,6 +38,7 @@ type FileReader interface {
 	unmarshallJSONToRecipe(file []byte) (Recipe, error)
 	writePopularityFile(f FileReader, pop PopularityFile) error
 	writeFile(newFile []byte) error
+	makeDir() error
 }
 
 // FileInteractionImpl is a struct to implement FileReader
@@ -53,6 +55,10 @@ func (*FileInteractionImpl) IncrementPopularity(f FileReader, recipeName string)
 
 func (*FileInteractionImpl) loadPopularityFile(f FileReader) (PopularityFile, error) {
 	return loadPopularityFileImpl(f)
+}
+
+func (*FileInteractionImpl) makeDir() error {
+	return os.MkdirAll(recipeFolder, os.ModePerm)
 }
 
 func (*FileInteractionImpl) readRecipeDirectory() ([]fs.FileInfo, error) {
@@ -194,6 +200,10 @@ func validateRecipe(f FileReader, uniqueRecipeNames map[string]Recipe, fileName 
 
 // ProcessRecipes processes recipe JSON files from the recipe folder
 func ProcessRecipes(f FileReader) ([]Recipe, map[string]Recipe, error) {
+	if err := f.makeDir(); err != nil {
+		return nil, nil, err
+	}
+
 	files, err := f.readRecipeDirectory()
 	if err != nil {
 		return nil, nil, err

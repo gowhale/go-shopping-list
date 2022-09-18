@@ -21,6 +21,7 @@ const (
 	readFileString            = "readFile"
 	writePopularityFileString = "writePopularityFile"
 	getPopularityString       = "getPopularity"
+	makeDirString       = "makeDir"
 
 	readFileError           = "read file error"
 	testCount               = 5
@@ -274,6 +275,7 @@ func (r *recipeTest) Test_ProcessIngredients_Pass() {
 	}
 	expectedResult := []Recipe{r1, r2}
 	filesReturned := []fs.FileInfo{&mockFileInfo{}, &mockFileInfo{}}
+	r.mockFileReader.On(makeDirString).Return(nil)
 	r.mockFileReader.On(readRecipeDirectoryString).Return(filesReturned, nil)
 	r.mockFileReader.On(loadRecipeFileString, r.mockFileReader, &mockFileInfo{}).Return(r1, nil).Once()
 	r.mockFileReader.On(loadRecipeFileString, r.mockFileReader, &mockFileInfo{}).Return(r2, nil).Once()
@@ -298,6 +300,7 @@ func (r *recipeTest) Test_ProcessIngredients_EmptyIngName_Error() {
 	}
 
 	filesReturned := []fs.FileInfo{&mockFileInfo{}, &mockFileInfo{}}
+	r.mockFileReader.On(makeDirString).Return(nil)
 	r.mockFileReader.On(readRecipeDirectoryString).Return(filesReturned, nil)
 	r.mockFileReader.On(loadRecipeFileString, r.mockFileReader, &mockFileInfo{}).Return(r1, nil).Once()
 	r.mockFileReader.On(getPopularityString, r.mockFileReader, r1.Name).Return(testCount, nil)
@@ -314,6 +317,7 @@ func (r *recipeTest) Test_ProcessIngredients_EmptyIngs_Error() {
 	}
 
 	filesReturned := []fs.FileInfo{&mockFileInfo{}, &mockFileInfo{}}
+	r.mockFileReader.On(makeDirString).Return(nil)
 	r.mockFileReader.On(readRecipeDirectoryString).Return(filesReturned, nil)
 	r.mockFileReader.On(loadRecipeFileString, r.mockFileReader, &mockFileInfo{}).Return(r1, nil).Once()
 	r.mockFileReader.On(getPopularityString, r.mockFileReader, r1.Name).Return(testCount, nil)
@@ -347,6 +351,7 @@ func (r *recipeTest) Test_ProcessIngredients_DuplicateName_Error() {
 	}
 
 	filesReturned := []fs.FileInfo{&mockFileInfo{}, &mockFileInfo{}}
+	r.mockFileReader.On(makeDirString).Return(nil)
 	r.mockFileReader.On(readRecipeDirectoryString).Return(filesReturned, nil)
 	r.mockFileReader.On(loadRecipeFileString, r.mockFileReader, &mockFileInfo{}).Return(r1, nil).Once()
 	r.mockFileReader.On(loadRecipeFileString, r.mockFileReader, &mockFileInfo{}).Return(r2, nil).Once()
@@ -362,6 +367,7 @@ func (r *recipeTest) Test_ProcessIngredients_EmptyName_Error() {
 		Name: "",
 	}
 	filesReturned := []fs.FileInfo{&mockFileInfo{}}
+	r.mockFileReader.On(makeDirString).Return(nil)
 	r.mockFileReader.On(readRecipeDirectoryString).Return(filesReturned, nil)
 	r.mockFileReader.On(loadRecipeFileString, r.mockFileReader, &mockFileInfo{}).Return(r1, nil).Once()
 	r.mockFileReader.On(getPopularityString, r.mockFileReader, r1.Name).Return(testCount, nil)
@@ -383,6 +389,7 @@ func (r *recipeTest) Test_ProcessIngredients_GetPopularity_Error() {
 		},
 	}
 	filesReturned := []fs.FileInfo{&mockFileInfo{}, &mockFileInfo{}}
+	r.mockFileReader.On(makeDirString).Return(nil)
 	r.mockFileReader.On(readRecipeDirectoryString).Return(filesReturned, nil)
 	r.mockFileReader.On(loadRecipeFileString, r.mockFileReader, &mockFileInfo{}).Return(expectedRecipe, nil)
 	r.mockFileReader.On(getPopularityString, r.mockFileReader, expectedRecipe.Name).Return(errorIntReturn, fmt.Errorf("pop error"))
@@ -393,6 +400,7 @@ func (r *recipeTest) Test_ProcessIngredients_GetPopularity_Error() {
 
 func (r *recipeTest) Test_ProcessIngredients_ReadRecipeFile_Error() {
 	filesReturned := []fs.FileInfo{&mockFileInfo{}, &mockFileInfo{}}
+	r.mockFileReader.On(makeDirString).Return(nil)
 	r.mockFileReader.On(readRecipeDirectoryString).Return(filesReturned, nil)
 	r.mockFileReader.On(loadRecipeFileString, r.mockFileReader, &mockFileInfo{}).Return(Recipe{}, fmt.Errorf(readFileError))
 	recipes, _, err := ProcessRecipes(r.mockFileReader)
@@ -401,6 +409,7 @@ func (r *recipeTest) Test_ProcessIngredients_ReadRecipeFile_Error() {
 }
 
 func (r *recipeTest) Test_ReadRecipeDirectory_Error() {
+	r.mockFileReader.On(makeDirString).Return(nil)
 	r.mockFileReader.On(readRecipeDirectoryString).Return(nil, fmt.Errorf("read dir error"))
 	recipes, _, err := ProcessRecipes(r.mockFileReader)
 	r.Nil(recipes)
